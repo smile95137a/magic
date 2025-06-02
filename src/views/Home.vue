@@ -1,7 +1,8 @@
 <template>
   <Header />
   <section class="home__card home__card--cloud">1</section>
-  <section class="home__card home__card--red">2</section>
+  <section class="home__card home__card--red"><Service /></section>
+  <section class="home__card home__card--default"><Service2 /></section>
   <section class="home__card home__card--default">
     <GodList />
   </section>
@@ -12,6 +13,8 @@
 import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
 import GodList from '@/components/GodList.vue';
+import Service from '@/components/Service.vue';
+import Service2 from '@/components/Service2.vue';
 </script>
 
 <style lang="scss" scoped>
