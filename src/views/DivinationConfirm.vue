@@ -35,7 +35,7 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const startDivination = () => {
-  router.push('/drawPoem'); // 替換為實際抽籤頁 route
+  router.push('/divinationResult');
 };
 </script>
 

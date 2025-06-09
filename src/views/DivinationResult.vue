@@ -36,21 +36,64 @@
       </div>
 
       <!-- 右側籤卡獨立 -->
-      <div class="divination-result__poem-image"></div>
+      <div class="divination-result__poem-image">
+        <div class="divination">
+          <img :src="poemBg" class="divination__bg" />
+          <div class="divination__container">
+            <div class="divination__content">
+              <!-- 左側 -->
+              <div class="divination__left highlight-text">
+                <div class="divination__left-header">
+                  <div class="vertical">先機</div>
+                  <div class="vertical">解曰</div>
+                </div>
+                <div class="divination__left-content">
+                  <div class="vertical">婚姻再合 行人阻 六甲先虛後實</div>
+                  <div class="vertical">
+                    家宅損失 自身是非 求才努力 交易謹防
+                  </div>
+                  <div class="vertical">
+                    不出重重 事由天命 振放中間 切宜謹守
+                  </div>
+                </div>
+              </div>
+
+              <!-- 右側 -->
+              <div class="divination__right">
+                <div class="divination__right-poem">
+                  <div class="vertical">
+                    誰知倉龍十九衝&nbsp;&nbsp;&nbsp;女子當年嫁二夫
+                  </div>
+                  <div class="vertical">
+                    自是一弓架兩箭&nbsp;&nbsp;&nbsp;欲恐龍馬上安居
+                  </div>
+                </div>
+                <div class="divination__right-title highlight-text">
+                  <div class="vertical">第七十一籤 古人 文君訪相如 中籤</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="divination__footer">
+              <div class="divination__note">
+                〔籤語〕此乃一弓架兩箭之象，凡事再合則吉也。
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 底部祈福按鈕 -->
     <div class="divination-result__footer">
-      <button class="divination-result__blessing-button">
-        消災解厄，點燈祈福
-        <span class="divination-result__blessing-icon" />
-      </button>
+      <StartButton styleType="red" label="消災解厄，點燈祈福" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// 無邏輯，靜態展示頁
+import poemBg from '@/assets/image/poem-bg.png';
+import StartButton from '@/components/StartButton.vue';
 </script>
 <style lang="scss" scoped>
 .divination-result {
@@ -97,7 +140,6 @@
   }
 
   &__poem-image {
-    flex: 1 1 35%;
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -139,5 +181,88 @@
     width: 28px;
     height: 24px;
   }
+}
+.divination {
+  display: flex;
+  justify-content: center;
+  padding: 18px;
+  position: relative;
+
+  width: 260px;
+  height: 500px;
+  &__bg {
+    position: absolute;
+    inset: 0;
+  }
+
+  &__container {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    border: 2px solid #a53b25;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    font-family: 'Noto Serif TC', serif;
+    color: #5c1e0a;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: row;
+  }
+
+  &__left {
+    width: 50%;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px dashed #a63d1e;
+  }
+
+  &__left-header,
+  &__left-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    margin-bottom: 12px;
+  }
+
+  &__right {
+    width: 50%;
+    padding: 6px;
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    align-items: flex-start;
+  }
+
+  &__right-poem,
+  &__right-title {
+    display: flex;
+    align-items: center;
+  }
+
+  &__footer {
+    width: 100%;
+    border-top: 1px dashed #a63d1e;
+    padding: 12px 16px;
+    text-align: center;
+  }
+
+  &__note {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .vertical {
+    writing-mode: vertical-rl;
+    font-size: 16px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+}
+.highlight-text {
+  color: #a53b25;
 }
 </style>
