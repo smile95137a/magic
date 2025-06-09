@@ -5,6 +5,8 @@ import Login from '@/views/Login.vue';
 import Register from '@/views/Register.vue';
 import Member from '@/views/Member.vue';
 import Divination from '@/views/Divination.vue';
+import DivinationConfirm from '@/views/DivinationConfirm.vue';
+import DivinationResult from '@/views/DivinationResult.vue';
 import Worship from '@/views/Worship.vue';
 import Blessing from '@/views/Blessing.vue';
 import Master from '@/views/Master.vue';
@@ -41,6 +43,16 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/divination',
     component: Divination,
+    meta: { layout: 'default' },
+  },
+  {
+    path: '/divinationConfirm',
+    component: DivinationConfirm,
+    meta: { layout: 'default' },
+  },
+  {
+    path: '/divinationResult',
+    component: DivinationResult,
     meta: { layout: 'default' },
   },
   {
