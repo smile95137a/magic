@@ -1,65 +1,91 @@
 <template>
-  <div class="login">
+  <MCard customClass="mcard--login">
     <div class="login__container">
-      <div class="login__header">
-        <h1 class="login__title">WebCash</h1>
-        <p class="login__subtitle">後台應用管理系統</p>
+      <h2 class="login__title">會員登入</h2>
+      <div class="login__main">
+        <form class="login__form" @submit.prevent="onSubmit">
+          <div class="login__auth">
+            <div class="login__auth-btn" @click="handleOauthLogin('google')">
+              <div class="login__auth-btn-icon">
+                <img :src="googleLogo" />
+              </div>
+              <div class="login__auth-btn-text">Google 帳號登入</div>
+            </div>
+          </div>
+
+          <div class="login__divider">
+            <div class="login__divider-line"></div>
+            <div class="login__divider-text">或</div>
+          </div>
+          <div class="login__form-inputs">
+            <p class="login__text">電子信箱</p>
+            <input
+              class="login__form-input"
+              v-model="username"
+              v-bind="usernameProps"
+              :class="{ 'login__form-input--error': errors.username }"
+            />
+            <p class="login__text login__text--error">
+              {{ errors.username }}
+            </p>
+          </div>
+          <div class="login__form-inputs">
+            <p class="login__text">密碼</p>
+            <input
+              type="password"
+              class="login__form-input"
+              v-model="password"
+              v-bind="passwordProps"
+              :class="{ 'login__form-input--error': errors.password }"
+            />
+            <p class="login__text login__text--error">
+              {{ errors.password }}
+            </p>
+          </div>
+
+          <div class="login__forgot">
+            <p
+              class="login__text login__text--forgot"
+              @click="handleForgotPassword"
+            >
+              忘記密碼?
+            </p>
+          </div>
+
+          <div class="login__btns">
+            <button type="submit" class="login__btn">登入</button>
+          </div>
+          <div class="login__footer">
+            <p>尚未加入會員？請註冊新帳號</p>
+            <button type="button" class="login__btn login__btn--register">
+              註冊
+            </button>
+          </div>
+        </form>
       </div>
-      <form class="login__form" @submit.prevent="onSubmit">
-        <div class="login__field">
-          <label for="language" class="login__label">語系：</label>
-          <select id="language" class="login__select" v-model="language">
-            <option value="zh">中文</option>
-            <option value="en">English</option>
-          </select>
-          <p v-if="errors.language" class="error-text">
-            {{ errors.language }}
-          </p>
-        </div>
-        <div class="login__field">
-          <label for="username" class="login__label">帳號：</label>
-          <input
-            type="text"
-            id="username"
-            class="login__input"
-            v-model="username"
-            :class="{ 'input-error': errors.username }"
-          />
-        </div>
-        <p v-if="errors.username" class="error-text">
-          {{ errors.username }}
-        </p>
-        <div class="login__field">
-          <label for="password" class="login__label">密碼：</label>
-          <input
-            type="password"
-            id="password"
-            class="login__input"
-            :class="{ 'input-error': errors.username }"
-            v-model="password"
-          />
-        </div>
-        <p v-if="errors.password" class="error-text">
-          {{ errors.password }}
-        </p>
-        <button class="login__button" type="submit">LOGIN</button>
-        <p class="login__hint">Log in with your open ID ...</p>
-      </form>
     </div>
-  </div>
+  </MCard>
 </template>
 
 <script setup lang="ts">
+import googleLogo from '@/assets/image/google.svg';
+import MCard from '@/components/common/MCard.vue';
+import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
 import { useForm } from 'vee-validate';
-import * as yup from 'yup';
+import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useLoadingStore, useAuthStore, useDialogStore } from '@/stores';
-import { login } from '@/services/AuthService';
+import * as yup from 'yup';
 
 const router = useRouter();
 const loadingStore = useLoadingStore();
 const authStore = useAuthStore();
 const dialogStore = useDialogStore();
+
+onMounted(() => {
+  if (authStore.isLogin) {
+    router.push('/home');
+  }
+});
 
 const schema = yup.object({
   username: yup.string().required('電子信箱為必填'),
@@ -69,35 +95,24 @@ const schema = yup.object({
 const { handleSubmit, errors, defineField } = useForm({
   validationSchema: schema,
   initialValues: {
-    language: 'zh',
     username: '',
     password: '',
   },
 });
-const [language] = defineField('language');
-const [username] = defineField('username');
-const [password] = defineField('password');
+
+const [username, usernameProps] = defineField('username');
+const [password, passwordProps] = defineField('password');
 
 const onSubmit = handleSubmit(async (values) => {
-  console.log(values);
-
   try {
     loadingStore.startLoading();
-    const { success, data, code } = await login(values);
+    const { success, data, code, message } = await login(values);
     loadingStore.stopLoading();
     if (success) {
-      authStore.setToken(data);
+      authStore.setToken(data.accessToken);
+      authStore.setUser(data.user);
       router.push('/home');
     } else {
-      let message = '登入失敗，系統問題請聯繫管理員。';
-      if (code === '998') {
-        message =
-          '登入失敗，尚未認證，請至信箱收信，如未收到驗證信，請聯繫客服。';
-      } else if (code === '999') {
-        message = '登入失敗，請檢查您的帳號和密碼，然後再試一次。';
-      } else if (code === '997') {
-        message = '登入失敗，黑名單。';
-      }
       await dialogStore.openInfoDialog({
         title: '系統通知',
         message,
@@ -111,87 +126,14 @@ const onSubmit = handleSubmit(async (values) => {
     });
   }
 });
+
+const forwardRegistration = () => {
+  router.push('/register');
+};
+
+const handleOauthLogin = (provider: string) => {};
+
+const handleForgotPassword = async () => {};
 </script>
 
-<style scoped>
-.login {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: #007f99;
-}
-
-.login__container {
-  background: #fff;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  width: 400px;
-}
-
-.login__header {
-  margin-bottom: 1rem;
-}
-
-.login__title {
-  font-size: 1.5rem;
-  color: #007f99;
-  margin: 0;
-}
-
-.login__subtitle {
-  font-size: 1rem;
-  color: #555;
-}
-
-.login__form {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.login__field {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  justify-content: center;
-}
-
-.login__label {
-  color: #555;
-  font-size: 1rem;
-  text-align: right;
-  width: 60px;
-}
-
-.login__input,
-.login__select {
-  flex: 1;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.login__button {
-  background: #ff8c00;
-  border: none;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: bold;
-}
-
-.login__button:hover {
-  background: #e67e00;
-}
-
-.login__hint {
-  font-size: 0.9rem;
-  color: #777;
-  margin-top: 1rem;
-}
-</style>
+<style scoped></style>
