@@ -1,5 +1,10 @@
 <template>
   <Header />
+  <Title color="red" text="最新燈場" />
+  <Title color="white" text="公告資訊" />
+  <Title color="dark" text="系統通知" />
+  <Title color="light" text="使用說明" />
+
   <section class="home__card home__card--cloud">1</section>
   <section class="home__card home__card--red"><Worship /></section>
   <section class="home__card home__card--red"><Service /></section>
@@ -12,6 +17,7 @@
 
 <script setup>
 import Header from '@/components/Header.vue';
+import Title from '@/components/common/Title.vue';
 import Footer from '@/components/Footer.vue';
 import GodList from '@/components/GodList.vue';
 import Service from '@/components/Service.vue';
