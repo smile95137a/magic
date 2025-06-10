@@ -1,123 +1,130 @@
 <template>
-  <div class="blessing-page">
-    <!-- Header 區塊 -->
-    <div class="blessing-page__header">
-      <h1 class="blessing-page__title">點燈祈福</h1>
-      <p class="blessing-page__description">
-        請點選下列表的任一盞燈，即可看到該盞燈的介紹，並進行選購。
-      </p>
-    </div>
-
-    <!-- Tabs -->
-    <div class="blessing-page__tabs">
-      <div
-        class="blessing-page__tab"
-        :class="{ 'blessing-page__tab--active': activeTab === 'product' }"
-        @click="activeTab = 'product'"
-      >
-        祈福燈產品
+  <Header />
+  <SectionBackground variant="divination">
+    <div class="blessing-page">
+      <!-- Header 區塊 -->
+      <div class="blessing-page__header">
+        <Title color="white" text="點燈祈福" />
+        <p class="blessing-page__description">
+          請點選下列表的任一盞燈，即可看到該盞燈的介紹，並進行選購。
+        </p>
       </div>
-      <div
-        class="blessing-page__tab"
-        :class="{ 'blessing-page__tab--active': activeTab === 'my' }"
-        @click="activeTab = 'my'"
-      >
-        我的祈福燈
-      </div>
-    </div>
 
-    <!-- 燈品列表 -->
-    <div class="blessing-page__section">
-      <h2 class="blessing-page__section-title">祈福燈產品</h2>
-      <div class="blessing-page__grid">
+      <!-- Tabs -->
+      <div class="blessing-page__tabs">
         <div
-          class="blessing-page__item"
-          v-for="lamp in lamps"
-          :key="lamp.id"
-          @click="selectLamp(lamp)"
+          class="blessing-page__tab"
+          :class="{ 'blessing-page__tab--active': activeTab === 'product' }"
+          @click="activeTab = 'product'"
         >
-          <img
-            :src="lamp.image"
-            :alt="lamp.name"
-            class="blessing-page__item-image"
-          />
+          祈福燈產品
+        </div>
+        <div
+          class="blessing-page__tab"
+          :class="{ 'blessing-page__tab--active': activeTab === 'my' }"
+          @click="activeTab = 'my'"
+        >
+          我的祈福燈
+        </div>
+      </div>
+
+      <!-- 燈品列表 -->
+      <div class="blessing-page__section">
+        <Title color="dark" text="祈福燈產品" />
+        <div class="blessing-page__grid">
+          <div
+            class="blessing-page__item"
+            v-for="lamp in lamps"
+            :key="lamp.id"
+            @click="selectLamp(lamp)"
+          >
+            <img
+              :src="lamp.image"
+              :alt="lamp.name"
+              class="blessing-page__item-image"
+            />
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <MCard customClass="mcard--login">
-    <div class="lamp-box">
-      <div class="lamp-box__header">
-        <img :src="lamp.image" alt="太歲燈" class="lamp-box__image" />
-        <div class="lamp-box__info">
-          <div class="lamp-box__title">
-            {{ lamp.name }}
+    <MCard customClass="mcard--login">
+      <div class="lamp-box">
+        <div class="lamp-box__header">
+          <img :src="lamp1" alt="太歲燈" class="lamp-box__image" />
+          <div class="lamp-box__info">
+            <div class="lamp-box__title">
+              {{ lamp.name }}
+            </div>
+            <p class="lamp-box__desc">{{ lamp.subtitle }}</p>
           </div>
-          <p class="lamp-box__desc">{{ lamp.subtitle }}</p>
-        </div>
-        <div class="lamp-box__stat">
-          <p>
-            目前有 <span class="lamp-box__highlight">{{ lamp.count }}</span> 盞
-            太歲燈
-          </p>
-          <p>肖：蛇、虎、猴、豬 沖煞必點</p>
-        </div>
-      </div>
-
-      <!-- 粉色區塊 -->
-      <div class="lamp-box__row">
-        <!-- 點燈費用 -->
-        <div class="lamp-box__column">
-          <label class="lamp-box__label">點燈費用：</label>
-          <label><input type="radio" checked /> 1年期NT$188元</label>
-        </div>
-
-        <!-- 選購燈數 -->
-        <div class="lamp-box__column">
-          <label class="lamp-box__label">您要選購的燈數：</label>
-          <div class="lamp-box__select-wrapper">
-            <select v-model="quantity" class="lamp-box__select">
-              <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
-            </select>
-            <span>盞</span>
+          <div class="lamp-box__stat">
+            <p>
+              目前有
+              <span class="lamp-box__highlight">{{ lamp.count }}</span> 盞
+              太歲燈
+            </p>
+            <p>肖：蛇、虎、猴、豬 沖煞必點</p>
           </div>
         </div>
 
-        <!-- 貼心提醒 -->
-        <div class="lamp-box__column lamp-box__column--wide">
-          <label class="lamp-box__label">貼心提醒：</label>
-          <p class="lamp-box__reminder">
-            除了幫自己點燈，也別忘了幫親友一起點燈祈福唷！<br />
-            每次系統正規購買的數量上限為10盞燈，若想超過分次依序點，謝謝。
-          </p>
-        </div>
+        <!-- 粉色區塊 -->
+        <div class="lamp-box__row">
+          <!-- 點燈費用 -->
+          <div class="lamp-box__column">
+            <label class="lamp-box__label">點燈費用：</label>
+            <label><input type="radio" checked /> 1年期NT$188元</label>
+          </div>
 
-        <!-- 按鈕放在背景區塊最下方 -->
-        <div class="lamp-box__actions">
-          <button class="lamp-box__submit" @click="submit">確認送出</button>
-        </div>
-      </div>
-    </div>
-    <div class="lamp-info">
-      <div
-        class="lamp-info__block"
-        v-for="section in sections"
-        :key="section.title"
-      >
-        <div class="lamp-info__title">
-          <div class="lamp-info__title-text">
-            {{ section.title }}
+          <!-- 選購燈數 -->
+          <div class="lamp-box__column">
+            <label class="lamp-box__label">您要選購的燈數：</label>
+            <div class="lamp-box__select-wrapper">
+              <select v-model="quantity" class="lamp-box__select">
+                <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
+              </select>
+              <span>盞</span>
+            </div>
+          </div>
+
+          <!-- 貼心提醒 -->
+          <div class="lamp-box__column lamp-box__column--wide">
+            <label class="lamp-box__label">貼心提醒：</label>
+            <p class="lamp-box__reminder">
+              除了幫自己點燈，也別忘了幫親友一起點燈祈福唷！<br />
+              每次系統正規購買的數量上限為10盞燈，若想超過分次依序點，謝謝。
+            </p>
+          </div>
+
+          <!-- 按鈕放在背景區塊最下方 -->
+          <div class="lamp-box__actions">
+            <button class="lamp-box__submit" @click="submit">確認送出</button>
           </div>
         </div>
-        <div class="lamp-info__content">{{ section.content }}</div>
       </div>
-    </div>
-  </MCard>
+      <div class="lamp-info">
+        <div
+          class="lamp-info__block"
+          v-for="section in sections"
+          :key="section.title"
+        >
+          <div class="lamp-info__title">
+            <div class="lamp-info__title-text">
+              {{ section.title }}
+            </div>
+          </div>
+          <div class="lamp-info__content">{{ section.content }}</div>
+        </div>
+      </div>
+    </MCard></SectionBackground
+  >
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import Header from '@/components/Header.vue';
 import MCard from '@/components/common/MCard.vue';
+import SectionBackground from '@/components/common/SectionBackground.vue';
+import Title from '@/components/common/Title.vue';
 import lamp1 from '@/assets/image/lamp-1.jpg';
 
 const activeTab = ref<'product' | 'my'>('product');
@@ -190,6 +197,7 @@ const sections = [
 
 <style scoped lang="scss">
 .blessing-page {
+  width: 100%;
   padding: 2rem;
 
   &__header {
@@ -205,11 +213,13 @@ const sections = [
 
   &__description {
     font-size: 1rem;
-    color: #555;
+    color: #000000;
     margin-top: 0.5rem;
+    text-align: left;
   }
 
   &__tabs {
+    border: 1px solid #a53b25;
     display: flex;
     justify-content: center;
     background: #f7c56b;
@@ -301,10 +311,11 @@ const sections = [
   }
 
   &__content {
-    background-color: #fff;
+    text-align: left;
     padding: 1rem;
     line-height: 1.6;
     font-size: 1rem;
+    color: #000;
   }
 }
 

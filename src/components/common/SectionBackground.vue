@@ -49,12 +49,11 @@ const props = withDefaults(
 <style scoped lang="scss">
 .section-bg {
   width: 100%;
-  padding: 40px 20px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   border-radius: 8px;
-  color: #fff;
   position: relative;
 
   &--red {
@@ -67,7 +66,6 @@ const props = withDefaults(
 
   &--divination {
     position: relative;
-    color: #fff;
     text-align: center;
   }
 

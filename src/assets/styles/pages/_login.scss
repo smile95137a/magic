@@ -40,6 +40,7 @@ $root-block-name: '.login';
     }
     #{$p__text} {
       color: #212121;
+      text-align: left;
       &--error {
         color: #a53b25;
       }

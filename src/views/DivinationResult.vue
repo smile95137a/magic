@@ -1,104 +1,108 @@
 <template>
-  <div class="divination-result">
-    <div class="divination-result__layout">
-      <!-- 左側紅色卡片 -->
-      <div class="divination-result__card">
-        <h2 class="divination-result__title">求籤問事</h2>
+  <Header />
+  <SectionBackground variant="divination">
+    <div class="divination-result">
+      <div class="divination-result__layout">
+        <!-- 左側紅色卡片 -->
+        <div class="divination-result__card">
+          <h2 class="divination-result__title">求籤問事</h2>
 
-        <h3 class="divination-result__poem-title">
-          第七十一籤（古人）文君訪相如
-        </h3>
-        <p class="divination-result__label">【吉凶】中籤</p>
-        <p class="divination-result__label">【詩曰】</p>
-        <p class="divination-result__paragraph">
-          誰知倉龍十九衝 女子當年嫁二夫<br />
-          自是一弓架兩箭 欲恐龍馬上安居
-        </p>
+          <h3 class="divination-result__poem-title">
+            第七十一籤（古人）文君訪相如
+          </h3>
+          <p class="divination-result__label">【吉凶】中籤</p>
+          <p class="divination-result__label">【詩曰】</p>
+          <p class="divination-result__paragraph">
+            誰知倉龍十九衝 女子當年嫁二夫<br />
+            自是一弓架兩箭 欲恐龍馬上安居
+          </p>
 
-        <p class="divination-result__label">【解曰】</p>
-        <p class="divination-result__paragraph">
-          不出重重 事由天命 振放中間 切宜謹守
-        </p>
+          <p class="divination-result__label">【解曰】</p>
+          <p class="divination-result__paragraph">
+            不出重重 事由天命 振放中間 切宜謹守
+          </p>
 
-        <p class="divination-result__label">【先機】</p>
-        <p class="divination-result__paragraph">
-          此卦一弓架兩箭之象，凡事再合則吉也。此籤家宅損失，自身是非，求財勞力，<br />
-          交易謹防，婚姻再合，行人阻，六甲先虛後實，田蠶晚收，六畜損，尋人見，訟宜，<br />
-          病懸旱，移徒吉，山墳改。
-        </p>
+          <p class="divination-result__label">【先機】</p>
+          <p class="divination-result__paragraph">
+            此卦一弓架兩箭之象，凡事再合則吉也。此籤家宅損失，自身是非，求財勞力，<br />
+            交易謹防，婚姻再合，行人阻，六甲先虛後實，田蠶晚收，六畜損，尋人見，訟宜，<br />
+            病懸旱，移徒吉，山墳改。
+          </p>
 
-        <p class="divination-result__label">古人典故《文君訪相如》</p>
-        <p class="divination-result__paragraph">
-          古代戀愛故事，漢朝時，卓文君之夫死後，在家守寡，讀詩書遣日子，一日邂逅了很有學問的司馬相如，
-          卓文君深夜造訪相如，傾訴心中真情，二人遂私奔出城，回到成都結為夫婦。
-          後來司馬相如被漢武帝賞識，在朝庭當官。倉龍、青龍、九衝：繁華的街市。
-        </p>
-      </div>
+          <p class="divination-result__label">古人典故《文君訪相如》</p>
+          <p class="divination-result__paragraph">
+            古代戀愛故事，漢朝時，卓文君之夫死後，在家守寡，讀詩書遣日子，一日邂逅了很有學問的司馬相如，
+            卓文君深夜造訪相如，傾訴心中真情，二人遂私奔出城，回到成都結為夫婦。
+            後來司馬相如被漢武帝賞識，在朝庭當官。倉龍、青龍、九衝：繁華的街市。
+          </p>
+        </div>
 
-      <!-- 右側籤卡獨立 -->
-      <div class="divination-result__poem-image">
-        <div class="divination">
-          <img :src="poemBg" class="divination__bg" />
-          <div class="divination__container">
-            <div class="divination__content">
-              <!-- 左側 -->
-              <div class="divination__left highlight-text">
-                <div class="divination__left-header">
-                  <div class="vertical">先機</div>
-                  <div class="vertical">解曰</div>
-                </div>
-                <div class="divination__left-content">
-                  <div class="vertical">婚姻再合 行人阻 六甲先虛後實</div>
-                  <div class="vertical">
-                    家宅損失 自身是非 求才努力 交易謹防
+        <!-- 右側籤卡獨立 -->
+        <div class="divination-result__poem-image">
+          <div class="divination">
+            <img :src="poemBg" class="divination__bg" />
+            <div class="divination__container">
+              <div class="divination__content">
+                <!-- 左側 -->
+                <div class="divination__left highlight-text">
+                  <div class="divination__left-header">
+                    <div class="vertical">先機</div>
+                    <div class="vertical">解曰</div>
                   </div>
-                  <div class="vertical">
-                    不出重重 事由天命 振放中間 切宜謹守
+                  <div class="divination__left-content">
+                    <div class="vertical">婚姻再合 行人阻 六甲先虛後實</div>
+                    <div class="vertical">
+                      家宅損失 自身是非 求才努力 交易謹防
+                    </div>
+                    <div class="vertical">
+                      不出重重 事由天命 振放中間 切宜謹守
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 右側 -->
+                <div class="divination__right">
+                  <div class="divination__right-poem">
+                    <div class="vertical">
+                      誰知倉龍十九衝&nbsp;&nbsp;&nbsp;女子當年嫁二夫
+                    </div>
+                    <div class="vertical">
+                      自是一弓架兩箭&nbsp;&nbsp;&nbsp;欲恐龍馬上安居
+                    </div>
+                  </div>
+                  <div class="divination__right-title highlight-text">
+                    <div class="vertical">第七十一籤 古人 文君訪相如 中籤</div>
                   </div>
                 </div>
               </div>
 
-              <!-- 右側 -->
-              <div class="divination__right">
-                <div class="divination__right-poem">
-                  <div class="vertical">
-                    誰知倉龍十九衝&nbsp;&nbsp;&nbsp;女子當年嫁二夫
-                  </div>
-                  <div class="vertical">
-                    自是一弓架兩箭&nbsp;&nbsp;&nbsp;欲恐龍馬上安居
-                  </div>
+              <div class="divination__footer">
+                <div class="divination__note">
+                  〔籤語〕此乃一弓架兩箭之象，凡事再合則吉也。
                 </div>
-                <div class="divination__right-title highlight-text">
-                  <div class="vertical">第七十一籤 古人 文君訪相如 中籤</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="divination__footer">
-              <div class="divination__note">
-                〔籤語〕此乃一弓架兩箭之象，凡事再合則吉也。
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 底部祈福按鈕 -->
-    <div class="divination-result__footer">
-      <StartButton styleType="red" label="消災解厄，點燈祈福" />
+      <!-- 底部祈福按鈕 -->
+      <div class="divination-result__footer">
+        <StartButton styleType="red" label="消災解厄，點燈祈福" />
+      </div>
     </div>
-  </div>
+  </SectionBackground>
 </template>
 
 <script setup lang="ts">
 import poemBg from '@/assets/image/poem-bg.png';
 import StartButton from '@/components/StartButton.vue';
+import SectionBackground from '@/components/common/SectionBackground.vue';
+import Header from '@/components/Header.vue';
 </script>
 <style lang="scss" scoped>
 .divination-result {
   padding: 3rem 2rem;
-  background: linear-gradient(to bottom, #e4bfb5, #d9a6a0);
 
   &__layout {
     display: flex;

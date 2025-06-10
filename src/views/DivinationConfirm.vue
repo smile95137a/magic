@@ -1,36 +1,42 @@
 <template>
-  <div class="divination-confirm">
-    <div class="divination-confirm__card">
-      <div class="divination-confirm__content">
-        <!-- 左側：文字與按鈕 -->
-        <div class="divination-confirm__left">
-          <p class="divination-confirm__text">
-            虔誠向帝君奉香求籤，並擲筊請示帝君是否為此籤，若為聖筊則可觀看籤詩內容，若為笑筊或陰筊則需重新求籤。
-          </p>
+  <Header />
+  <SectionBackground variant="divination">
+    <div class="divination-confirm">
+      <div class="divination-confirm__card">
+        <div class="divination-confirm__content">
+          <!-- 左側：文字與按鈕 -->
+          <div class="divination-confirm__left">
+            <p class="divination-confirm__text">
+              虔誠向帝君奉香求籤，並擲筊請示帝君是否為此籤，若為聖筊則可觀看籤詩內容，若為笑筊或陰筊則需重新求籤。
+            </p>
 
-          <div class="divination-confirm__button-wrapper">
-            <StartButton
-              styleType="yellow"
-              label="開始求籤"
-              @click="startDivination"
-            />
+            <div class="divination-confirm__button-wrapper">
+              <StartButton
+                styleType="yellow"
+                label="開始求籤"
+                @click="startDivination"
+              />
+            </div>
           </div>
-        </div>
 
-        <!-- 右側：筊杯圖 -->
-        <div class="divination-confirm__right">
-          <div class="divination-confirm__cups">
-            <img :src="cup" alt="cup" />
+          <!-- 右側：筊杯圖 -->
+          <div class="divination-confirm__right">
+            <div class="divination-confirm__cups">
+              <img :src="cup" alt="cup" />
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </SectionBackground>
 </template>
 
 <script setup lang="ts">
 import cup from '@/assets/image/cup.png';
+import SectionBackground from '@/components/common/SectionBackground.vue';
+import divinationIntro from '@/assets/image/divinationIntro.png';
 import StartButton from '@/components/StartButton.vue';
+import Header from '@/components/Header.vue';
 import { useRouter } from 'vue-router';
 const router = useRouter();
 
