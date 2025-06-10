@@ -1,45 +1,49 @@
 <template>
-  <div :class="['section-bg', `section-bg--${variant}`]" :style="customStyle">
-    <template v-if="variant === 'code'">
-      <div class="section-bg__code">
-        <span class="section-bg__code-id">{{ code }}</span>
-        <div class="section-bg__images">
-          <img :src="imgLeft" alt="left" />
-          <img :src="imgRight" alt="right" />
-        </div>
+  <div :class="['section-bg', `section-bg--${variant}`]">
+    <template v-if="variant === 'divination'">
+      <div class="section-bg__divination">
+        <img
+          class="section-bg__divination-img section-bg__divination-img--bg"
+          :src="bgMain"
+          alt="bg"
+        />
+        <img
+          class="section-bg__divination-img section-bg__divination-img--left"
+          :src="bgDecoTop"
+          alt="left"
+        />
+        <img
+          class="section-bg__divination-img section-bg__divination-img--right"
+          :src="bgDecoBot"
+          alt="right"
+        />
       </div>
     </template>
-    <slot v-else />
+    <slot />
   </div>
 </template>
 
 <script setup lang="ts">
+import bgMain from '@/assets/image/bg-main.jpg';
+import bgDecoBot from '@/assets/image/bg-deco-bottom.png';
+import bgDecoTop from '@/assets/image/bg-deco-top.png';
+
 const props = withDefaults(
   defineProps<{
-    variant?: 'divination' | 'worship' | 'light' | 'special' | 'code';
+    variant?: 'red' | 'light' | 'divination';
     code?: string;
     imgLeft?: string;
     imgRight?: string;
     backgroundImage?: string;
   }>(),
   {
-    variant: 'divination',
+    variant: 'red',
     code: '',
     imgLeft: '',
     imgRight: '',
     backgroundImage: '',
   }
 );
-
-const customStyle = computed(() => {
-  return props.variant === 'code' && props.backgroundImage
-    ? {
-        backgroundImage: `url(${props.backgroundImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }
-    : {};
-});
 </script>
 
 <style scoped lang="scss">
@@ -51,54 +55,61 @@ const customStyle = computed(() => {
   align-items: center;
   border-radius: 8px;
   color: #fff;
+  position: relative;
 
-  &--divination {
-    background: linear-gradient(90deg, #a03c29, #b9472e);
-  }
-
-  &--worship {
-    background: linear-gradient(90deg, #a64444, #bf6551);
+  &--red {
+    background: linear-gradient(41.51deg, #e0664d 24.05%, #a53b25 60.53%);
   }
 
   &--light {
-    background: #f9f5f0;
-    color: #333;
+    background: #c2aeaa;
   }
 
-  &--special {
-    background: linear-gradient(41.51deg, #e0664d 24.05%, #a53b25 60.53%);
-    color: #c2aeaa;
-  }
-
-  &--code {
+  &--divination {
     position: relative;
     color: #fff;
     text-align: center;
   }
 
-  &__code {
+  &__divination {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 16px;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
   }
 
-  &__code-id {
-    font-size: 24px;
-    font-weight: bold;
-    background: rgba(0, 0, 0, 0.4);
-    padding: 8px 16px;
-    border-radius: 6px;
-  }
+  &__divination-img {
+    position: absolute;
+    max-width: 100%;
+    height: auto;
+    pointer-events: none;
+    z-index: 0;
 
-  &__images {
-    display: flex;
-    gap: 16px;
+    &--bg {
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
 
-    img {
-      width: 120px;
+    &--left {
+      top: 0;
+      left: 0;
+      width: 80px;
       height: auto;
-      border-radius: 8px;
+    }
+
+    &--right {
+      bottom: 0;
+      right: 0;
+      width: 80px;
+      height: auto;
     }
   }
 }
