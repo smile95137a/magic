@@ -1,8 +1,12 @@
 <template>
   <div
     class="start-button"
-    :class="`start-button--${styleType}`"
-    @click="$emit('click')"
+    :class="[
+      `start-button--${styleType}`,
+      { 'start-button--disabled': disabled },
+    ]"
+    :aria-disabled="disabled"
+    @click="handleClick"
   >
     <div
       class="start-button__text"
@@ -15,6 +19,7 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { computed } from 'vue';
 import cloudR from '@/assets/image/c-r.png';
@@ -23,7 +28,15 @@ import cloudY from '@/assets/image/c-y.png';
 const props = defineProps<{
   label?: string;
   styleType?: 'red' | 'yellow';
+  disabled?: boolean;
 }>();
+
+const emit = defineEmits(['click']);
+
+const handleClick = () => {
+  if (props.disabled) return;
+  emit('click');
+};
 
 const cloudIcon = computed(() => (props.styleType === 'red' ? cloudR : cloudY));
 </script>
@@ -41,10 +54,12 @@ const cloudIcon = computed(() => (props.styleType === 'red' ? cloudR : cloudY));
     padding: 0 0.5rem;
     white-space: nowrap;
     padding: 0.5rem 1rem;
+
     &--red {
       border-top: 1px solid #a53b25;
       border-bottom: 1px solid #a53b25;
     }
+
     &--yellow {
       border-top: 1px solid #f7c56b;
       border-bottom: 1px solid #f7c56b;
@@ -64,8 +79,19 @@ const cloudIcon = computed(() => (props.styleType === 'red' ? cloudR : cloudY));
   &--red {
     color: #a2352c;
   }
+
   &--yellow {
     color: #f7c56b;
+  }
+
+  &--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+
+    .start-button__text {
+      text-decoration: line-through;
+    }
   }
 }
 </style>
