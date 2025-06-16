@@ -61,7 +61,7 @@
   padding: 2rem 1rem;
   font-size: 14px;
   border-top: 1px solid #ccc;
-
+  min-height: 490px;
   &__container {
     display: flex;
     flex-wrap: wrap;

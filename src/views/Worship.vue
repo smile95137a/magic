@@ -101,6 +101,11 @@ const extendOptions = [
 
 <style lang="scss" scoped>
 .offering {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+
   &__container {
     color: #fff;
     text-align: center;

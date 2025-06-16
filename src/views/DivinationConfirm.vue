@@ -29,6 +29,7 @@
       </div>
     </div>
   </SectionBackground>
+  <Footer />
 </template>
 
 <script setup lang="ts">
@@ -37,6 +38,7 @@ import SectionBackground from '@/components/common/SectionBackground.vue';
 import divinationIntro from '@/assets/image/divinationIntro.png';
 import StartButton from '@/components/StartButton.vue';
 import Header from '@/components/Header.vue';
+import Footer from '@/components/Footer.vue';
 import { useRouter } from 'vue-router';
 const router = useRouter();
 
@@ -47,6 +49,9 @@ const startDivination = () => {
 
 <style lang="scss" scoped>
 .divination-confirm {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 4rem 2rem;
 
   display: flex;

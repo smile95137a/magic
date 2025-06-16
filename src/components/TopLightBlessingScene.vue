@@ -16,7 +16,7 @@
         </div>
 
         <img
-          :src="lightImages[item.imageKey]"
+          :src="imageMap[item.imageKey]"
           :alt="item.name"
           class="top-light-blessing__image"
         />
@@ -37,6 +37,9 @@
 import Title from '@/components/common/Title.vue';
 import lightImages from '@/data/lightImages';
 import badge from '@/assets/image/badge.png';
+const imageMap = Object.fromEntries(
+  lightImages.map((item) => [item.key, item.image])
+);
 const lightList = [
   {
     id: 1,

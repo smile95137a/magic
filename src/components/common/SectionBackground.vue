@@ -49,6 +49,7 @@ const props = withDefaults(
 <style scoped lang="scss">
 .section-bg {
   width: 100%;
+  min-height: 600px;
   padding: 20px;
   display: flex;
   flex-direction: column;

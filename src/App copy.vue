@@ -1,8 +1,8 @@
 <template>
   <div class="light-list">
     <div v-for="(img, name) in lightImages" :key="name" class="light-item">
-      <img :src="img" :alt="name" class="light-item__image" />
-      <p class="light-item__label">{{ name }}</p>
+      <img :src="img.image" :alt="img.name" class="light-item__image" />
+      <p class="light-item__label">{{ img.name }}</p>
     </div>
   </div>
 </template>

@@ -20,8 +20,7 @@ function handleTabClick(tab: 'product' | 'my') {
 
 function navigateToRoute(tab: 'product' | 'my') {
   const routeMap = {
-    product: '/light/product',
-    my: '/light/my',
+    product: '/lightProduct',
   };
   router.push(routeMap[tab]);
 }

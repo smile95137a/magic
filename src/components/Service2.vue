@@ -10,10 +10,14 @@
         <div class="service__img-wrap">
           <div
             v-for="(img, name) in lightImages"
-            :key="name"
+            :key="img.name"
             class="service__light"
           >
-            <img :src="img" :alt="name" class="service__light-image" />
+            <img
+              :src="img.image"
+              :alt="img.name"
+              class="service__light-image"
+            />
           </div>
         </div>
         <div class="service__button-wrap">

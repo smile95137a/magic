@@ -9,7 +9,7 @@
         class="light-blessing__card"
       >
         <img
-          :src="lightImages[item.imageKey]"
+          :src="imageMap[item.imageKey]"
           :alt="item.name"
           class="light-blessing__image"
         />
@@ -29,7 +29,9 @@
 <script setup lang="ts">
 import Title from '@/components/common/Title.vue';
 import lightImages from '@/data/lightImages';
-
+const imageMap = Object.fromEntries(
+  lightImages.map((item) => [item.key, item.image])
+);
 const lightList = [
   {
     id: 1,

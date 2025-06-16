@@ -25,7 +25,9 @@ import Worship from '@/components/Worship.vue';
 .home {
   &__card {
     width: 100%;
-    padding: 2rem 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
 
     &--default {
       background-color: #c2aeaa;

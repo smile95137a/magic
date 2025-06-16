@@ -143,8 +143,9 @@ const handleForgotPassword = async () => {};
 
 <style scoped>
 .login__card {
-  max-width: 1016px;
   width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 4rem 2rem;
 }
 </style>

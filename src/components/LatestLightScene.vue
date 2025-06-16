@@ -5,10 +5,11 @@
     <div class="light-scene__list">
       <div class="light-scene__card" v-for="item in lightList" :key="item.id">
         <img
-          :src="lightImages[item.imageKey]"
+          :src="imageMap[item.imageKey]"
           alt="light image"
           class="light-scene__image"
         />
+
         <div class="light-scene__info">
           <div class="light-scene__type">{{ item.type }}</div>
           <p class="light-scene__desc">{{ item.description }}</p>
@@ -22,7 +23,9 @@
 <script setup lang="ts">
 import Title from '@/components/common/Title.vue';
 import lightImages from '@/data/lightImages';
-
+const imageMap = Object.fromEntries(
+  lightImages.map((item) => [item.key, item.image])
+);
 const lightList = [
   {
     id: 1,

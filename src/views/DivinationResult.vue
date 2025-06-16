@@ -92,6 +92,7 @@
       </div>
     </div>
   </SectionBackground>
+  <Footer />
 </template>
 
 <script setup lang="ts">
@@ -99,10 +100,14 @@ import poemBg from '@/assets/image/poem-bg.png';
 import StartButton from '@/components/StartButton.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import Header from '@/components/Header.vue';
+import Footer from '@/components/Footer.vue';
 </script>
 <style lang="scss" scoped>
 .divination-result {
-  padding: 3rem 2rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
 
   &__layout {
     display: flex;
