@@ -3,58 +3,54 @@
     <div class="service__wrapper">
       <!-- 求籤問事區塊 -->
       <div class="service__block">
-        <h2 class="service__title">
-          <img alt="裝飾" class="service__wave" />
-          求籤問事
-        </h2>
+        <Title text="求籤問事" color="dark" />
         <p class="service__desc">
-          當您面臨人生抉擇、事業困境、情感糾葛或靈平靜時，古老的智慧可為您指明方向。
-          線上求籤猶如與冥冥中的力量對話，透過千年傳承的靈驗籤詩，為您揭示吉凶徵兆。
-          每支籤文皆蘊含深遠智慧，為您的課題提供靈解答案。無論何時何地，只要您懷著真誠的心，虔心求問，便能獲得上天的啟示，找到生命中的答案。
+          虔誠點燈，傳遞心願祝福。在數位時代，我們為您打造便捷的線上點燈平台，讓您足不出戶即可點亮希望之光。選擇適合的祈福燈種、決定數量（最多10盞），為自己及摯愛親友點亮光明。完成付款後，只需填寫點燈資訊（姓名、生辰、祈福願望），您的心願即化為永恆光芒，在「我的點燈」中閃耀，庇佑平安、招來福氣，讓美好心願得償所願。
         </p>
-        <img alt="求籤圖示" class="service__main-img" />
-        <RouterLink
-          to="/divination"
-          class="service__button service__button--red"
-          >前往求籤問事</RouterLink
-        >
+        <div class="service__img-wrap">
+          <div
+            v-for="(img, name) in lightImages"
+            :key="name"
+            class="service__light"
+          >
+            <img :src="img" :alt="name" class="service__light-image" />
+          </div>
+        </div>
+        <div class="service__button-wrap">
+          <StartButton styleType="red" label="前往點燈祈福" />
+        </div>
       </div>
 
       <!-- 請神供奉區塊 -->
       <div class="service__block">
-        <h2 class="service__title">
-          <img alt="裝飾" class="service__wave" />
-          請神供奉
-        </h2>
+        <Title text="請神供奉" color="dark" />
         <p class="service__desc">
-          虛心供奉，神明庇佑。線上請神供奉系統讓您足不出戶即能表達敬意與祈願。
-          選擇心儀神明如月老助姻緣、財神添財富、文昌增智慧、鐘馗除邪業、關公保平安；
-          每日可免費供燈上香，表達誠心。搭配獨家祈福力量，另有金香、金果、金牌等強化供品可選，滿足不同祈願需求。
-          無論您身在何處，只要一顆虔誠之心，便能與神明心靈相通，獲得無形護佑與祝福。
+          大師親自為您解惑，以科學視角重新詮釋命理。師融合心理學、管理學與命理學，創立獨樹一幟的科技紫微網。不談宿命論，只談如何掌握命運的方向盤。無論您面臨桃花愛情、婚姻問題、事業發展、流年生涯、學業進修、剖腹擇日、親子家庭困擾，或需命名服務，將以數學邏輯剖析命盤，提供切實可行的解決方案，指引您走向更理想的人生軌跡。
         </p>
         <div class="service__gods">
-          <div v-for="god in gods" :key="god.name" class="service__god">
-            <img :src="god.img" :alt="god.name" />
-            <div class="service__god-name">{{ god.name }}</div>
-          </div>
+          <img alt="插圖" :src="teacher1" class="service__main-img" />
         </div>
-        <RouterLink to="/worship" class="service__button service__button--gold"
-          >前往請神供奉</RouterLink
-        >
+        <div class="service__button-wrap">
+          <StartButton styleType="red" label="前往老師親算" />
+        </div>
       </div>
     </div>
   </section>
 </template>
 
 <script setup>
-import { RouterLink } from 'vue-router';
+import teacher1 from '@/assets/image/teacher_1.png';
+import godYuelao from '@/assets/image/god_yuelao.png';
+import lightImages from '@/data/lightImages';
+import Title from '@/components/common/Title.vue';
+import StartButton from '@/components/StartButton.vue';
 
 const gods = [
-  { name: '月老', img: '@/assets/god_yuelao.png' },
-  { name: '財神', img: '@/assets/god_caishen.png' },
-  { name: '文昌', img: '@/assets/god_wenchang.png' },
-  { name: '鐘馗', img: '@/assets/god_zhongkui.png' },
-  { name: '關公', img: '@/assets/god_guangong.png' },
+  { name: '月老', img: godYuelao },
+  { name: '財神', img: godYuelao },
+  { name: '文昌', img: godYuelao },
+  { name: '鐘馗', img: godYuelao },
+  { name: '關公', img: godYuelao },
 ];
 </script>
 
@@ -72,7 +68,6 @@ const gods = [
     flex: 0 0 48%;
     display: flex;
     flex-direction: column;
-    align-items: center;
     text-align: center;
 
     @media (max-width: 768px) {
@@ -80,31 +75,35 @@ const gods = [
     }
   }
 
-  &__title {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  &__wave {
-    width: 60px;
-    height: auto;
-  }
-
   &__desc {
     font-size: 15px;
     line-height: 1.8;
-    padding: 0 1rem;
-    margin-bottom: 1.5rem;
-    max-width: 500px;
+    text-align: left;
   }
 
-  &__main-img {
-    width: 200px;
-    margin-bottom: 1.5rem;
+  &__img-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  &__light {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    &-image {
+      width: 56px;
+      height: 70px;
+
+      object-fit: contain;
+    }
+  }
+
+  &__button-wrap {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
   }
 
   &__gods {
@@ -128,34 +127,6 @@ const gods = [
     &-name {
       margin-top: 0.25rem;
       font-size: 13px;
-    }
-  }
-
-  &__button {
-    padding: 0.6rem 1.5rem;
-    border-radius: 30px;
-    font-weight: bold;
-    font-size: 15px;
-    text-decoration: none;
-    display: inline-block;
-    transition: 0.3s;
-
-    &--red {
-      background-color: #ffccbc;
-      color: #a9280f;
-
-      &:hover {
-        background-color: #ffd6c9;
-      }
-    }
-
-    &--gold {
-      background-color: #f9e29d;
-      color: #a97700;
-
-      &:hover {
-        background-color: #ffeebd;
-      }
     }
   }
 }

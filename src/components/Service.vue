@@ -27,9 +27,9 @@
           無論您身在何處，只要一顆虔誠之心，便能與神明心靈相通，獲得無形護佑與祝福。
         </p>
         <div class="service__gods">
-          <div v-for="god in gods" :key="god.name" class="service__god">
-            <img :src="god.img" :alt="god.name" />
-            <div class="service__god-name">{{ god.name }}</div>
+          <div v-for="(god, key) in godImages" :key="key" class="service__god">
+            <img :src="god.default" :alt="god.label" />
+            <div class="service__god-name">{{ god.label }}</div>
           </div>
         </div>
         <div class="service__button-wrap">
@@ -42,19 +42,11 @@
 
 <script setup>
 import divinationIntro from '@/assets/image/divinationIntro.png';
-import godYuelao from '@/assets/image/god_yuelao.png';
-
+import godImages from '@/data/godImages';
 import Title from '@/components/common/Title.vue';
 import StartButton from '@/components/StartButton.vue';
-
-const gods = [
-  { name: '月老', img: godYuelao },
-  { name: '財神', img: godYuelao },
-  { name: '文昌', img: godYuelao },
-  { name: '鐘馗', img: godYuelao },
-  { name: '關公', img: godYuelao },
-];
 </script>
+
 <style scoped lang="scss">
 .service {
   &__wrapper {
@@ -79,7 +71,7 @@ const gods = [
   &__desc {
     font-size: 15px;
     line-height: 1.8;
-    padding: 0 1rem;
+    text-align: left;
   }
 
   &__img-wrap {
@@ -113,8 +105,9 @@ const gods = [
     align-items: center;
 
     img {
-      width: 60px;
-      height: auto;
+      width: 88px;
+      height: 88px;
+      object-fit: contain;
     }
 
     &-name {
