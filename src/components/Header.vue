@@ -19,7 +19,7 @@
       <div class="header__nav-left">
         <RouterLink to="/divination">求籤問事</RouterLink>
         <span>|</span>
-        <RouterLink to="/worship">請神供奉</RouterLink>
+        <RouterLink to="/godOffering">請神供奉</RouterLink>
         <span>|</span>
         <RouterLink to="/blessing">點燈祈福</RouterLink>
         <span>|</span>

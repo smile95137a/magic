@@ -23,12 +23,14 @@ import StartButton from '@/components/StartButton.vue';
 
 <style lang="scss" scoped>
 .god {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
   &__list {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 3rem;
-    max-width: 1000px;
-    margin: 0 auto;
+    gap: 10rem;
 
     @media (max-width: 768px) {
       grid-template-columns: 1fr;

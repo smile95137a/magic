@@ -8,6 +8,7 @@ import Divination from '@/views/Divination.vue';
 import DivinationConfirm from '@/views/DivinationConfirm.vue';
 import DivinationResult from '@/views/DivinationResult.vue';
 import Worship from '@/views/Worship.vue';
+import GodOffering from '@/views/GodOffering.vue';
 import Blessing from '@/views/Blessing.vue';
 import Master from '@/views/Master.vue';
 import Store from '@/views/Store.vue';
@@ -60,6 +61,12 @@ const routes: Array<RouteRecordRaw> = [
     component: Worship,
     meta: { layout: 'default' },
   },
+  {
+    path: '/godOffering',
+    component: GodOffering,
+    meta: { layout: 'default' },
+  },
+
   {
     path: '/blessing',
     component: Blessing,

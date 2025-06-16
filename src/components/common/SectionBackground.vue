@@ -52,8 +52,6 @@ const props = withDefaults(
   padding: 20px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  border-radius: 8px;
   position: relative;
 
   &--red {
@@ -66,13 +64,11 @@ const props = withDefaults(
 
   &--divination {
     position: relative;
-    text-align: center;
   }
 
   &__divination {
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 16px;
     position: absolute;
     inset: 0;
