@@ -32,9 +32,11 @@
     <LatestLightScene />
   </SectionBackground>
   <SectionBackground variant="light">
-    <GodList />
+    <LightBlessingScene />
   </SectionBackground>
-
+  <SectionBackground variant="light">
+    <TopLightBlessingScene />
+  </SectionBackground>
   <Footer />
 </template>
 
@@ -47,6 +49,8 @@ import GodList from '@/components/GodList.vue';
 import Service from '@/components/Service.vue';
 import Service2 from '@/components/Service2.vue';
 import LatestLightScene from '@/components/LatestLightScene.vue';
+import LightBlessingScene from '@/components/LightBlessingScene.vue';
+import TopLightBlessingScene from '@/components/TopLightBlessingScene.vue';
 import Title from '@/components/common/Title.vue';
 import lightImages from '@/data/lightImages';
 </script>
