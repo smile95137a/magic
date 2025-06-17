@@ -1,5 +1,4 @@
 <template>
-  <Header />
   <div class="divination-result">
     <SectionBackground variant="divination" />
     <div class="divination-result__container">
@@ -93,7 +92,6 @@
       </div>
     </div>
   </div>
-  <Footer />
 </template>
 
 <script setup lang="ts">

@@ -1,5 +1,4 @@
 <template>
-  <Header />
   <div class="divination-confirm">
     <SectionBackground variant="divination" />
     <div class="divination-confirm__container">
@@ -31,7 +30,6 @@
       </div>
     </div>
   </div>
-  <Footer />
 </template>
 
 <script setup lang="ts">
@@ -39,13 +37,17 @@ import cup from '@/assets/image/cup.png';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import divinationIntro from '@/assets/image/divinationIntro.png';
 import StartButton from '@/components/StartButton.vue';
-import Header from '@/components/Header.vue';
-import Footer from '@/components/Footer.vue';
-import { useRouter } from 'vue-router';
-const router = useRouter();
-
-const startDivination = () => {
-  router.push('/divinationResult');
+import { useDivinationStepStore } from '@/stores/divinationStepStore';
+import { useDialogStore } from '@/stores';
+const stepStore = useDivinationStepStore();
+const { nextStep, prevStep, resetStep } = stepStore;
+const dialogStore = useDialogStore();
+const startDivination = async () => {
+  const result = await dialogStore.openPoeDivinationDialog();
+  if (result) {
+    nextStep();
+  } else {
+  }
 };
 </script>
 

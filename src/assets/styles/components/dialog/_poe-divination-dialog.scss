@@ -6,7 +6,6 @@ $root-block-name: '.poeDivinationDialog';
 
   width: 100%;
   @include flex(null, null, column);
-  background: #fff;
 
   &__header {
     @include w_h(100%, 52px);

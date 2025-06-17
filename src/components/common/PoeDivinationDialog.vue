@@ -5,47 +5,46 @@
     @close="handleClose"
   >
     <div class="poeDivinationDialog">
-      <SectionBackground variant="red">
-        <section class="divination">
-          <!-- 說明文字 -->
-          <p class="divination__instruction">
-            虔誠向帝君奉香求籤，並擲筊請示帝君是否為此籤，若為聖筊則可觀看籤詩內容，若為笑筊或陰筊則需重新求籤。
-          </p>
+      <SectionBackground variant="red" />
+      <section class="divination">
+        <!-- 說明文字 -->
+        <p class="divination__instruction">
+          虔誠向帝君奉香求籤，並擲筊請示帝君是否為此籤，若為聖筊則可觀看籤詩內容，若為笑筊或陰筊則需重新求籤。
+        </p>
 
-          <!-- 中央擲筊圖 -->
-          <div class="divination__main-img" v-if="currentResult">
-            <img :src="getCupImage(currentResult)" alt="bwa" />
+        <!-- 中央擲筊圖 -->
+        <div class="divination__main-img" v-if="currentResult">
+          <img :src="getCupImage(currentResult)" alt="bwa" />
+        </div>
+
+        <!-- 擲筊按鈕 -->
+        <StartButton
+          styleType="yellow"
+          :label="isThrowing ? '擲筊中...' : '開始擲筊'"
+          :disabled="isThrowing || results.length >= maxTries"
+          @click="throwBwa"
+        />
+
+        <!-- 結果列表 -->
+        <div class="divination__results" v-if="results.length > 0">
+          <div
+            v-for="(result, index) in results"
+            :key="index"
+            class="divination__result-block"
+          >
+            <p class="divination__result-label">第{{ index + 1 }}次擲杯</p>
+            <p class="divination__result-text">
+              {{ getResultLabel(result) }}
+            </p>
+
+            <img
+              :src="getCupImage(result)"
+              :alt="result"
+              class="divination__result-img"
+            />
           </div>
-
-          <!-- 擲筊按鈕 -->
-          <StartButton
-            styleType="yellow"
-            :label="isThrowing ? '擲筊中...' : '開始擲筊'"
-            :disabled="isThrowing || results.length >= maxTries"
-            @click="throwBwa"
-          />
-
-          <!-- 結果列表 -->
-          <div class="divination__results" v-if="results.length > 0">
-            <div
-              v-for="(result, index) in results"
-              :key="index"
-              class="divination__result-block"
-            >
-              <p class="divination__result-label">第{{ index + 1 }}次擲杯</p>
-              <p class="divination__result-text">
-                {{ getResultLabel(result) }}
-              </p>
-
-              <img
-                :src="getCupImage(result)"
-                :alt="result"
-                class="divination__result-img"
-              />
-            </div>
-          </div>
-        </section>
-      </SectionBackground>
+        </div>
+      </section>
     </div>
   </Dialog>
 </template>
@@ -87,8 +86,8 @@ const throwBwa = () => {
 
     if (results.value.length === maxTries) {
       setTimeout(() => {
-        handleClose([...results.value]);
-      }, 2000);
+        handleClose(true);
+      }, 1000);
     }
   }, 300);
 };
