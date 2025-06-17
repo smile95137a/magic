@@ -1,10 +1,10 @@
 <template>
   <Header />
-  <SectionBackground variant="divination">
-    <div class="blessing-page">
-      <!-- Header 區塊 -->
+  <div class="blessing-page">
+    <SectionBackground variant="divination" />
+    <div class="blessing-page__container">
+      <Title color="white" text="點燈祈福" />
       <div class="blessing-page__header">
-        <Title color="white" text="點燈祈福" />
         <p class="blessing-page__description">
           請點選下列表的任一盞燈，即可看到該盞燈的介紹，並進行選購。
         </p>
@@ -102,7 +102,7 @@
         </div>
       </MCard>
     </div>
-  </SectionBackground>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -161,9 +161,13 @@ const sections = [
 <style scoped lang="scss">
 .blessing-page {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 4rem 2rem;
+  position: relative;
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+
   &__header {
     text-align: center;
     margin-bottom: 1.5rem;

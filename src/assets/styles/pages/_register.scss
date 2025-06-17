@@ -4,10 +4,16 @@ $root-block-name: '.register';
   $p: &;
   $p__text: #{$p}__text;
   $p__btn: #{$p}__btn;
-  @include flex(center, center);
-  height: 100%;
+  width: 100%;
+  position: relative;
 
   &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+
+  &__content {
     @include w_h(100%, 100%);
     @include flex(center, null, column);
     padding: 64px;

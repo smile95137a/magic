@@ -1,7 +1,8 @@
 <template>
   <Header />
-  <SectionBackground variant="divination">
-    <section class="master">
+  <section class="master">
+    <SectionBackground variant="divination" />
+    <div class="master__container">
       <Title color="dark" text="大師親算" />
 
       <div class="master__card">
@@ -56,8 +57,8 @@
           </div>
         </div>
       </div>
-    </section>
-  </SectionBackground>
+    </div>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -80,9 +81,12 @@ const topics = [
 <style scoped lang="scss">
 .master {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 4rem 2rem;
+  position: relative;
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
 
   &__card {
     background: #fff;

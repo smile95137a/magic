@@ -1,19 +1,22 @@
 <template>
   <section class="light-scene">
-    <Title color="white" text="最新燈場" />
+    <SectionBackground variant="red" />
+    <div class="light-scene__container">
+      <Title color="white" text="最新燈場" />
 
-    <div class="light-scene__list">
-      <div class="light-scene__card" v-for="item in lightList" :key="item.id">
-        <img
-          :src="imageMap[item.imageKey]"
-          alt="light image"
-          class="light-scene__image"
-        />
+      <div class="light-scene__list">
+        <div class="light-scene__card" v-for="item in lightList" :key="item.id">
+          <img
+            :src="imageMap[item.imageKey]"
+            alt="light image"
+            class="light-scene__image"
+          />
 
-        <div class="light-scene__info">
-          <div class="light-scene__type">{{ item.type }}</div>
-          <p class="light-scene__desc">{{ item.description }}</p>
-          <div class="light-scene__date">於{{ item.date }}點燈</div>
+          <div class="light-scene__info">
+            <div class="light-scene__type">{{ item.type }}</div>
+            <p class="light-scene__desc">{{ item.description }}</p>
+            <div class="light-scene__date">於{{ item.date }}點燈</div>
+          </div>
         </div>
       </div>
     </div>
@@ -23,6 +26,7 @@
 <script setup lang="ts">
 import Title from '@/components/common/Title.vue';
 import lightImages from '@/data/lightImages';
+import SectionBackground from '@/components/common/SectionBackground.vue';
 const imageMap = Object.fromEntries(
   lightImages.map((item) => [item.key, item.image])
 );
@@ -57,9 +61,12 @@ const lightList = [
 <style scoped lang="scss">
 .light-scene {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 4rem 2rem;
+  position: relative;
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
 
   &__list {
     display: grid;

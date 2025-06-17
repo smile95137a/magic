@@ -1,33 +1,36 @@
 <template>
   <section class="top-light-blessing">
-    <Title color="dark" text="人氣燈王" />
+    <SectionBackground variant="light" />
+    <div class="top-light-blessing__container">
+      <Title color="dark" text="人氣燈王" />
 
-    <div class="top-light-blessing__list">
-      <div
-        v-for="(item, index) in lightList"
-        :key="item.id"
-        class="top-light-blessing__card"
-      >
-        <div class="top-light-blessing__badge-wrapper">
-          <img :src="badge" alt="步驟徽章" />
-          <div class="top-light-blessing__badge-wrapper-text">
-            {{ index + 1 }}
+      <div class="top-light-blessing__list">
+        <div
+          v-for="(item, index) in lightList"
+          :key="item.id"
+          class="top-light-blessing__card"
+        >
+          <div class="top-light-blessing__badge-wrapper">
+            <img :src="badge" alt="步驟徽章" />
+            <div class="top-light-blessing__badge-wrapper-text">
+              {{ index + 1 }}
+            </div>
           </div>
-        </div>
 
-        <img
-          :src="imageMap[item.imageKey]"
-          :alt="item.name"
-          class="top-light-blessing__image"
-        />
-        <div class="top-light-blessing__content">
-          <div class="top-light-blessing__type">{{ item.type }}</div>
-          <p class="top-light-blessing__desc">{{ item.description }}</p>
-          <div class="top-light-blessing__date">於{{ item.date }}點燈</div>
+          <img
+            :src="imageMap[item.imageKey]"
+            :alt="item.name"
+            class="top-light-blessing__image"
+          />
+          <div class="top-light-blessing__content">
+            <div class="top-light-blessing__type">{{ item.type }}</div>
+            <p class="top-light-blessing__desc">{{ item.description }}</p>
+            <div class="top-light-blessing__date">於{{ item.date }}點燈</div>
+          </div>
+          <button class="top-light-blessing__btn">
+            請祝福我 <i class="fas fa-chevron-right"></i>
+          </button>
         </div>
-        <button class="top-light-blessing__btn">
-          請祝福我 <i class="fas fa-chevron-right"></i>
-        </button>
       </div>
     </div>
   </section>
@@ -37,6 +40,7 @@
 import Title from '@/components/common/Title.vue';
 import lightImages from '@/data/lightImages';
 import badge from '@/assets/image/badge.png';
+import SectionBackground from '@/components/common/SectionBackground.vue';
 const imageMap = Object.fromEntries(
   lightImages.map((item) => [item.key, item.image])
 );
@@ -71,9 +75,12 @@ const lightList = [
 <style scoped lang="scss">
 .top-light-blessing {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
+  position: relative;
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
 
   &__list {
     display: grid;

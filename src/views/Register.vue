@@ -113,188 +113,199 @@ watch(area, (newArea) => {
 
 <template>
   <Header />
-  <SectionBackground variant="divination">
-    <MCard customClass="mcard--login login__card">
-      <form @submit="onSubmit">
-        <div class="register__container">
-          <div class="register__main">
-            <div class="register__form">
-              <div class="register__form-inputs">
-                <p class="register__text register__text--required">信箱</p>
-                <input
-                  class="register__form-input"
-                  v-model="username"
-                  v-bind="usernameProps"
-                  :class="{ 'register__form-input--error': errors.username }"
-                />
-                <p class="register__text register__text--error">
-                  {{ errors.username }}
-                </p>
-              </div>
-              <div class="register__form-inputs m-t-20">
-                <p class="register__text register__text--required">手機</p>
-                <input
-                  class="register__form-input"
-                  v-model="phoneNumber"
-                  v-bind="phoneNumberProps"
-                  :class="{ 'register__form-input--error': errors.phoneNumber }"
-                />
-                <p class="register__text register__text--error">
-                  {{ errors.phoneNumber }}
-                </p>
-              </div>
-              <div class="register__form-inputs m-t-20">
-                <p class="register__text register__text--required">密碼</p>
-                <input
-                  class="register__form-input"
-                  type="password"
-                  v-model="password"
-                  v-bind="passwordProps"
-                  :class="{ 'register__form-input--error': errors.password }"
-                />
-                <p class="register__text register__text--error">
-                  {{ errors.password }}
-                </p>
-              </div>
-              <div class="register__form-inputs m-t-20">
-                <p class="register__text register__text--required">確認密碼</p>
-                <input
-                  class="register__form-input"
-                  type="password"
-                  v-model="confirmPassword"
-                  v-bind="confirmPasswordProps"
-                  :class="{
-                    'register__form-input--error': errors.confirmPassword,
-                  }"
-                />
-                <p class="register__text register__text--error">
-                  {{ errors.confirmPassword }}
-                </p>
-              </div>
-            </div>
-            <div class="register__divider">
-              <div class="register__divider-line"></div>
-            </div>
-            <div class="register__form">
-              <div class="register__form-inputs">
-                <p class="register__text register__text--required">暱稱</p>
-                <input
-                  class="register__form-input"
-                  v-model="nickname"
-                  v-bind="nicknameProps"
-                  :class="{ 'register__form-input--error': errors.nickname }"
-                />
-                <p class="register__text register__text--error">
-                  {{ errors.nickname }}
-                </p>
-              </div>
-              <div class="register__form-inputs m-t-20">
-                <p class="register__text register__text--required">LINE ID</p>
-                <input
-                  class="register__form-input"
-                  v-model="lineId"
-                  v-bind="lineIdProps"
-                  :class="{ 'register__form-input--error': errors.lineId }"
-                />
-                <p class="register__text register__text--error">
-                  {{ errors.lineId }}
-                </p>
-              </div>
-              <div class="register__form-inputs m-t-20">
-                <p class="register__text">收貨姓名</p>
-                <input
-                  class="register__form-input"
-                  v-model="addressName"
-                  v-bind="addressNameProps"
-                  :class="{ 'register__form-input--error': errors.addressName }"
-                />
-                <p class="register__text register__text--error">
-                  {{ errors.addressName }}
-                </p>
-              </div>
-              <div class="register__form-inputs--addr">
-                <div class="register__form-inputs w-50 m-t-20">
-                  <p class="register__text">收貨地址</p>
-                  <select
+  <div class="register">
+    <SectionBackground variant="divination" />
+    <div class="register__container">
+      <MCard customClass="mcard--login login__card">
+        <form @submit="onSubmit">
+          <div class="register__content">
+            <div class="register__main">
+              <div class="register__form">
+                <div class="register__form-inputs">
+                  <p class="register__text register__text--required">信箱</p>
+                  <input
                     class="register__form-input"
-                    v-model="city"
-                    v-bind="cityProps"
-                    :class="{ 'register__form-input--error': errors.city }"
-                  >
-                    <option
-                      v-for="option in cityOptions"
-                      :key="option.value"
-                      :value="option.value"
-                    >
-                      {{ option.label }}
-                    </option>
-                  </select>
-
+                    v-model="username"
+                    v-bind="usernameProps"
+                    :class="{ 'register__form-input--error': errors.username }"
+                  />
                   <p class="register__text register__text--error">
-                    {{ errors.city }}
+                    {{ errors.username }}
                   </p>
                 </div>
-                <div class="register__form-inputs w-50 m-t-20">
-                  <select
+                <div class="register__form-inputs m-t-20">
+                  <p class="register__text register__text--required">手機</p>
+                  <input
                     class="register__form-input"
-                    v-model="area"
-                    v-bind="areaProps"
-                    :class="{ 'register__form-input--error': errors.area }"
-                  >
-                    <option
-                      v-for="option in areaOptions"
-                      :key="option.value"
-                      :value="option.value"
-                    >
-                      {{ option.label }}
-                    </option>
-                  </select>
-
+                    v-model="phoneNumber"
+                    v-bind="phoneNumberProps"
+                    :class="{
+                      'register__form-input--error': errors.phoneNumber,
+                    }"
+                  />
                   <p class="register__text register__text--error">
-                    {{ errors.area }}
+                    {{ errors.phoneNumber }}
+                  </p>
+                </div>
+                <div class="register__form-inputs m-t-20">
+                  <p class="register__text register__text--required">密碼</p>
+                  <input
+                    class="register__form-input"
+                    type="password"
+                    v-model="password"
+                    v-bind="passwordProps"
+                    :class="{ 'register__form-input--error': errors.password }"
+                  />
+                  <p class="register__text register__text--error">
+                    {{ errors.password }}
+                  </p>
+                </div>
+                <div class="register__form-inputs m-t-20">
+                  <p class="register__text register__text--required">
+                    確認密碼
+                  </p>
+                  <input
+                    class="register__form-input"
+                    type="password"
+                    v-model="confirmPassword"
+                    v-bind="confirmPasswordProps"
+                    :class="{
+                      'register__form-input--error': errors.confirmPassword,
+                    }"
+                  />
+                  <p class="register__text register__text--error">
+                    {{ errors.confirmPassword }}
                   </p>
                 </div>
               </div>
+              <div class="register__divider">
+                <div class="register__divider-line"></div>
+              </div>
+              <div class="register__form">
+                <div class="register__form-inputs">
+                  <p class="register__text register__text--required">暱稱</p>
+                  <input
+                    class="register__form-input"
+                    v-model="nickname"
+                    v-bind="nicknameProps"
+                    :class="{ 'register__form-input--error': errors.nickname }"
+                  />
+                  <p class="register__text register__text--error">
+                    {{ errors.nickname }}
+                  </p>
+                </div>
+                <div class="register__form-inputs m-t-20">
+                  <p class="register__text register__text--required">LINE ID</p>
+                  <input
+                    class="register__form-input"
+                    v-model="lineId"
+                    v-bind="lineIdProps"
+                    :class="{ 'register__form-input--error': errors.lineId }"
+                  />
+                  <p class="register__text register__text--error">
+                    {{ errors.lineId }}
+                  </p>
+                </div>
+                <div class="register__form-inputs m-t-20">
+                  <p class="register__text">收貨姓名</p>
+                  <input
+                    class="register__form-input"
+                    v-model="addressName"
+                    v-bind="addressNameProps"
+                    :class="{
+                      'register__form-input--error': errors.addressName,
+                    }"
+                  />
+                  <p class="register__text register__text--error">
+                    {{ errors.addressName }}
+                  </p>
+                </div>
+                <div class="register__form-inputs--addr">
+                  <div class="register__form-inputs w-50 m-t-20">
+                    <p class="register__text">收貨地址</p>
+                    <select
+                      class="register__form-input"
+                      v-model="city"
+                      v-bind="cityProps"
+                      :class="{ 'register__form-input--error': errors.city }"
+                    >
+                      <option
+                        v-for="option in cityOptions"
+                        :key="option.value"
+                        :value="option.value"
+                      >
+                        {{ option.label }}
+                      </option>
+                    </select>
 
-              <div class="register__form-inputs m-t-20">
-                <p class="register__text">詳細地址</p>
+                    <p class="register__text register__text--error">
+                      {{ errors.city }}
+                    </p>
+                  </div>
+                  <div class="register__form-inputs w-50 m-t-20">
+                    <select
+                      class="register__form-input"
+                      v-model="area"
+                      v-bind="areaProps"
+                      :class="{ 'register__form-input--error': errors.area }"
+                    >
+                      <option
+                        v-for="option in areaOptions"
+                        :key="option.value"
+                        :value="option.value"
+                      >
+                        {{ option.label }}
+                      </option>
+                    </select>
+
+                    <p class="register__text register__text--error">
+                      {{ errors.area }}
+                    </p>
+                  </div>
+                </div>
+
+                <div class="register__form-inputs m-t-20">
+                  <p class="register__text">詳細地址</p>
+                  <input
+                    class="register__form-input"
+                    v-model="address"
+                    v-bind="addressProps"
+                    :class="{ 'register__form-input--error': errors.address }"
+                  />
+                  <p class="register__text register__text--error">
+                    {{ errors.address }}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="register__other">
+              <div class="register__checkbox">
                 <input
-                  class="register__form-input"
-                  v-model="address"
-                  v-bind="addressProps"
-                  :class="{ 'register__form-input--error': errors.address }"
+                  id="agreeTerms"
+                  type="checkbox"
+                  v-model="agreeTerms"
+                  :class="{ 'register__checkbox--error': errors.agreeTerms }"
                 />
-                <p class="register__text register__text--error">
-                  {{ errors.address }}
-                </p>
+                <label for="agreeTerms" class="register__agreeTerms-text">
+                  我同意 <u>祈願文舍</u> 提供的
+                  <u><a href="./policy" target="_blank">網站服務條款</a></u>
+                  與
+                  <u> <a href="./privacy" target="_blank">隱私權政策</a></u>
+                  。
+                </label>
+              </div>
+              <p class="register__text register__text--error">
+                {{ errors.agreeTerms }}
+              </p>
+              <div class="register__other-btn">
+                <button type="submit" class="register__btn">
+                  註冊成為會員
+                </button>
               </div>
             </div>
           </div>
-          <div class="register__other">
-            <div class="register__checkbox">
-              <input
-                id="agreeTerms"
-                type="checkbox"
-                v-model="agreeTerms"
-                :class="{ 'register__checkbox--error': errors.agreeTerms }"
-              />
-              <label for="agreeTerms" class="register__agreeTerms-text">
-                我同意 <u>祈願文舍</u> 提供的
-                <u><a href="./policy" target="_blank">網站服務條款</a></u>
-                與
-                <u> <a href="./privacy" target="_blank">隱私權政策</a></u>
-                。
-              </label>
-            </div>
-            <p class="register__text register__text--error">
-              {{ errors.agreeTerms }}
-            </p>
-            <div class="register__other-btn">
-              <button type="submit" class="register__btn">註冊成為會員</button>
-            </div>
-          </div>
-        </div>
-      </form>
-    </MCard>
-  </SectionBackground>
+        </form>
+      </MCard>
+    </div>
+  </div>
 </template>

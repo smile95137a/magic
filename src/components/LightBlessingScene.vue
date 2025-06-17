@@ -1,26 +1,29 @@
 <template>
   <section class="light-blessing">
-    <Title color="dark" text="推薦點燈" />
+    <SectionBackground variant="light" />
+    <div class="light-blessing__container">
+      <Title color="dark" text="推薦點燈" />
 
-    <div class="light-blessing__list">
-      <div
-        v-for="item in lightList"
-        :key="item.id"
-        class="light-blessing__card"
-      >
-        <img
-          :src="imageMap[item.imageKey]"
-          :alt="item.name"
-          class="light-blessing__image"
-        />
-        <div class="light-blessing__content">
-          <div class="light-blessing__type">{{ item.type }}</div>
-          <p class="light-blessing__desc">{{ item.description }}</p>
-          <div class="light-blessing__date">於{{ item.date }}點燈</div>
+      <div class="light-blessing__list">
+        <div
+          v-for="item in lightList"
+          :key="item.id"
+          class="light-blessing__card"
+        >
+          <img
+            :src="imageMap[item.imageKey]"
+            :alt="item.name"
+            class="light-blessing__image"
+          />
+          <div class="light-blessing__content">
+            <div class="light-blessing__type">{{ item.type }}</div>
+            <p class="light-blessing__desc">{{ item.description }}</p>
+            <div class="light-blessing__date">於{{ item.date }}點燈</div>
+          </div>
+          <button class="light-blessing__btn">
+            請祝福我 <i class="fas fa-chevron-right"></i>
+          </button>
         </div>
-        <button class="light-blessing__btn">
-          請祝福我 <i class="fas fa-chevron-right"></i>
-        </button>
       </div>
     </div>
   </section>
@@ -29,6 +32,7 @@
 <script setup lang="ts">
 import Title from '@/components/common/Title.vue';
 import lightImages from '@/data/lightImages';
+import SectionBackground from '@/components/common/SectionBackground.vue';
 const imageMap = Object.fromEntries(
   lightImages.map((item) => [item.key, item.image])
 );
@@ -63,9 +67,12 @@ const lightList = [
 <style scoped lang="scss">
 .light-blessing {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
+  position: relative;
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
 
   &__list {
     display: grid;

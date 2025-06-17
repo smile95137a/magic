@@ -1,9 +1,10 @@
 <template>
   <Header />
-  <SectionBackground variant="divination">
-    <section class="light-blessing">
+  <section class="light-blessing">
+    <SectionBackground variant="divination" />
+    <div class="light-blessing__container">
       <Title :text="`點燈祈福`" color="white" />
-      <div class="light-blessing__container">
+      <div class="light-blessing__content">
         <div class="light-blessing__text">
           <p class="light-blessing__description">
             虔誠點燈，傳遞心願祝福。在數位時代，我們為您打造便捷的線上點燈平台，讓您足不出戶即可點亮希望之光。選擇適合的祈福燈種、決定數量（最多10盞），為自己及摯愛親友點亮光明。完成付款後，只需填寫點燈資訊（姓名、生辰、祈福願望），您的心願即化為永恆光芒，在「我的點燈」中閃耀，庇佑平安、招來福氣，讓美好心願得償所願。
@@ -16,27 +17,21 @@
         <div class="light-blessing__lamp-list">
           <div
             v-for="(img, name) in lightImages"
-            :key="name"
+            :key="img.name"
             class="light-blessing__lamp"
           >
-            <img :src="img" class="light-blessing__lamp-img" />
+            <img :src="img.image" class="light-blessing__lamp-img" />
             <p class="light-blessing__lamp-name">{{ img.label }}</p>
           </div>
         </div>
       </div>
-
       <LightBlessingTabs />
-    </section>
-  </SectionBackground>
-  <SectionBackground variant="red">
-    <LatestLightScene />
-  </SectionBackground>
-  <SectionBackground variant="light">
-    <LightBlessingScene />
-  </SectionBackground>
-  <SectionBackground variant="light">
-    <TopLightBlessingScene />
-  </SectionBackground>
+    </div>
+  </section>
+
+  <LatestLightScene />
+  <LightBlessingScene />
+  <TopLightBlessingScene />
   <Footer />
 </template>
 
@@ -44,24 +39,24 @@
 import Header from '@/components/Header.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import LightBlessingTabs from '@/components/LightBlessingTabs.vue';
-import Footer from '@/components/Footer.vue';
-import GodList from '@/components/GodList.vue';
-import Service from '@/components/Service.vue';
-import Service2 from '@/components/Service2.vue';
 import LatestLightScene from '@/components/LatestLightScene.vue';
 import LightBlessingScene from '@/components/LightBlessingScene.vue';
 import TopLightBlessingScene from '@/components/TopLightBlessingScene.vue';
+import Footer from '@/components/Footer.vue';
 import Title from '@/components/common/Title.vue';
 import lightImages from '@/data/lightImages';
 </script>
 <style scoped lang="scss">
 .light-blessing {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 4rem 2rem;
-
+  position: relative;
   &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+
+  &__content {
     display: flex;
     flex-direction: row;
     gap: 3rem;
