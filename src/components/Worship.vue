@@ -1,96 +1,111 @@
 <template>
   <section class="worship">
-    <Title :text="`請神方法`" color="light" />
-    <ul class="worship__tabs">
-      <li
-        class="worship__tab"
-        :class="{ 'worship__tab--active': activeTab === 'about' }"
-        @click="activeTab = 'about'"
-      >
-        關於請神服務
-      </li>
-      <li
-        class="worship__tab"
-        :class="{ 'worship__tab--active': activeTab === 'how' }"
-        @click="activeTab = 'how'"
-      >
-        神明供奉說明
-      </li>
-      <li
-        class="worship__tab"
-        :class="{ 'worship__tab--active': activeTab === 'upgrade' }"
-        @click="activeTab = 'upgrade'"
-      >
-        神明升級方法
-      </li>
-    </ul>
-
-    <div class="worship__content">
-      <!-- Tab 1: 關於請神服務 -->
-      <div v-if="activeTab === 'about'" class="worship__cards">
-        <div
-          class="worship__card"
-          v-for="(item, index) in steps"
-          :key="item.id"
+    <SectionBackground variant="red" />
+    <div class="worship__container">
+      <Title :text="`請神方法`" color="light" />
+      <ul class="worship__tabs">
+        <li
+          class="worship__tab"
+          :class="{ 'worship__tab--active': activeTab === 'about' }"
+          @click="activeTab = 'about'"
         >
-          <div class="worship__card-badge">
-            <img :src="badge" alt="步驟徽章" class="worship__badge" />
-            <div class="worship__card-badge-text">{{ index + 1 }}</div>
-          </div>
-          <div class="worship__card-left">
-            <img :src="menuDecoBottom" alt="步驟徽章" class="worship__badge" />
-          </div>
-          <div class="worship__card-right">
-            <img :src="menuDecoTop" alt="步驟徽章" class="worship__badge" />
-          </div>
-          <div class="worship__card-content">
-            <p class="worship__text" v-html="item.text"></p>
+          關於請神服務
+        </li>
+        <li
+          class="worship__tab"
+          :class="{ 'worship__tab--active': activeTab === 'how' }"
+          @click="activeTab = 'how'"
+        >
+          神明供奉說明
+        </li>
+        <li
+          class="worship__tab"
+          :class="{ 'worship__tab--active': activeTab === 'upgrade' }"
+          @click="activeTab = 'upgrade'"
+        >
+          神明升級方法
+        </li>
+      </ul>
+
+      <div class="worship__content">
+        <!-- Tab 1: 關於請神服務 -->
+        <div v-if="activeTab === 'about'" class="worship__cards">
+          <div
+            class="worship__card"
+            v-for="(item, index) in steps"
+            :key="item.id"
+          >
+            <div class="worship__card-badge">
+              <img :src="badge" alt="步驟徽章" class="worship__badge" />
+              <div class="worship__card-badge-text">{{ index + 1 }}</div>
+            </div>
+            <div class="worship__card-left">
+              <img
+                :src="menuDecoBottom"
+                alt="步驟徽章"
+                class="worship__badge"
+              />
+            </div>
+            <div class="worship__card-right">
+              <img :src="menuDecoTop" alt="步驟徽章" class="worship__badge" />
+            </div>
+            <div class="worship__card-content">
+              <p class="worship__text" v-html="item.text"></p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Tab 2: 神明供奉說明 -->
-      <div v-else-if="activeTab === 'how'" class="worship__cards">
-        <div
-          class="worship__card"
-          v-for="(item, index) in steps2"
-          :key="item.id"
-        >
-          <div class="worship__card-badge">
-            <img :src="badge" alt="步驟徽章" class="worship__badge" />
-            <div class="worship__card-badge-text">{{ index + 1 }}</div>
-          </div>
-          <div class="worship__card-left">
-            <img :src="menuDecoBottom" alt="步驟徽章" class="worship__badge" />
-          </div>
-          <div class="worship__card-right">
-            <img :src="menuDecoTop" alt="步驟徽章" class="worship__badge" />
-          </div>
-          <div class="worship__card-content">
-            <p class="worship__text" v-html="item.text"></p>
+        <!-- Tab 2: 神明供奉說明 -->
+        <div v-else-if="activeTab === 'how'" class="worship__cards">
+          <div
+            class="worship__card"
+            v-for="(item, index) in steps2"
+            :key="item.id"
+          >
+            <div class="worship__card-badge">
+              <img :src="badge" alt="步驟徽章" class="worship__badge" />
+              <div class="worship__card-badge-text">{{ index + 1 }}</div>
+            </div>
+            <div class="worship__card-left">
+              <img
+                :src="menuDecoBottom"
+                alt="步驟徽章"
+                class="worship__badge"
+              />
+            </div>
+            <div class="worship__card-right">
+              <img :src="menuDecoTop" alt="步驟徽章" class="worship__badge" />
+            </div>
+            <div class="worship__card-content">
+              <p class="worship__text" v-html="item.text"></p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Tab 3: 神明升級方法 -->
-      <div v-else-if="activeTab === 'upgrade'" class="worship__cards">
-        <div
-          class="worship__card"
-          v-for="(item, index) in steps3"
-          :key="item.id"
-        >
-          <div class="worship__card-badge">
-            <img :src="badge" alt="步驟徽章" class="worship__badge" />
-            <div class="worship__card-badge-text">{{ index + 1 }}</div>
-          </div>
-          <div class="worship__card-left">
-            <img :src="menuDecoBottom" alt="步驟徽章" class="worship__badge" />
-          </div>
-          <div class="worship__card-right">
-            <img :src="menuDecoTop" alt="步驟徽章" class="worship__badge" />
-          </div>
-          <div class="worship__card-content">
-            <p class="worship__text" v-html="item.text"></p>
+        <!-- Tab 3: 神明升級方法 -->
+        <div v-else-if="activeTab === 'upgrade'" class="worship__cards">
+          <div
+            class="worship__card"
+            v-for="(item, index) in steps3"
+            :key="item.id"
+          >
+            <div class="worship__card-badge">
+              <img :src="badge" alt="步驟徽章" class="worship__badge" />
+              <div class="worship__card-badge-text">{{ index + 1 }}</div>
+            </div>
+            <div class="worship__card-left">
+              <img
+                :src="menuDecoBottom"
+                alt="步驟徽章"
+                class="worship__badge"
+              />
+            </div>
+            <div class="worship__card-right">
+              <img :src="menuDecoTop" alt="步驟徽章" class="worship__badge" />
+            </div>
+            <div class="worship__card-content">
+              <p class="worship__text" v-html="item.text"></p>
+            </div>
           </div>
         </div>
       </div>
@@ -104,6 +119,7 @@ import Title from '@/components/common/Title.vue';
 import badge from '@/assets/image/badge.png';
 import menuDecoBottom from '@/assets/image/menu-deco-bottom.png';
 import menuDecoTop from '@/assets/image/menu-deco-top.png';
+import SectionBackground from '@/components/common/SectionBackground.vue';
 
 const activeTab = ref('about');
 
@@ -185,9 +201,12 @@ const steps3 = [
 <style scoped lang="scss">
 .worship {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 4rem 2rem;
+  position: relative;
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
   &__title {
     font-size: 24px;
     font-weight: bold;

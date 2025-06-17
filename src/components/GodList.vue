@@ -1,14 +1,17 @@
 <template>
   <div class="god">
-    <div class="god__list">
-      <div v-for="(god, key) in godImages" :key="key" class="god__card">
-        <div class="god__content">
-          <img :src="god.default" :alt="god.label" class="god__image" />
-          <Title :text="god.label" color="dark" />
-          <p class="god__description" v-html="god.description"></p>
-        </div>
-        <div class="god__action">
-          <StartButton styleType="red" label="請神保庇" />
+    <SectionBackground variant="light" />
+    <div class="god__container">
+      <div class="god__list">
+        <div v-for="(god, key) in godImages" :key="key" class="god__card">
+          <div class="god__content">
+            <img :src="god.default" :alt="god.label" class="god__image" />
+            <Title :text="god.label" color="dark" />
+            <p class="god__description" v-html="god.description"></p>
+          </div>
+          <div class="god__action">
+            <StartButton styleType="red" label="請神保庇" />
+          </div>
         </div>
       </div>
     </div>
@@ -19,14 +22,18 @@
 import godImages from '@/data/godImages';
 import Title from '@/components/common/Title.vue';
 import StartButton from '@/components/StartButton.vue';
+import SectionBackground from '@/components/common/SectionBackground.vue';
 </script>
 
 <style lang="scss" scoped>
 .god {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 4rem 2rem;
+  position: relative;
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
   &__list {
     display: grid;
     grid-template-columns: repeat(2, 1fr);

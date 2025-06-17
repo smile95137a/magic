@@ -1,9 +1,10 @@
 <template>
   <Header />
-  <SectionBackground variant="divination">
-    <section class="god-offering">
+  <section class="god-offering">
+    <SectionBackground variant="divination" />
+    <div class="god-offering__container">
       <Title :text="`請神供奉`" color="white" />
-      <div class="god-offering__container">
+      <div class="god-offering__content">
         <div class="god-offering__text">
           <p class="god-offering__description">
             虔心供奉，神明庇佑。線上請神供奉系統讓您足不出戶即能表達敬意與祈願。
@@ -30,12 +31,10 @@
           </div>
         </div>
       </div>
-    </section>
-  </SectionBackground>
-  <SectionBackground variant="red">
-    <Worship />
-  </SectionBackground>
-  <SectionBackground variant="light"><GodList /> </SectionBackground>
+    </div>
+  </section>
+  <Worship />
+  <GodList />
 
   <Footer />
 </template>
@@ -55,13 +54,17 @@ import Title from '@/components/common/Title.vue';
 <style lang="scss" scoped>
 .god-offering {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 4rem 2rem;
+  position: relative;
+  min-height: 480px;
   &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+  &__content {
     display: flex;
-    flex-direction: row;
-    gap: 3rem;
+    gap: 2rem;
+    align-items: flex-start;
 
     @media (max-width: 768px) {
       flex-direction: column;
