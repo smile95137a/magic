@@ -84,14 +84,14 @@ const props = withDefaults(
     &--left {
       top: 0;
       left: 0;
-      width: 80px;
+      width: 280px;
       height: auto;
     }
 
     &--right {
       bottom: 0;
       right: 0;
-      width: 80px;
+      width: 420px;
       height: auto;
     }
   }
