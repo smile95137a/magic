@@ -48,12 +48,10 @@ const props = withDefaults(
 
 <style scoped lang="scss">
 .section-bg {
-  width: 100%;
-  min-height: 600px;
-  padding: 20px;
   display: flex;
   flex-direction: column;
-  position: relative;
+  position: absolute;
+  inset: 0;
 
   &--red {
     background: linear-gradient(41.51deg, #e0664d 24.05%, #a53b25 60.53%);

@@ -27,6 +27,14 @@ $root-block-style: '.downDialog';
       overflow: hidden;
     }
   }
+  &--poeDivinationDialog {
+    #{$p__main} {
+      height: 80vh;
+      min-height: auto;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+  }
 
   &__overlay {
     position: absolute;
