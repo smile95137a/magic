@@ -1,8 +1,10 @@
 <template>
   <Header />
-  <SectionBackground variant="divination">
-    <div class="divination-confirm">
+  <div class="divination-confirm">
+    <SectionBackground variant="divination" />
+    <div class="divination-confirm__container">
       <div class="divination-confirm__card">
+        <SectionBackground variant="red" />
         <div class="divination-confirm__content">
           <!-- 左側：文字與按鈕 -->
           <div class="divination-confirm__left">
@@ -28,7 +30,7 @@
         </div>
       </div>
     </div>
-  </SectionBackground>
+  </div>
   <Footer />
 </template>
 
@@ -50,18 +52,17 @@ const startDivination = () => {
 <style lang="scss" scoped>
 .divination-confirm {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 4rem 2rem;
-
-  display: flex;
-  justify-content: center;
+  position: relative;
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
 
   &__card {
-    background: linear-gradient(41.51deg, #e0664d 24.05%, #a53b25 60.53%);
-
+    position: relative;
+    overflow: hidden;
     border-radius: 20px;
-    max-width: 1000px;
     width: 100%;
     padding: 3rem 2rem;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);

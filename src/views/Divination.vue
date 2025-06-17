@@ -1,11 +1,12 @@
 <template>
   <Header />
-  <SectionBackground variant="divination">
-    <div class="divination">
-      <div class="divination__container">
+  <div class="divination">
+    <SectionBackground variant="divination" />
+    <div class="divination__container">
+      <div class="divination__content">
         <!-- 左側：文字區塊 -->
         <div class="divination__text">
-          <h2 class="divination__title">求籤問事</h2>
+          <Title :text="`求籤問事`" color="white" />
           <p class="divination__paragraph">
             在人生迷惘之際，古老的籤詩智慧總能為您指引方向，讓您在任何時刻都能獲得神明的指點。當心中有所煩憂或迷惘時，不妨靜下心來，將您心中的煩惱、疑問閉眼誠心，向神明求一支籤詩來指引方向。
           </p>
@@ -35,12 +36,13 @@
         </div>
       </div>
     </div>
-  </SectionBackground>
+  </div>
   <Footer />
 </template>
 
 <script setup lang="ts">
 import SectionBackground from '@/components/common/SectionBackground.vue';
+import Title from '@/components/common/Title.vue';
 import divinationIntro from '@/assets/image/divinationIntro.png';
 import StartButton from '@/components/StartButton.vue';
 import Header from '@/components/Header.vue';
@@ -56,11 +58,13 @@ const goDivination = () => {
 <style lang="scss" scoped>
 .divination {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 4rem 2rem;
-
+  position: relative;
   &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+  &__content {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;

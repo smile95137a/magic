@@ -1,7 +1,8 @@
 <template>
   <Header />
-  <SectionBackground variant="divination">
-    <div class="divination-result">
+  <div class="divination-result">
+    <SectionBackground variant="divination" />
+    <div class="divination-result__container">
       <div class="divination-result__layout">
         <!-- 左側紅色卡片 -->
         <div class="divination-result__card">
@@ -91,7 +92,7 @@
         <StartButton styleType="red" label="消災解厄，點燈祈福" />
       </div>
     </div>
-  </SectionBackground>
+  </div>
   <Footer />
 </template>
 
@@ -105,10 +106,12 @@ import Footer from '@/components/Footer.vue';
 <style lang="scss" scoped>
 .divination-result {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 4rem 2rem;
-
+  position: relative;
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
   &__layout {
     display: flex;
     justify-content: space-between;
