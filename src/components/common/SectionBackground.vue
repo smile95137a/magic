@@ -52,6 +52,7 @@ const props = withDefaults(
   flex-direction: column;
   position: absolute;
   inset: 0;
+  z-index: -1;
 
   &--red {
     background: linear-gradient(41.51deg, #e0664d 24.05%, #a53b25 60.53%);
