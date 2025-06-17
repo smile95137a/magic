@@ -3,7 +3,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import Home from '@/views/Home.vue';
 import Login from '@/views/Login.vue';
 import Register from '@/views/Register.vue';
-import Member from '@/views/Member.vue';
+import MemberCenter from '@/views/MemberCenter/index.vue';
 import Divination from '@/views/Divination.vue';
 import LightProduct from '@/views/LightProduct.vue';
 import Worship from '@/views/Worship.vue';
@@ -12,6 +12,11 @@ import Blessing from '@/views/Blessing.vue';
 import Master from '@/views/Master.vue';
 import Store from '@/views/Store.vue';
 import NotFound from '@/views/NotFound.vue';
+
+import MemberProfile from '@/views/MemberCenter/MemberProfile.vue';
+import MyBlessings from '@/views/MemberCenter/MyBlessings.vue';
+import OrderHistory from '@/views/MemberCenter/OrderHistory.vue';
+import PurchaseHistory from '@/views/MemberCenter/PurchaseHistory.vue';
 
 import { useAuthStore } from '@/stores';
 
@@ -36,9 +41,39 @@ const routes: Array<RouteRecordRaw> = [
     meta: { layout: 'default' },
   },
   {
-    path: '/member',
-    component: Member,
-    meta: { layout: 'default' },
+    path: '/member-center',
+    component: MemberCenter,
+    meta: { requiresAuth: true, layout: 'default' },
+    children: [
+      {
+        path: '',
+        redirect: { name: 'MemberProfile' },
+      },
+      {
+        path: 'profile',
+        name: 'MemberProfile',
+        component: MemberProfile,
+        meta: { layout: 'default' },
+      },
+      {
+        path: 'history',
+        name: 'PurchaseHistory',
+        component: PurchaseHistory,
+        meta: { layout: 'default' },
+      },
+      {
+        path: 'blessing',
+        name: 'MyBlessings',
+        component: MyBlessings,
+        meta: { layout: 'default' },
+      },
+      {
+        path: 'orders',
+        name: 'OrderHistory',
+        component: OrderHistory,
+        meta: { layout: 'default' },
+      },
+    ],
   },
   {
     path: '/divination',

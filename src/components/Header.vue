@@ -11,7 +11,7 @@
       <div class="header__links">
         <RouterLink to="/login">登入</RouterLink>｜
         <RouterLink to="/register">免費加入會員</RouterLink>｜
-        <RouterLink to="/member">會員中心</RouterLink>
+        <RouterLink to="/member-center">會員中心</RouterLink>
       </div>
     </div>
 
