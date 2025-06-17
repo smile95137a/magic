@@ -1,5 +1,6 @@
 <template>
   <Header />
+  <HomeBlessing />
   <Service />
   <Service2 />
 
@@ -7,6 +8,7 @@
 </template>
 
 <script setup>
+import HomeBlessing from '@/components/HomeBlessing.vue';
 import Header from '@/components/Header.vue';
 import Title from '@/components/common/Title.vue';
 import Footer from '@/components/Footer.vue';

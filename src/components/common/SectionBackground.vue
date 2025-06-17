@@ -62,18 +62,7 @@ const props = withDefaults(
     background: #c2aeaa;
   }
 
-  &--divination {
-    position: relative;
-  }
-
   &__divination {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: -1;
   }
 
   &__divination-img {
