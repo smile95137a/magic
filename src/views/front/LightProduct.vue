@@ -107,12 +107,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import Header from '@/components/Header.vue';
+import Header from '@/components/front/Header.vue';
 import MCard from '@/components/common/MCard.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import Title from '@/components/common/Title.vue';
 import lightImages from '@/data/lightImages';
-import LightBlessingTabs from '@/components/LightBlessingTabs.vue';
+import LightBlessingTabs from '@/components/front/LightBlessingTabs.vue';
 const activeTab = ref<'product' | 'my'>('product');
 const lamps = lightImages;
 const selectedLamp = ref(

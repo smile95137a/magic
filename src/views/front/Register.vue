@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import MCard from '@/components/common/MCard.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
-import Header from '@/components/Header.vue';
+import Header from '@/components/front/Header.vue';
 import {
   getAllCityNames,
   getAreaListByCityName,

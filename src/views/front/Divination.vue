@@ -9,11 +9,11 @@
 </template>
 
 <script setup lang="ts">
-import Header from '@/components/Header.vue';
-import Footer from '@/components/Footer.vue';
-import DivinationInfo from '@/components/DivinationInfo.vue';
-import DivinationConfirm from '@/components/DivinationConfirm.vue';
-import DivinationResult from '@/components/DivinationResult.vue';
+import Header from '@/components/front/Header.vue';
+import Footer from '@/components/front/Footer.vue';
+import DivinationInfo from '@/components/front/DivinationInfo.vue';
+import DivinationConfirm from '@/components/front/DivinationConfirm.vue';
+import DivinationResult from '@/components/front/DivinationResult.vue';
 import { storeToRefs } from 'pinia';
 import { useDivinationStepStore } from '@/stores/divinationStepStore';
 

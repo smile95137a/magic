@@ -51,7 +51,7 @@
 
 <script setup lang="ts">
 import Dialog from './Dialog.vue';
-import StartButton from '@/components/StartButton.vue';
+import StartButton from '@/components/front/StartButton.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import bwaYin from '@/assets/image/bwa-yin.png';
 import bwaXiao from '@/assets/image/bwa-xiao.png';

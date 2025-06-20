@@ -96,10 +96,10 @@
 
 <script setup lang="ts">
 import poemBg from '@/assets/image/poem-bg.png';
-import StartButton from '@/components/StartButton.vue';
+import StartButton from '@/components/front/StartButton.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
-import Header from '@/components/Header.vue';
-import Footer from '@/components/Footer.vue';
+import Header from '@/components/front/Header.vue';
+import Footer from '@/components/front/Footer.vue';
 </script>
 <style lang="scss" scoped>
 .divination-result {

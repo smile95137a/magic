@@ -51,7 +51,7 @@
 import divinationIntro from '@/assets/image/divinationIntro.png';
 import godImages from '@/data/godImages';
 import Title from '@/components/common/Title.vue';
-import StartButton from '@/components/StartButton.vue';
+import StartButton from '@/components/front/StartButton.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 </script>
 

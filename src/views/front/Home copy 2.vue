@@ -82,7 +82,7 @@ import shengIcon from '@/assets/image/bwa-sheng.png';
 import godYuelao from '@/assets/image/god_yuelao.png';
 import godBg from '@/assets/image/god-bg-r.png';
 import SectionBackground from '@/components/common/SectionBackground.vue';
-import StartButton from '@/components/StartButton.vue';
+import StartButton from '@/components/front/StartButton.vue';
 
 const currentResult = ref('');
 const totalTries = ref(0);

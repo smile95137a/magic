@@ -8,15 +8,11 @@
 </template>
 
 <script setup>
-import HomeBlessing from '@/components/HomeBlessing.vue';
-import Header from '@/components/Header.vue';
-import Title from '@/components/common/Title.vue';
-import Footer from '@/components/Footer.vue';
-import GodList from '@/components/GodList.vue';
-import Service from '@/components/Service.vue';
-import Service2 from '@/components/Service2.vue';
-import Worship from '@/components/Worship.vue';
-import SectionBackground from '@/components/common/SectionBackground.vue';
+import HomeBlessing from '@/components/front/HomeBlessing.vue';
+import Header from '@/components/front/Header.vue';
+import Footer from '@/components/front/Footer.vue';
+import Service from '@/components/front/Service.vue';
+import Service2 from '@/components/front/Service2.vue';
 </script>
 
 <style lang="scss" scoped>

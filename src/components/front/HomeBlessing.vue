@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import CalendarCard from '@/components/CalendarCard.vue';
+import CalendarCard from '@/components/front/CalendarCard.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 </script>
 

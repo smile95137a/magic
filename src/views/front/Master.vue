@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import Header from '@/components/Header.vue';
+import Header from '@/components/front/Header.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import Title from '@/components/common/Title.vue';
 import master from '@/assets/image/master.png';

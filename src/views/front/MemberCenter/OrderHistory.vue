@@ -15,48 +15,55 @@
       <button class="order-history__btn" @click="handleSearch">查詢</button>
     </div>
 
-    <!-- 表格 -->
-    <table class="order-history__table">
-      <thead>
-        <tr>
-          <th>日期</th>
-          <th>訂單編號</th>
-          <th>內容</th>
-          <th>狀態</th>
-          <th>明細</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(item, index) in currentPageItems" :key="index">
-          <td>{{ item.date }}</td>
-          <td>
-            <div>{{ item.orderId }}</div>
-            <div>{{ item.orderId }}</div>
-          </td>
-          <td>{{ item.content }}</td>
-          <td>{{ item.status }}</td>
-          <td>
-            <button class="order-history__link" @click="openDialog(item)">
-              明細
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <!-- 資料區塊 -->
+    <div class="order-history__table-wrap">
+      <template v-if="currentPageItems.length > 0">
+        <!-- 表格 -->
+        <table class="order-history__table">
+          <thead>
+            <tr>
+              <th>日期</th>
+              <th>訂單編號</th>
+              <th>內容</th>
+              <th>狀態</th>
+              <th>明細</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in currentPageItems" :key="index">
+              <td>{{ item.date }}</td>
+              <td>
+                <div>{{ item.orderId }}</div>
+                <div>{{ item.orderId }}</div>
+              </td>
+              <td>{{ item.content }}</td>
+              <td>{{ item.status }}</td>
+              <td>
+                <button class="order-history__link" @click="openDialog(item)">
+                  明細
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-    <!-- 分頁 -->
-    <div class="flex justify-center m-t-12">
-      <Pagination
-        :totalPages="totalPages"
-        :renderPaginationNums="renderPaginationNums"
-        :currentPage="currentPage"
-        :nextPage="nextPage"
-        :previousPage="previousPage"
-        :goToPage="goToPage"
-        :pageLimitSize="pageLimitSize"
-        :totalItems="list.length"
-        @update:pageLimitSize="pageLimitSize = $event"
-      />
+        <!-- 分頁 -->
+        <div class="flex justify-center m-t-12">
+          <Pagination
+            :totalPages="totalPages"
+            :renderPaginationNums="renderPaginationNums"
+            :currentPage="currentPage"
+            :nextPage="nextPage"
+            :previousPage="previousPage"
+            :goToPage="goToPage"
+            :pageLimitSize="pageLimitSize"
+            :totalItems="list.length"
+            @update:pageLimitSize="pageLimitSize = $event"
+          />
+        </div>
+      </template>
+
+      <NoData v-else />
     </div>
 
     <!-- 明細 Dialog -->
@@ -80,6 +87,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import Pagination from '@/components/common/Pagination.vue';
+import NoData from '@/components/common/NoData.vue';
 import { usePagination } from '@/hook/usePagination';
 
 const startDate = ref('2024-08-04');

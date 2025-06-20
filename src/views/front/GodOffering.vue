@@ -40,13 +40,11 @@
 </template>
 
 <script setup>
-import Header from '@/components/Header.vue';
+import Header from '@/components/front/Header.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
-import Footer from '@/components/Footer.vue';
-import GodList from '@/components/GodList.vue';
-import Service from '@/components/Service.vue';
-import Service2 from '@/components/Service2.vue';
-import Worship from '@/components/Worship.vue';
+import Footer from '@/components/front/Footer.vue';
+import GodList from '@/components/front/GodList.vue';
+import Worship from '@/components/front/Worship.vue';
 import godImages from '@/data/godImages';
 import Title from '@/components/common/Title.vue';
 </script>

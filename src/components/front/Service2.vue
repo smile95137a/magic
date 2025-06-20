@@ -49,7 +49,7 @@
 import teacher1 from '@/assets/image/teacher_1.png';
 import lightImages from '@/data/lightImages';
 import Title from '@/components/common/Title.vue';
-import StartButton from '@/components/StartButton.vue';
+import StartButton from '@/components/front/StartButton.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 </script>
 

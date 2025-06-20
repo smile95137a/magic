@@ -36,13 +36,13 @@
 </template>
 
 <script setup>
-import Header from '@/components/Header.vue';
+import Header from '@/components/front/Header.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
-import LightBlessingTabs from '@/components/LightBlessingTabs.vue';
-import LatestLightScene from '@/components/LatestLightScene.vue';
-import LightBlessingScene from '@/components/LightBlessingScene.vue';
-import TopLightBlessingScene from '@/components/TopLightBlessingScene.vue';
-import Footer from '@/components/Footer.vue';
+import LightBlessingTabs from '@/components/front/LightBlessingTabs.vue';
+import LatestLightScene from '@/components/front/LatestLightScene.vue';
+import LightBlessingScene from '@/components/front/LightBlessingScene.vue';
+import TopLightBlessingScene from '@/components/front/TopLightBlessingScene.vue';
+import Footer from '@/components/front/Footer.vue';
 import Title from '@/components/common/Title.vue';
 import lightImages from '@/data/lightImages';
 </script>

@@ -57,10 +57,10 @@
 <script setup lang="ts">
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import divinationIntro from '@/assets/image/divinationIntro.png';
-import StartButton from '@/components/StartButton.vue';
+import StartButton from '@/components/front/StartButton.vue';
 import MCard from '@/components/common/MCard.vue';
-import Header from '@/components/Header.vue';
-import Footer from '@/components/Footer.vue';
+import Header from '@/components/front/Header.vue';
+import Footer from '@/components/front/Footer.vue';
 import { ref } from 'vue';
 
 const selectedItem = ref('love');

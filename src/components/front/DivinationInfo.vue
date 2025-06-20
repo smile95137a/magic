@@ -42,7 +42,7 @@
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import Title from '@/components/common/Title.vue';
 import divinationIntro from '@/assets/image/divinationIntro.png';
-import StartButton from '@/components/StartButton.vue';
+import StartButton from '@/components/front/StartButton.vue';
 import { useDivinationStepStore } from '@/stores/divinationStepStore';
 const stepStore = useDivinationStepStore();
 const { nextStep, prevStep, resetStep } = stepStore;
