@@ -1,5 +1,4 @@
 <template>
-  <Header />
   <div class="blessing-page">
     <SectionBackground variant="divination" />
     <div class="blessing-page__container">

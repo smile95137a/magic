@@ -1,11 +1,7 @@
 <template>
-  <Header />
-
   <DivinationInfo v-if="stepIndex === 1" @next="nextStep" />
   <DivinationConfirm v-if="stepIndex === 2" @next="nextStep" @prev="prevStep" />
   <DivinationResult v-if="stepIndex === 3" @reset="resetStep" />
-
-  <Footer />
 </template>
 
 <script setup lang="ts">

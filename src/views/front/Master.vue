@@ -1,5 +1,4 @@
 <template>
-  <Header />
   <section class="master">
     <SectionBackground variant="divination" />
     <div class="master__container">

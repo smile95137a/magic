@@ -1,5 +1,4 @@
 <template>
-  <Header />
   <section class="god-offering">
     <SectionBackground variant="divination" />
     <div class="god-offering__container">
@@ -35,8 +34,6 @@
   </section>
   <Worship />
   <GodList />
-
-  <Footer />
 </template>
 
 <script setup>

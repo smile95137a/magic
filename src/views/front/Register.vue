@@ -112,7 +112,6 @@ watch(area, (newArea) => {
 </script>
 
 <template>
-  <Header />
   <div class="register">
     <SectionBackground variant="divination" />
     <div class="register__container">

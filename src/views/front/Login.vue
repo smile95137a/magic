@@ -1,5 +1,4 @@
 <template>
-  <Header />
   <div class="login">
     <SectionBackground variant="divination" />
     <div class="login__container">

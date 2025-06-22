@@ -1,5 +1,4 @@
 <template>
-  <Header />
   <section class="light-blessing">
     <SectionBackground variant="divination" />
     <div class="light-blessing__container">
@@ -32,7 +31,6 @@
   <LatestLightScene />
   <LightBlessingScene />
   <TopLightBlessingScene />
-  <Footer />
 </template>
 
 <script setup>

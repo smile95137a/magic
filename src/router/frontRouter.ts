@@ -1,5 +1,6 @@
 // 前台路由
 import { RouteRecordRaw } from 'vue-router';
+import FrontLayout from '@/layouts/FrontLayout.vue';
 import Home from '@/views/front/Home.vue';
 import Login from '@/views/front/Login.vue';
 import Register from '@/views/front/Register.vue';
@@ -16,98 +17,56 @@ import MemberProfile from '@/views/front/MemberCenter/MemberProfile.vue';
 import PurchaseHistory from '@/views/front/MemberCenter/PurchaseHistory.vue';
 import MyBlessings from '@/views/front/MemberCenter/MyBlessings.vue';
 import OrderHistory from '@/views/front/MemberCenter/OrderHistory.vue';
-
 export const frontRoutes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/home',
-  },
-  {
-    path: '/home',
-    component: Home,
+    component: FrontLayout,
     meta: { layout: 'default' },
-  },
-  {
-    path: '/login',
-    component: Login,
-    meta: { layout: 'default' },
-  },
-  {
-    path: '/register',
-    component: Register,
-    meta: { layout: 'default' },
-  },
-  {
-    path: '/member-center',
-    component: MemberCenter,
-    meta: { requiresAuth: true, layout: 'default' },
     children: [
-      { path: '', redirect: { name: 'MemberProfile' } },
+      { path: '', redirect: '/home' },
+      { path: 'home', component: Home },
+      { path: 'login', component: Login },
+      { path: 'register', component: Register },
       {
-        path: 'memberProfile',
-        name: 'MemberProfile',
-        component: MemberProfile,
-        meta: { layout: 'default' },
+        path: 'member-center',
+        component: MemberCenter,
+        meta: { requiresAuth: true },
+        children: [
+          { path: '', redirect: { name: 'MemberProfile' } },
+          {
+            path: 'memberProfile',
+            name: 'MemberProfile',
+            component: MemberProfile,
+          },
+          {
+            path: 'purchaseHistory',
+            name: 'PurchaseHistory',
+            component: PurchaseHistory,
+          },
+          {
+            path: 'myBlessings',
+            name: 'MyBlessings',
+            component: MyBlessings,
+          },
+          {
+            path: 'orderHistory',
+            name: 'OrderHistory',
+            component: OrderHistory,
+          },
+        ],
       },
+      { path: 'divination', component: Divination },
+      { path: 'worship', component: Worship },
+      { path: 'godOffering', component: GodOffering },
+      { path: 'lightProduct', component: LightProduct },
+      { path: 'blessing', component: Blessing },
+      { path: 'master', component: Master },
+      { path: 'store', component: Store },
       {
-        path: 'purchaseHistory',
-        name: 'PurchaseHistory',
-        component: PurchaseHistory,
-        meta: { layout: 'default' },
-      },
-      {
-        path: 'myBlessings',
-        name: 'MyBlessings',
-        component: MyBlessings,
-        meta: { layout: 'default' },
-      },
-      {
-        path: 'orderHistory',
-        name: 'OrderHistory',
-        component: OrderHistory,
-        meta: { layout: 'default' },
+        path: ':pathMatch(.*)*',
+        name: 'NotFound',
+        component: NotFound,
       },
     ],
-  },
-  {
-    path: '/divination',
-    component: Divination,
-    meta: { layout: 'default' },
-  },
-  {
-    path: '/worship',
-    component: Worship,
-    meta: { layout: 'default' },
-  },
-  {
-    path: '/godOffering',
-    component: GodOffering,
-    meta: { layout: 'default' },
-  },
-  {
-    path: '/lightProduct',
-    component: LightProduct,
-    meta: { layout: 'default' },
-  },
-  {
-    path: '/blessing',
-    component: Blessing,
-    meta: { layout: 'default' },
-  },
-  {
-    path: '/master',
-    component: Master,
-    meta: { layout: 'default' },
-  },
-  {
-    path: '/store',
-    component: Store,
-    meta: { layout: 'default' },
-  },
-  {
-    path: '/:pathMatch(.*)*',
-    name: 'NotFound',
-    component: NotFound,
-    meta: { layout: 'default' },
   },
 ];

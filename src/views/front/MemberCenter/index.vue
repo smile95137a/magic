@@ -1,5 +1,4 @@
 <template>
-  <Header />
   <div class="member-center">
     <SectionBackground variant="divination" />
 

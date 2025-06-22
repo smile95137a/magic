@@ -1,10 +1,7 @@
 <template>
-  <Header />
   <HomeBlessing />
   <Service />
   <Service2 />
-
-  <Footer />
 </template>
 
 <script setup>
