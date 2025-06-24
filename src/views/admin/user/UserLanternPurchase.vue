@@ -1,13 +1,13 @@
 <template>
-  <div class="adminnotfound">
-    <h1 class="adminnotfound__title">找不到頁面</h1>
+  <div class="user-userlanternpurchase">
+    <h1 class="user-userlanternpurchase__title">用戶購買燈明細</h1>
   </div>
 </template>
 
 <script setup></script>
 
 <style scoped lang="scss">
-.adminnotfound {
+.user-userlanternpurchase {
   &__title {
     font-size: 24px;
     font-weight: bold;

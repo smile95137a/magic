@@ -1,13 +1,13 @@
 <template>
-  <div class="adminnotfound">
-    <h1 class="adminnotfound__title">找不到頁面</h1>
+  <div class="teacher-teacherdetail">
+    <h1 class="teacher-teacherdetail__title">老師詳細資料</h1>
   </div>
 </template>
 
 <script setup></script>
 
 <style scoped lang="scss">
-.adminnotfound {
+.teacher-teacherdetail {
   &__title {
     font-size: 24px;
     font-weight: bold;

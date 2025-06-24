@@ -1,13 +1,13 @@
 <template>
-  <div class="adminnotfound">
-    <h1 class="adminnotfound__title">找不到頁面</h1>
+  <div class="mall-itemmanagement">
+    <h1 class="mall-itemmanagement__title">商城商品管理</h1>
   </div>
 </template>
 
 <script setup></script>
 
 <style scoped lang="scss">
-.adminnotfound {
+.mall-itemmanagement {
   &__title {
     font-size: 24px;
     font-weight: bold;
