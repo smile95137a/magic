@@ -12,17 +12,23 @@ import TeacherBookingList from '@/views/admin/teacher/TeacherBookingList.vue';
 
 import UserLanternPurchase from '@/views/admin/user/UserLanternPurchase.vue';
 import UserOfferingPurchase from '@/views/admin/user/UserOfferingPurchase.vue';
+import UserManagement from '@/views/admin/user/UserManagement.vue';
+import UserForm from '@/views/admin/user/UserForm.vue';
 
 import BannerManagement from '@/views/admin/banner/BannerManagement.vue';
 import BannerForm from '@/views/admin/banner/BannerForm.vue';
 
-import MallCategoryManagement from '@/views/admin/mall/CategoryManagement.vue';
-import MallItemManagement from '@/views/admin/mall/ItemManagement.vue';
+import MallCategoryManagement from '@/views/admin/mall/MallCategoryManagement.vue';
+import MallCategoryForm from '@/views/admin/mall/MallCategoryForm.vue';
+import MallItemManagement from '@/views/admin/mall/MallItemManagement.vue';
+import MallItemForm from '@/views/admin/mall/MallItemForm.vue';
 
 import MallReport from '@/views/admin/report/MallPurchaseReport.vue';
 
 import LanternSetting from '@/views/admin/setting/LanternSetting.vue';
+import LanternForm from '@/views/admin/setting/LanternForm.vue';
 import LanternRecommend from '@/views/admin/setting/LanternRecommend.vue';
+import LanternRecommendForm from '@/views/admin/setting/LanternRecommendForm.vue';
 
 export const adminRoutes: Array<RouteRecordRaw> = [
   {
@@ -110,13 +116,48 @@ export const adminRoutes: Array<RouteRecordRaw> = [
       },
 
       // 6. 商城管理
+      // 商城管理
       {
-        path: 'mall/categories',
-        component: MallCategoryManagement,
-      },
-      {
-        path: 'mall/items',
-        component: MallItemManagement,
+        path: 'mall',
+        meta: { requiresAuth: true, layout: 'admin' },
+        children: [
+          {
+            path: 'categories',
+            name: 'MallCategoryList',
+            component: MallCategoryManagement,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+          {
+            path: 'categories/add',
+            name: 'MallCategoryAdd',
+            component: MallCategoryForm,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+          {
+            path: 'categories/edit/:id',
+            name: 'MallCategoryEdit',
+            component: MallCategoryForm,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+          {
+            path: 'items',
+            name: 'MallItemList',
+            component: MallItemManagement,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+          {
+            path: 'items/add',
+            name: 'MallItemAdd',
+            component: MallItemForm,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+          {
+            path: 'items/edit/:id',
+            name: 'MallItemEdit',
+            component: MallItemForm,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+        ],
       },
 
       // 7. 報表
@@ -127,12 +168,71 @@ export const adminRoutes: Array<RouteRecordRaw> = [
 
       // 8. 參數設定
       {
-        path: 'settings/lantern',
-        component: LanternSetting,
+        path: 'settings',
+        meta: { requiresAuth: true, layout: 'admin' },
+        children: [
+          {
+            path: 'lantern',
+            name: 'LanternSetting',
+            component: LanternSetting,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+          {
+            path: 'lantern/add',
+            name: 'LanternAdd',
+            component: LanternForm,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+          {
+            path: 'lantern/edit/:id',
+            name: 'LanternEdit',
+            component: LanternForm,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+          {
+            path: 'lantern-recommend',
+            name: 'LanternRecommend',
+            component: LanternRecommend,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+          {
+            path: 'lantern-recommend/add',
+            name: 'LanternRecommendAdd',
+            component: LanternRecommendForm,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+          {
+            path: 'lantern-recommend/edit/:id',
+            name: 'LanternRecommendEdit',
+            component: LanternRecommendForm,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+        ],
       },
+
+      // 9. 使用者管理
       {
-        path: 'settings/lantern-recommend',
-        component: LanternRecommend,
+        path: 'users',
+        children: [
+          {
+            path: '',
+            name: 'UserList',
+            component: UserManagement,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+          {
+            path: 'add',
+            name: 'UserAdd',
+            component: UserForm,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+          {
+            path: 'edit/:id',
+            name: 'UserEdit',
+            component: UserForm,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+        ],
       },
 
       // 404 for /admin/*

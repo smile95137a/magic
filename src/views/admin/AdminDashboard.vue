@@ -3,8 +3,14 @@
     <aside class="admin-layout__sidebar">
       <h2 class="admin-layout__logo">後台管理</h2>
       <ul class="admin-layout__menu">
-        <li class="admin-layout__menu-item" v-for="item in menu" :key="item.path">
-          <router-link class="admin-layout__link" :to="item.path">{{ item.label }}</router-link>
+        <li
+          class="admin-layout__menu-item"
+          v-for="item in menu"
+          :key="item.path"
+        >
+          <router-link class="admin-layout__link" :to="item.path">{{
+            item.label
+          }}</router-link>
         </li>
       </ul>
     </aside>
@@ -33,6 +39,7 @@ const menu = [
   { label: '商城報表', path: '/admin/reports/mall-purchases' },
   { label: '燈籠設定', path: '/admin/settings/lantern' },
   { label: '推薦設定', path: '/admin/settings/lantern-recommend' },
+  { label: '使用者管理', path: '/admin/users' }, // ✅ 新增這一行
 ];
 </script>
 
