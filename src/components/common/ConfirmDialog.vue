@@ -38,14 +38,14 @@
             class="confirmDialog__main-btn confirmDialog__main-btn--confirm"
             @click="handleConfirm"
           >
-            確定
+            {{ confirmDialogOptions?.confirmText || '確定' }}
           </button>
           <button
             type="button"
             class="confirmDialog__main-btn confirmDialog__main-btn--cancel"
             @click="handleClose(false)"
           >
-            取消
+            {{ confirmDialogOptions?.cancelText || '取消' }}
           </button>
         </div>
       </div>

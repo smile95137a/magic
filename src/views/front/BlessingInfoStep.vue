@@ -1,85 +1,46 @@
 <template>
-  <div class="blessing-page">
-    <SectionBackground variant="divination" />
-    <div class="blessing-page__container">
-      <Title color="white" text="點燈祈福" />
-      <div class="blessing-page__header">
-        <p class="blessing-page__description">
-          請點選下列表的任一盞燈，即可看到該盞燈的介紹，並進行選購。
-        </p>
-      </div>
+  <div class="lamp-box" v-if="step === 2">
+    <h3 class="lamp-box__title">填寫祈福者資料</h3>
+    <div
+      v-for="(info, index) in contactInfos"
+      :key="index"
+      class="lamp-box__column"
+    >
+      <label class="lamp-box__label">第 {{ index + 1 }} 位祈福者姓名</label>
+      <input
+        v-model="info.name"
+        type="text"
+        class="lamp-box__input"
+        placeholder="請輸入姓名"
+      />
 
-      <LightBlessingTabs />
+      <label class="lamp-box__label">生日</label>
+      <input v-model="info.birthday" type="date" class="lamp-box__input" />
 
-      <!-- 燈品列表 -->
-      <div class="blessing-page__section">
-        <Title color="dark" text="祈福燈產品" />
-        <div class="blessing-page__grid">
-          <div
-            class="blessing-page__item"
-            v-for="lamp in lamps"
-            :key="lamp.id"
-            @click="selectLamp(lamp)"
-          >
-            <img
-              :src="lamp.image"
-              :alt="lamp.name"
-              class="blessing-page__item-image"
-            />
-          </div>
-        </div>
-      </div>
-
-      <MCard>
-        <!-- Step 1: 選擇燈數 -->
-
-        <!-- Step 2: 填寫聯絡人及其他資訊 -->
-
-        <!-- 說明區塊 -->
-      </MCard>
+      <label class="lamp-box__label">祈福內容</label>
+      <textarea
+        v-model="info.blessing"
+        class="lamp-box__textarea"
+        placeholder="請輸入祈福內容"
+      ></textarea>
+    </div>
+    <div class="lamp-box__actions">
+      <button class="lamp-box__submit" @click="step = 1">上一步</button>
+      <button class="lamp-box__submit" @click="finalSubmit">送出祈福</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import MCard from '@/components/common/MCard.vue';
-import SectionBackground from '@/components/common/SectionBackground.vue';
-import Title from '@/components/common/Title.vue';
-import LightBlessingTabs from '@/components/front/LightBlessingTabs.vue';
-import lightImages from '@/data/lightImages';
+import { useBlessingStore } from '@/stores/blessingStore';
 
-const step = ref(1);
-const lamps = lightImages;
-const selectedLamp = ref(
-  lamps.find((l) => l.key === 'lightTaishui') || lamps[0]
-);
-
-// 燈數
-const quantity = ref(1);
-// 聯絡資訊資料：姓名、生日、祈福內容
-const contactInfos = ref<
-  { name: string; birthday: string; blessing: string }[]
->([]);
-
-const selectLamp = (lamp: (typeof lamps)[0]) => {
-  selectedLamp.value = lamp;
-};
-
-// 點擊「下一步」時，根據燈數產生對應資料結構
-const nextStep = () => {
-  contactInfos.value = Array.from({ length: quantity.value }, () => ({
-    name: '',
-    birthday: '',
-    blessing: '',
-  }));
-  step.value = 2;
-};
+const store = useBlessingStore();
 
 const finalSubmit = () => {
-  console.log('選擇燈數：', quantity.value);
-  console.log('祈福者資料：', contactInfos.value);
+  console.log('✅ 燈數:', store.quantity);
+  console.log('✅ 祈福名單:', store.contactInfos);
   alert('送出成功！');
+  store.reset();
 };
 </script>
 

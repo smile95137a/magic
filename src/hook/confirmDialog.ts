@@ -4,6 +4,8 @@ interface DialogOptions {
   customClass?: string;
   title?: string;
   message?: string;
+  confirmText?: string;
+  cancelText?: string;
 }
 
 export function useConfirmDialog() {

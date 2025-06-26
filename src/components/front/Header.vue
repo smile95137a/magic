@@ -2,16 +2,13 @@
   <header class="header">
     <div class="header__top">
       <div class="header__logo">
-        <img
-          src="@/assets/image/magic_joe.png"
-          alt="祈願文舍 Logo"
-          class="header__logo-img"
-        />
-      </div>
-      <div class="header__links">
-        <RouterLink to="/login">登入</RouterLink>｜
-        <RouterLink to="/register">免費加入會員</RouterLink>｜
-        <RouterLink to="/member-center">會員中心</RouterLink>
+        <RouterLink to="/">
+          <img
+            src="@/assets/image/magic_joe.png"
+            alt="祈願文舍 Logo"
+            class="header__logo-img"
+          />
+        </RouterLink>
       </div>
     </div>
 
@@ -28,17 +25,33 @@
         <RouterLink to="/store">開運商店</RouterLink>
       </div>
       <div class="header__nav-right">
-        <RouterLink to="/login" class="btn btn--primary">登入</RouterLink>
-        <RouterLink to="/register" class="btn btn--outline"
-          >免費加入會員</RouterLink
-        >
+        <template v-if="authStore.isLogin">
+          <RouterLink to="/member-center" class="btn btn--primary"
+            >會員中心</RouterLink
+          >
+          <button class="btn btn--outline" @click="logout">登出</button>
+        </template>
+        <template v-else>
+          <RouterLink to="/login" class="btn btn--primary">登入</RouterLink>
+          <RouterLink to="/register" class="btn btn--outline"
+            >免費加入會員</RouterLink
+          >
+        </template>
       </div>
     </nav>
   </header>
 </template>
+<script setup lang="ts">
+import { useAuthStore } from '@/stores/authStore';
+import { useRouter } from 'vue-router';
 
-<script setup>
-// 無狀態邏輯
+const authStore = useAuthStore();
+const router = useRouter();
+
+const logout = async () => {
+  authStore.clearAuthData();
+  router.push('/login'); // 登出後導回登入頁
+};
 </script>
 
 <style scoped lang="scss">

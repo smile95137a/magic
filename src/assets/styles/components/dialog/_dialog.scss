@@ -10,8 +10,8 @@ $root-block-style: '.downDialog';
 
   &--confirmDialog {
     #{$p__main} {
-      height: 200px;
-      max-width: 320px;
+      height: 320px;
+      width: 80%;
       min-height: auto;
       border-radius: 12px;
       overflow: hidden;
@@ -20,8 +20,8 @@ $root-block-style: '.downDialog';
 
   &--infoDialog {
     #{$p__main} {
-      height: 200px;
-      max-width: 320px;
+      height: 320px;
+      width: 80%;
       min-height: auto;
       border-radius: 12px;
       overflow: hidden;

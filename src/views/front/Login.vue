@@ -84,6 +84,7 @@ import googleLogo from '@/assets/image/google.svg';
 import MCard from '@/components/common/MCard.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import Header from '@/components/front/Header.vue';
+import { login } from '@/services/AuthService';
 import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
 import { useForm } from 'vee-validate';
 import { onMounted } from 'vue';

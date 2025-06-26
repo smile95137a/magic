@@ -4,12 +4,14 @@ interface InfoDialogOptions {
   customClass?: string;
   title?: string;
   message?: string;
+  confirmText?: string;
+  params?: any;
 }
 
 export function useInfoDialog() {
   const isInfoDialogOpen = ref<boolean>(false);
   const infoDialogOptions = ref<InfoDialogOptions | null>(null);
-  const customClass = ref<string | undefined>(undefined);
+  const infoDialogCustomClass = ref<string | undefined>(undefined);
   let resolveInfoDialogPromise: (value: boolean) => void;
 
   const openInfoDialog = (
@@ -17,7 +19,7 @@ export function useInfoDialog() {
   ): Promise<boolean> => {
     isInfoDialogOpen.value = true;
     infoDialogOptions.value = options;
-    customClass.value = options.customClass;
+    infoDialogCustomClass.value = options.customClass;
     return new Promise<boolean>((resolve) => {
       resolveInfoDialogPromise = resolve;
     });
@@ -33,7 +35,7 @@ export function useInfoDialog() {
   return {
     isInfoDialogOpen,
     infoDialogOptions,
-    customClass,
+    infoDialogCustomClass,
     openInfoDialog,
     closeInfoDialog,
   };

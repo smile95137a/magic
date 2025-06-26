@@ -6,6 +6,7 @@ import AdminLogin from '@/views/admin/AdminLogin.vue';
 import AdminNotFound from '@/views/admin/AdminNotFound.vue';
 
 import TeacherList from '@/views/admin/teacher/TeacherList.vue';
+import TeacherForm from '@/views/admin/teacher/TeacherForm.vue';
 import TeacherDetail from '@/views/admin/teacher/TeacherDetail.vue';
 import TeacherBookingList from '@/views/admin/teacher/TeacherBookingList.vue';
 
@@ -30,95 +31,116 @@ export const adminRoutes: Array<RouteRecordRaw> = [
     meta: { layout: 'admin' },
   },
   {
-    path: '/admin/dashboard',
+    path: '/admin',
     component: AdminDashboard,
     meta: { requiresAuth: true, layout: 'admin' },
-  },
+    children: [
+      // 1. 老師資訊管理
+      {
+        path: 'teachers',
+        children: [
+          {
+            path: '',
+            name: 'TeacherList',
+            component: TeacherList,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+          {
+            path: 'add',
+            name: 'TeacherAdd',
+            component: TeacherForm,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+          {
+            path: 'edit/:id',
+            name: 'TeacherEdit',
+            component: TeacherForm,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+          {
+            path: ':id',
+            name: 'TeacherDetail',
+            component: TeacherDetail,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+        ],
+      },
 
-  // 1. 老師資訊管理
-  {
-    path: '/admin/teachers',
-    component: TeacherList,
-    meta: { requiresAuth: true, layout: 'admin' },
-  },
-  {
-    path: '/admin/teachers/:id',
-    component: TeacherDetail,
-    meta: { requiresAuth: true, layout: 'admin' },
-  },
+      // 2. 老師預約明細
+      {
+        path: 'teacher-bookings',
+        component: TeacherBookingList,
+      },
 
-  // 2. 老師預約明細
-  {
-    path: '/admin/teacher-bookings',
-    component: TeacherBookingList,
-    meta: { requiresAuth: true, layout: 'admin' },
-  },
+      // 3. user購買燈的明細
+      {
+        path: 'user-lantern-purchases',
+        component: UserLanternPurchase,
+      },
 
-  // 3. user購買燈的明細
-  {
-    path: '/admin/user-lantern-purchases',
-    component: UserLanternPurchase,
-    meta: { requiresAuth: true, layout: 'admin' },
-  },
+      // 4. user購買供品明細
+      {
+        path: 'user-offering-purchases',
+        component: UserOfferingPurchase,
+      },
 
-  // 4. user購買供品明細
-  {
-    path: '/admin/user-offering-purchases',
-    component: UserOfferingPurchase,
-    meta: { requiresAuth: true, layout: 'admin' },
-  },
+      // 5. banner 管理
+      {
+        path: 'banners',
+        children: [
+          {
+            path: '',
+            name: 'BannerList',
+            component: BannerManagement,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+          {
+            path: 'add',
+            name: 'BannerAdd',
+            component: BannerForm,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+          {
+            path: 'edit/:id',
+            name: 'BannerEdit',
+            component: BannerForm,
+            meta: { requiresAuth: true, layout: 'admin' },
+          },
+        ],
+      },
 
-  // 5. banner 管理
-  {
-    path: '/admin/banners',
-    component: BannerManagement,
-    meta: { requiresAuth: true, layout: 'admin' },
-  },
-  {
-    path: '/admin/banners/add',
-    component: BannerForm,
-  },
-  {
-    path: '/admin/banners/edit/:id',
-    component: BannerForm,
-  },
+      // 6. 商城管理
+      {
+        path: 'mall/categories',
+        component: MallCategoryManagement,
+      },
+      {
+        path: 'mall/items',
+        component: MallItemManagement,
+      },
 
-  // 6. 商城管理：分類與商品
-  {
-    path: '/admin/mall/categories',
-    component: MallCategoryManagement,
-    meta: { requiresAuth: true, layout: 'admin' },
-  },
-  {
-    path: '/admin/mall/items',
-    component: MallItemManagement,
-    meta: { requiresAuth: true, layout: 'admin' },
-  },
+      // 7. 報表
+      {
+        path: 'reports/mall-purchases',
+        component: MallReport,
+      },
 
-  // 7. 報表：商城購買明細
-  {
-    path: '/admin/reports/mall-purchases',
-    component: MallReport,
-    meta: { requiresAuth: true, layout: 'admin' },
-  },
+      // 8. 參數設定
+      {
+        path: 'settings/lantern',
+        component: LanternSetting,
+      },
+      {
+        path: 'settings/lantern-recommend',
+        component: LanternRecommend,
+      },
 
-  // 8. 參數設定：燈籠購買、推薦
-  {
-    path: '/admin/settings/lantern',
-    component: LanternSetting,
-    meta: { requiresAuth: true, layout: 'admin' },
-  },
-  {
-    path: '/admin/settings/lantern-recommend',
-    component: LanternRecommend,
-    meta: { requiresAuth: true, layout: 'admin' },
-  },
-
-  // Not Found
-  {
-    path: '/admin/:pathMatch(.*)*',
-    name: 'AdminNotFound',
-    component: AdminNotFound,
-    meta: { layout: 'admin' },
+      // 404 for /admin/*
+      {
+        path: ':pathMatch(.*)*',
+        name: 'AdminNotFound',
+        component: AdminNotFound,
+      },
+    ],
   },
 ];

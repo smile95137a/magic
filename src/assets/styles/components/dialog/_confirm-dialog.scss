@@ -22,7 +22,7 @@ $root-block-name: '.confirmDialog';
         font-size: 18px;
         letter-spacing: 1px;
         font-weight: 900;
-        color: #017162;
+        color: #a53b25;
       }
     }
   }
@@ -50,7 +50,7 @@ $root-block-name: '.confirmDialog';
       &-icon {
         width: 40px;
         height: 40px;
-        background-color: #017162;
+        background-color: #a53b25;
         color: #fff;
         border-radius: 50%;
         @include flex(center, center);
@@ -77,14 +77,16 @@ $root-block-name: '.confirmDialog';
       width: 70px;
       height: 32px;
       border-radius: 50px;
-      border: 2px solid #000;
       background: #fff;
       font-size: 14px;
       font-weight: 400;
       letter-spacing: 1.5px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); // ✅ 新增：按鈕陰影
+
       &--confirm {
         color: #fff;
-        background: #ff0033;
+        background: #e0664d;
+        box-shadow: 0 4px 8px rgba(229, 103, 80, 0.4); // ✅ 加強 confirm 按鈕陰影
       }
     }
   }

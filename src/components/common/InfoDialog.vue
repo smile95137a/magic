@@ -51,7 +51,7 @@ import { useDialogStore } from '@/stores/dialogStore';
 const dialogStore = useDialogStore();
 
 const isOpen = computed(() => dialogStore.isInfoDialogOpen);
-const customClass = computed(() => dialogStore.customClass);
+const customClass = computed(() => dialogStore.infoDialogCustomClass);
 const infoDialogOptions = computed(() => dialogStore.infoDialogOptions);
 
 const handleClose = () => {

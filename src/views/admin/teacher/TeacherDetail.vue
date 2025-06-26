@@ -1,17 +1,29 @@
+<!-- @/views/admin/teacher/TeacherDetail.vue -->
 <template>
-  <div class="teacher-teacherdetail">
-    <h1 class="teacher-teacherdetail__title">老師詳細資料</h1>
+  <div>
+    <h2>老師詳細資料</h2>
+    <div><strong>姓名：</strong>{{ teacher.name }}</div>
+    <div><strong>Email：</strong>{{ teacher.email }}</div>
+    <div><strong>電話：</strong>{{ teacher.phone }}</div>
+    <button @click="goBack">返回清單</button>
   </div>
 </template>
 
-<script setup></script>
+<script setup lang="ts">
+import { fetchTeacherById } from '@/services/admin/teacherApi';
+import { ref, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
-<style scoped lang="scss">
-.teacher-teacherdetail {
-  &__title {
-    font-size: 24px;
-    font-weight: bold;
-    margin: 16px 0;
-  }
-}
-</style>
+const route = useRoute();
+const router = useRouter();
+const teacher = ref({ name: '', email: '', phone: '' });
+
+onMounted(async () => {
+  const res = await fetchTeacherById(route.params.id as string);
+  teacher.value = res.data;
+});
+
+const goBack = () => {
+  router.push('/admin/teachers');
+};
+</script>

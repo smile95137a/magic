@@ -1,74 +1,140 @@
 <template>
-  <div class="banner-management">
-    <h1 class="banner-management__title">Banner 管理</h1>
-    <router-link class="banner-management__add" to="/admin/banners/add">➕ 新增 Banner</router-link>
-    <ul class="banner-management__list">
-      <li
-        v-for="(banner, index) in banners"
-        :key="index"
-        class="banner-management__item"
-      >
-        <img :src="banner.imageUrl" class="banner-management__image" />
-        <div class="banner-management__info">
-          <p class="banner-management__title">{{ banner.title }}</p>
-          <router-link :to="`/admin/banners/edit/${index}`" class="banner-management__edit">
-            編輯
-          </router-link>
-        </div>
-      </li>
-    </ul>
+  <div class="banner-list">
+    <h1 class="banner-list__title">Banner 管理</h1>
+    <button class="banner-list__add-btn" @click="goToAdd">新增 Banner</button>
+
+    <table class="banner-list__table">
+      <thead>
+        <tr>
+          <th>標題</th>
+          <th>圖片</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="banner in banners" :key="banner.id">
+          <td>{{ banner.title }}</td>
+          <td>
+            <img :src="banner.imageUrl" alt="banner" style="height: 40px" />
+          </td>
+          <td>
+            <button @click="goToEdit(banner.id)">編輯</button>
+            <button @click="remove(banner.id)">刪除</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { fetchBannerList, deleteBanner } from '@/services/admin/bannerApi';
 
-const banners = ref([
-  { title: '範例 Banner 1', imageUrl: 'https://via.placeholder.com/300x100' },
-  { title: '範例 Banner 2', imageUrl: 'https://via.placeholder.com/300x100' },
-]);
+const router = useRouter();
+const banners = ref<any[]>([]);
+
+const load = async () => {
+  const res = await fetchBannerList();
+  banners.value = res.data;
+};
+
+const goToAdd = () => router.push('/admin/banners/add');
+const goToEdit = (id: number) => router.push(`/admin/banners/edit/${id}`);
+
+const remove = async (id: number) => {
+  await deleteBanner(id);
+  await load();
+  alert(`已刪除 ID: ${id}`);
+};
+
+onMounted(() => {
+  load();
+});
 </script>
-
 <style scoped lang="scss">
-.banner-management {
+.banner-list {
+  padding: 24px;
+
   &__title {
     font-size: 24px;
     font-weight: bold;
-    margin-bottom: 16px;
-  }
-
-  &__add {
-    display: inline-block;
     margin-bottom: 20px;
-    color: #3b82f6;
-    text-decoration: none;
+    color: #2c3e50;
   }
 
-  &__list {
-    list-style: none;
-    padding: 0;
-  }
-
-  &__item {
-    display: flex;
-    gap: 12px;
+  &__add-btn {
+    padding: 8px 16px;
     margin-bottom: 16px;
-    align-items: center;
+    font-size: 14px;
+    background-color: #409eff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #66b1ff;
+    }
   }
 
-  &__image {
-    width: 120px;
-    height: auto;
-    border: 1px solid #ccc;
-  }
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 
-  &__info {
-    flex: 1;
-  }
+    th {
+      background-color: #f5f7fa;
+      color: #34495e;
+      text-align: left;
+      padding: 12px;
+      font-size: 14px;
+    }
 
-  &__edit {
-    color: #10b981;
-    text-decoration: none;
+    td {
+      padding: 12px;
+      border-top: 1px solid #ebeef5;
+      font-size: 14px;
+      background-color: #fff;
+    }
+
+    tr:hover td {
+      background-color: #f4faff;
+    }
+
+    img {
+      border-radius: 4px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    button {
+      margin-right: 8px;
+      padding: 6px 10px;
+      font-size: 13px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+
+      &:first-of-type {
+        background-color: #409eff;
+        color: #fff;
+
+        &:hover {
+          background-color: #66b1ff;
+        }
+      }
+
+      &:last-of-type {
+        background-color: #f56c6c;
+        color: #fff;
+
+        &:hover {
+          background-color: #dd6161;
+        }
+      }
+    }
   }
 }
 </style>
