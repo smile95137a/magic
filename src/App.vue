@@ -15,6 +15,7 @@ import PoeDivinationDialog from '@/components/common/PoeDivinationDialog.vue';
 import LoadingMask from '@/components/common/LoadingMask.vue';
 import { useDialogStore, useLoadingStore } from './stores';
 
+
 const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
 </script>
