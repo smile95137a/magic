@@ -1,68 +1,72 @@
-import { api } from './FrontAPI';
-const basePath = '/users';
+import { api } from './FrontAPI'; // 根據實際路徑調整
 
-export const getAllUsers = async (): Promise<ApiResponse<any[]>> => {
+const basePath = '/user';
+
+/**
+ * 註冊會員
+ * @param payload 包含 email、密碼、手機等註冊資料
+ */
+export const registerUser = async (payload: any): Promise<any> => {
   try {
-    const response = await api.get<ApiResponse<any[]>>(basePath);
-    return response.data;
+    const res = await api.post(`${basePath}/register`, payload);
+    return res.data;
   } catch (error) {
-    console.error('Error fetching users:', error);
+    console.error('registerUser error:', error);
     throw error;
   }
 };
 
-export const getUserById = async (id: string): Promise<ApiResponse<any>> => {
+/**
+ * 會員登入
+ * @param payload 包含 email、password
+ */
+export const loginUser = async (payload: any): Promise<any> => {
   try {
-    const response = await api.get<ApiResponse<any>>(`${basePath}/${id}`);
-    return response.data;
+    const res = await api.post(`${basePath}/login`, payload);
+    return res.data;
   } catch (error) {
-    console.error(`Error fetching any with ID ${id}:`, error);
+    console.error('loginUser error:', error);
     throw error;
   }
 };
 
-export const queryUser = async (data: any): Promise<ApiResponse<any[]>> => {
+/**
+ * 重新取得 access token
+ * @param refreshToken refreshToken 字串
+ */
+export const refreshToken = async (refreshToken: string): Promise<any> => {
   try {
-    const response = await api.post<ApiResponse<any[]>>(
-      `${basePath}/queryUser`,
-      data
-    );
-    return response.data;
+    const res = await api.post(`${basePath}/refresh`, { refreshToken });
+    return res.data;
   } catch (error) {
-    console.error('Error querying any:', error);
+    console.error('refreshToken error:', error);
     throw error;
   }
 };
 
-export const createUser = async (data: any): Promise<ApiResponse<any>> => {
+/**
+ * 修改會員資料
+ * @param payload 修改內容
+ */
+export const modifyUserProfile = async (payload: any): Promise<any> => {
   try {
-    const response = await api.post<ApiResponse<any>>(
-      `${basePath}/createUser`,
-      data
-    );
-    return response.data;
+    const res = await api.post(`${basePath}/modify`, payload);
+    return res.data;
   } catch (error) {
-    console.error('Error creating any:', error);
+    console.error('modifyUserProfile error:', error);
     throw error;
   }
 };
 
-export const updateUser = async (data: any): Promise<ApiResponse<any>> => {
+/**
+ * 取得會員個人資料
+ */
+export const fetchUserProfile = async (): Promise<any> => {
   try {
-    const response = await api.put<ApiResponse<any>>(basePath, data);
-    return response.data;
+    const res = await api.post(`${basePath}/me`);
+    return res.data;
   } catch (error) {
-    console.error('Error updating any:', error);
-    throw error;
-  }
-};
-
-export const deleteUser = async (id: string): Promise<ApiResponse<void>> => {
-  try {
-    const response = await api.delete<ApiResponse<void>>(`${basePath}/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error(`Error deleting any with ID ${id}:`, error);
+    console.error('fetchUserProfile error:', error);
     throw error;
   }
 };
