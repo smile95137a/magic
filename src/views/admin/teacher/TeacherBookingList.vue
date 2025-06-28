@@ -65,36 +65,52 @@ import {
   updateBookingStatus,
 } from '@/services/admin/teacherBookingApi';
 
+type BookingStatus = '已完成' | '待確認' | '已取消';
+
 interface Booking {
   id: number;
   studentName: string;
   teacherName: string;
   time: string;
-  status: '已完成' | '待確認' | '已取消';
+  status: BookingStatus;
   note?: string;
   contact?: string;
   createdAt?: string;
 }
 
+// 狀態轉換：後端傳英文 -> 前端中文
+const mapStatus = (status: string): BookingStatus => {
+  const mapping: Record<string, BookingStatus> = {
+    completed: '已完成',
+    pending: '待確認',
+    cancelled: '已取消',
+    已完成: '已完成',
+    待確認: '待確認',
+    已取消: '已取消',
+  };
+  return mapping[status] || '待確認';
+};
+
 const bookingList = ref<Booking[]>([]);
 const expandedIds = ref<number[]>([]);
 
 const toggleDetail = (id: number) => {
-  if (expandedIds.value.includes(id)) {
-    expandedIds.value = expandedIds.value.filter((i) => i !== id);
-  } else {
-    expandedIds.value.push(id);
-  }
+  expandedIds.value = expandedIds.value.includes(id)
+    ? expandedIds.value.filter((i) => i !== id)
+    : [...expandedIds.value, id];
 };
 
-const updateStatus = async (id: number, newStatus: Booking['status']) => {
+const updateStatus = async (id: number, newStatus: BookingStatus) => {
   await updateBookingStatus(id, newStatus);
   alert(`已更新狀態為：${newStatus}`);
 };
 
 onMounted(async () => {
   const res = await fetchBookingList();
-  bookingList.value = res.data;
+  bookingList.value = res.data.map((b: any) => ({
+    ...b,
+    status: mapStatus(b.status),
+  }));
 });
 </script>
 

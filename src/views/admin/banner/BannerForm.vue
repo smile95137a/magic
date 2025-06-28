@@ -1,15 +1,19 @@
 <template>
   <div class="banner-form">
     <h2>{{ isEdit ? '編輯 Banner' : '新增 Banner' }}</h2>
-    <form @submit.prevent="submit">
+    <form @submit.prevent="onSubmit">
       <div>
         <label>標題：</label>
-        <input v-model="form.title" required />
+        <input v-bind="titleProps" />
+        <span class="error" v-if="errors.title">{{ errors.title }}</span>
       </div>
+
       <div>
         <label>圖片連結：</label>
-        <input v-model="form.imageUrl" required />
+        <input v-bind="imageUrlProps" />
+        <span class="error" v-if="errors.imageUrl">{{ errors.imageUrl }}</span>
       </div>
+
       <button type="submit">儲存</button>
     </form>
   </div>
@@ -17,38 +21,64 @@
 
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { onMounted, ref } from 'vue';
+import { onMounted } from 'vue';
+import { useForm } from 'vee-validate';
+import { object, string } from 'yup';
 import {
   fetchBannerById,
   createBanner,
   updateBanner,
 } from '@/services/admin/bannerApi';
 
+// route 判斷
 const route = useRoute();
 const router = useRouter();
 const isEdit = route.name === 'BannerEdit';
 const bannerId = route.params.id as string;
 
-const form = ref({ title: '', imageUrl: '' });
+// 定義 schema
+const schema = object({
+  title: string().required('標題為必填'),
+  imageUrl: string().url('請輸入有效的圖片連結').required('圖片連結為必填'),
+});
 
+// 初始化 useForm
+const { defineField, handleSubmit, errors, setValues } = useForm({
+  validationSchema: schema,
+  initialValues: {
+    title: '',
+    imageUrl: '',
+  },
+});
+
+// 單一欄位綁定
+const [title, titleProps] = defineField('title');
+const [imageUrl, imageUrlProps] = defineField('imageUrl');
+
+// 若為編輯，載入資料
 onMounted(async () => {
   if (isEdit) {
-    const res = await fetchBannerById(bannerId);
-    form.value = res.data;
+    const res:any = await fetchBannerById(bannerId);
+    setValues({
+      title: res.data.title,
+      imageUrl: res.data.imageUrl,
+    });
   }
 });
 
-const submit = async () => {
+// 提交處理
+const onSubmit = handleSubmit(async (values) => {
   if (isEdit) {
-    await updateBanner(bannerId, form.value);
+    await updateBanner(bannerId, values);
     alert('更新成功');
   } else {
-    await createBanner(form.value);
+    await createBanner(values);
     alert('新增成功');
   }
   router.push('/admin/banners');
-};
+});
 </script>
+
 <style scoped lang="scss">
 .banner-form {
   padding: 24px;
@@ -90,6 +120,12 @@ const submit = async () => {
         border-color: #409eff;
         box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
       }
+    }
+
+    .error {
+      color: #e74c3c;
+      font-size: 13px;
+      margin-top: -8px;
     }
 
     button[type='submit'] {

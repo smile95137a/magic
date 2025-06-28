@@ -197,7 +197,6 @@ onMounted(async () => {
   }
 
   &__blessing-icon {
-    background-image: url('@/assets/image/cloud-icon.png');
     background-size: contain;
     background-repeat: no-repeat;
     width: 28px;

@@ -1,42 +1,34 @@
 import { loadState, removeState, saveState } from '@/utils/Localstorage';
 import { api } from './FrontAPI';
 
+export interface JWTAuthResponse {
+  accessToken: string;
+  user: any;
+}
+
+
 const basePath = '/auth';
 
-/** 登入 - 傳回 JWT Token */
-export const login = async (payload: {
-  username: string;
-  password: string;
-  language: string;
-}): Promise<ApiResponse<string>> => {
+export const login = async (
+  data: any
+): Promise<ApiResponse<JWTAuthResponse>> => {
   try {
-    const response = await api.post(`${basePath}/login`, payload);
+    const response = await api.post(`${basePath}/login`, data);
     return response.data;
   } catch (error) {
-    console.error('Auth - login error:', error);
-    throw error;
-  }
-};
-
-/** 登出 */
-export const logout = async (): Promise<string> => {
-  try {
-    const response = await api.post(`${basePath}/logout`);
-    return response.data;
-  } catch (error) {
-    console.error('Auth - logout error:', error);
+    console.error('Error during authentication:', error);
     throw error;
   }
 };
 
 export const setAuthToken = (token: string | null) => {
-  saveState('token', token);
+  saveState('ftoken', token);
 };
 
 export const getAuthToken = (): string | null => {
-  return loadState<string>('token') || null;
+  return loadState<string>('ftoken') || null;
 };
 
 export const removeAuthToken = () => {
-  removeState('token');
+  removeState('ftoken');
 };
