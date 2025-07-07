@@ -38,7 +38,7 @@ import SectionBackground from '@/components/common/SectionBackground.vue';
 import divinationIntro from '@/assets/image/divinationIntro.png';
 import StartButton from '@/components/front/StartButton.vue';
 import { useDivinationStepStore } from '@/stores/divinationStepStore';
-import { useDialogStore } from '@/stores';
+import { useDialogStore } from '@/stores/dialogStore';
 const stepStore = useDivinationStepStore();
 const { nextStep, prevStep, resetStep } = stepStore;
 const dialogStore = useDialogStore();

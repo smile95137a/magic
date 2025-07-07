@@ -1,150 +1,146 @@
 <template>
   <div class="banner-form">
-    <h2>{{ isEdit ? '編輯 Banner' : '新增 Banner' }}</h2>
-    <form @submit.prevent="onSubmit">
-      <div>
-        <label>標題：</label>
-        <input v-bind="titleProps" />
-        <span class="error" v-if="errors.title">{{ errors.title }}</span>
+    <h1 class="banner-form__title">{{ isEdit ? '編輯 Banner' : '新增 Banner' }}</h1>
+
+    <form @submit.prevent="onSubmit" class="form">
+      <div class="form__group">
+        <label class="form__label">標題</label>
+        <input v-model="title" v-bind="titleAttrs" class="form__input" />
+        <span class="form__error" v-if="errors.title">{{ errors.title }}</span>
       </div>
 
-      <div>
-        <label>圖片連結：</label>
-        <input v-bind="imageUrlProps" />
-        <span class="error" v-if="errors.imageUrl">{{ errors.imageUrl }}</span>
+      <div class="form__group">
+        <label class="form__label">連結</label>
+        <input v-model="link" v-bind="linkAttrs" class="form__input" />
+        <span class="form__error" v-if="errors.link">{{ errors.link }}</span>
       </div>
 
-      <button type="submit">儲存</button>
+      <div class="form__group">
+        <label class="form__label">排序</label>
+        <input type="number" v-model="sort" v-bind="sortAttrs" class="form__input" />
+        <span class="form__error" v-if="errors.sort">{{ errors.sort }}</span>
+      </div>
+
+      <div class="form__group">
+        <label class="form__label">啟用</label>
+        <input type="checkbox" v-model="values.active" class="form__checkbox" />
+      </div>
+
+      <div class="form__group">
+        <label class="form__label">圖片</label>
+        <input type="file" @change="onImageChange" class="form__input" />
+        <img v-if="values.imageBase64" :src="values.imageBase64" class="form__preview-img" />
+      </div>
+
+      <div class="form__actions">
+        <button type="button" class="form__button form__button--secondary" @click="goBack">取消</button>
+        <button type="submit" class="form__button form__button--primary">{{ isEdit ? '更新' : '新增' }}</button>
+      </div>
     </form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useRoute, useRouter } from 'vue-router';
 import { onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { object, string, number } from 'yup';
 import { useForm } from 'vee-validate';
-import { object, string } from 'yup';
-import {
-  fetchBannerById,
-  createBanner,
-  updateBanner,
-} from '@/services/admin/bannerApi';
+import { addBanner, modifyBanner, fetchAdminBannerByType } from '@/services/admin/adminBannerServices';
+import type { NewBannerRequest, ModifyBannerRequest } from '@/vite-env';
 
-// route 判斷
-const route = useRoute();
 const router = useRouter();
-const isEdit = route.name === 'BannerEdit';
-const bannerId = route.params.id as string;
+const route = useRoute();
+const id = route.params.id as string | undefined;
+const isEdit = !!id;
 
-// 定義 schema
 const schema = object({
   title: string().required('標題為必填'),
-  imageUrl: string().url('請輸入有效的圖片連結').required('圖片連結為必填'),
+  link: string().nullable(),
+  sort: number().required('排序為必填').min(0, '排序不可小於 0'),
 });
 
-// 初始化 useForm
-const { defineField, handleSubmit, errors, setValues } = useForm({
+const {
+  handleSubmit,
+  errors,
+  defineField,
+  values,
+  setValues,
+} = useForm<NewBannerRequest>({
   validationSchema: schema,
   initialValues: {
     title: '',
-    imageUrl: '',
+    link: '',
+    sort: 0,
+    active: true,
+    imageBase64: '',
+    type: 'home',
   },
 });
 
-// 單一欄位綁定
-const [title, titleProps] = defineField('title');
-const [imageUrl, imageUrlProps] = defineField('imageUrl');
+const [title, titleAttrs] = defineField('title');
+const [link, linkAttrs] = defineField('link');
+const [sort, sortAttrs] = defineField('sort');
 
-// 若為編輯，載入資料
-onMounted(async () => {
+const goBack = () => router.push('/admin/banners');
+
+const onImageChange = (e: Event) => {
+  const file = (e.target as HTMLInputElement).files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    setValues({ ...values, imageBase64: reader.result as string });
+  };
+  reader.readAsDataURL(file);
+};
+
+const onSubmit = handleSubmit(async (formValues) => {
   if (isEdit) {
-    const res:any = await fetchBannerById(bannerId);
-    setValues({
-      title: res.data.title,
-      imageUrl: res.data.imageUrl,
-    });
+    const payload: ModifyBannerRequest = { ...formValues, bannerId: id! };
+    await modifyBanner(payload);
+  } else {
+    await addBanner(formValues);
   }
+  goBack();
 });
 
-// 提交處理
-const onSubmit = handleSubmit(async (values) => {
-  if (isEdit) {
-    await updateBanner(bannerId, values);
-    alert('更新成功');
-  } else {
-    await createBanner(values);
-    alert('新增成功');
+const loadData = async () => {
+  if (!id) return;
+  const list = await fetchAdminBannerByType(values.type);
+  const target = list.find((item) => item.bannerId === id);
+  if (target) {
+    setValues({
+      title: target.title,
+      link: target.link,
+      sort: target.sort,
+      type: target.type,
+      imageBase64: target.imageBase64,
+      active: target.active,
+    });
   }
-  router.push('/admin/banners');
+};
+
+onMounted(() => {
+  if (isEdit) loadData();
 });
 </script>
 
 <style scoped lang="scss">
 .banner-form {
-  padding: 24px;
-  max-width: 480px;
+  max-width: 600px;
   margin: 0 auto;
+  padding: 32px;
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 
-  h2 {
-    font-size: 22px;
-    font-weight: bold;
-    color: #2c3e50;
+  &__title {
+    font-size: 24px;
+    font-weight: 600;
     margin-bottom: 24px;
     text-align: center;
   }
-
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-
-    label {
-      font-weight: 500;
-      margin-bottom: 4px;
-      display: block;
-      color: #34495e;
-    }
-
-    input {
-      padding: 10px 12px;
-      font-size: 14px;
-      border: 1px solid #dcdfe6;
-      border-radius: 4px;
-      outline: none;
-      width: 100%;
-
-      &:focus {
-        border-color: #409eff;
-        box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
-      }
-    }
-
-    .error {
-      color: #e74c3c;
-      font-size: 13px;
-      margin-top: -8px;
-    }
-
-    button[type='submit'] {
-      align-self: center;
-      padding: 10px 24px;
-      font-size: 15px;
-      background-color: #409eff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 12px;
-      transition: background-color 0.2s;
-
-      &:hover {
-        background-color: #66b1ff;
-      }
-    }
-  }
 }
+
+
 </style>

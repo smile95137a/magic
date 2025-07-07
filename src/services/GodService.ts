@@ -1,90 +1,67 @@
-import { api } from './FrontAPI'; // 路徑視專案結構調整
+// src/services/front/godServices.ts
+import { God, GodInfoRequest, GodInfoVO, GodExtendPeriodRequest, OfferingVO, PresentOfferingRequest } from '@/vite-env';
+import { api } from './FrontAPI';
 
 const basePath = '/god';
 
-/**
- * 取得所有神明列表
- */
-export const fetchAllGod = async (): Promise<any> => {
+export const fetchAllGod = async (): Promise<God[]> => {
   try {
-    const res = await api.post(`${basePath}/list`);
-    return res.data;
+    const response = await api.post(`${basePath}/list`);
+    return response.data;
   } catch (error) {
     console.error('fetchAllGod error:', error);
     throw error;
   }
 };
 
-/**
- * 神明降臨
- * @param godCode 神明代碼（字串）
- */
-export const godDescend = async (godCode: string): Promise<boolean> => {
+export const godDescend = async (payload: GodInfoRequest): Promise<boolean> => {
   try {
-    const res = await api.post(`${basePath}/descend`, { godCode });
-    return res.data;
+    const response = await api.post(`${basePath}/descend`, payload);
+    return response.data;
   } catch (error) {
     console.error('godDescend error:', error);
     throw error;
   }
 };
 
-/**
- * 查詢神明資訊
- * @param godCode 神明代碼（字串）
- */
-export const fetchGodInfo = async (godCode: string): Promise<any> => {
+export const getGodInfo = async (payload: GodInfoRequest): Promise<GodInfoVO | null> => {
   try {
-    const res = await api.post(`${basePath}/info`, { godCode });
-    return res.data?.data; // 因為包在 ApiResponse 裡
+    const response = await api.post(`${basePath}/info`, payload);
+    return response.data.data;
   } catch (error) {
-    console.error('fetchGodInfo error:', error);
+    console.error('getGodInfo error:', error);
     throw error;
   }
 };
 
-/**
- * 延長神明降臨天數
- * @param godCode 神明代碼
- * @param day 天數（字串或數字）
- */
-export const extendGodPeriod = async (godCode: string, day: number | string): Promise<boolean> => {
+export const extendGodPeriod = async (
+  payload: GodExtendPeriodRequest
+): Promise<boolean> => {
   try {
-    const res = await api.post(`${basePath}/extend`, {
-      godCode,
-      day: String(day),
-    });
-    return res.data;
+    const response = await api.post(`${basePath}/extend`, payload);
+    return response.data;
   } catch (error) {
     console.error('extendGodPeriod error:', error);
     throw error;
   }
 };
 
-/**
- * 取得供品列表
- */
-export const fetchOfferingList = async (): Promise<any[]> => {
+export const fetchOfferingList = async (): Promise<OfferingVO[]> => {
   try {
-    const res = await api.post(`${basePath}/offering/list`);
-    return res.data;
+    const response = await api.post(`${basePath}/offering/list`);
+    return response.data;
   } catch (error) {
     console.error('fetchOfferingList error:', error);
     throw error;
   }
 };
 
-/**
- * 供奉供品
- * @param payload 包含 godCode 與 offeringIds 的結構
- */
-export const presentOffering = async (payload: {
-  godCode: string;
-  offeringIds: number[];
-}): Promise<any> => {
+export const presentOffering = async (
+  payload: PresentOfferingRequest
+): Promise<GodInfoVO> => {
   try {
-    const res = await api.post(`${basePath}/offering/present`, payload);
-    return res.data;
+    const response = await api.post(`${basePath}/offering/present`, payload);
+    return response.data;
   } catch (error) {
     console.error('presentOffering error:', error);
     throw error;

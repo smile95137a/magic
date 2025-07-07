@@ -1,11 +1,10 @@
-import { api } from './FrontAPI'; // 調整為你的封裝路徑
+// src/services/front/lanternServices.ts
+import { Lantern, CountRequest, LanternBlessingVO, LanternVO, LanternPurchaseRequest } from '@/vite-env';
+import { api } from './FrontAPI';
 
 const basePath = '/lantern';
 
-/**
- * 取得所有燈品清單
- */
-export const getLanternList = async (): Promise<any> => {
+export const getLanternList = async (): Promise<Lantern[]> => {
   try {
     const response = await api.post(`${basePath}/list`);
     return response.data;
@@ -15,12 +14,9 @@ export const getLanternList = async (): Promise<any> => {
   }
 };
 
-/**
- * 取得最新祝福燈名單
- */
-export const getLatestLanterns = async (count: number): Promise<any> => {
+export const getLatestLanterns = async (payload: CountRequest): Promise<LanternBlessingVO[]> => {
   try {
-    const response = await api.post(`${basePath}/latest`, { count });
+    const response = await api.post(`${basePath}/latest`, payload);
     return response.data;
   } catch (error) {
     console.error('getLatestLanterns error:', error);
@@ -28,14 +24,11 @@ export const getLatestLanterns = async (count: number): Promise<any> => {
   }
 };
 
-/**
- * 取得推薦祝福燈名單
- */
 export const getRecommendationLanterns = async (
-  count: number
-): Promise<any> => {
+  payload: CountRequest
+): Promise<LanternBlessingVO[]> => {
   try {
-    const response = await api.post(`${basePath}/recommendation`, { count });
+    const response = await api.post(`${basePath}/recommendation`, payload);
     return response.data;
   } catch (error) {
     console.error('getRecommendationLanterns error:', error);
@@ -43,12 +36,9 @@ export const getRecommendationLanterns = async (
   }
 };
 
-/**
- * 取得排行祝福燈名單
- */
-export const getRankLanterns = async (count: number): Promise<any> => {
+export const getRankLanterns = async (payload: CountRequest): Promise<LanternBlessingVO[]> => {
   try {
-    const response = await api.post(`${basePath}/rank`, { count });
+    const response = await api.post(`${basePath}/rank`, payload);
     return response.data;
   } catch (error) {
     console.error('getRankLanterns error:', error);
@@ -56,10 +46,7 @@ export const getRankLanterns = async (count: number): Promise<any> => {
   }
 };
 
-/**
- * 根據代碼取得燈品詳細資訊
- */
-export const getLanternByCode = async (code: string): Promise<any> => {
+export const getLanternByCode = async (code: string): Promise<LanternVO> => {
   try {
     const response = await api.post(`${basePath}/${code}`);
     return response.data;
@@ -69,12 +56,9 @@ export const getLanternByCode = async (code: string): Promise<any> => {
   }
 };
 
-/**
- * 購買燈品（建立購買紀錄）
- */
-export const purchaseLantern = async (request: any): Promise<any> => {
+export const purchaseLantern = async (payload: LanternPurchaseRequest): Promise<boolean> => {
   try {
-    const response = await api.post(`${basePath}/purchase/info`, request);
+    const response = await api.post(`${basePath}/purchase/info`, payload);
     return response.data;
   } catch (error) {
     console.error('purchaseLantern error:', error);

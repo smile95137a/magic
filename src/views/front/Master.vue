@@ -1,7 +1,7 @@
 <template>
   <MasterIntro v-if="step === 1" />
-  <MasterForm v-if="step === 2" />
-  <OrderSuccess v-if="step === 3" />
+  <MasterForm v-if="step === 1" />
+  <OrderSuccess v-if="step === 1" />
 </template>
 
 <script setup lang="ts">

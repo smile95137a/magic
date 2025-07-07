@@ -7,7 +7,8 @@ import {
   getAreaListByCityName,
   getZipCodeByCityAndAreaName,
 } from '@/services/taiwanCitiesService';
-import { useDialogStore, useLoadingStore } from '@/stores';
+import { useDialogStore } from '@/stores/dialogStore';
+import { useLoadingStore } from '@/stores/loadingStore';
 import { useForm } from 'vee-validate';
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
@@ -42,21 +43,20 @@ const schema = yup.object({
 const { defineField, handleSubmit, errors, setFieldValue } = useForm({
   validationSchema: schema,
   initialValues: {
-    username: '',
     email: '',
-    phoneNumber: '',
     password: '',
-    confirmPassword: '',
+    phone: '',
     nickname: '',
+    lineId: '',
+    confirmPassword: '',
     addressName: '',
-    zipCode: '',
     city: '',
     area: '',
     address: '',
-    lineId: '',
     agreeTerms: false,
   },
 });
+
 
 const [username, usernameProps] = defineField('username');
 const [email, emailProps] = defineField('email');

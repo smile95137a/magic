@@ -1,5 +1,9 @@
 <template>
   <section class="master-form">
+     <SectionBackground variant="divination" />
+         <div class="master-form__container">
+           <Title color="dark" text="大師親算" />
+           <div class="master-form__main">
     <div class="master-form__card">
       <h2 class="master-form__title">購買：張盛舒 科技紫微大師 親算</h2>
 
@@ -42,14 +46,15 @@
           確認送出 <i class="fas fa-chevron-right"></i>
         </button>
       </div>
-    </div>
+    </div></div></div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useMasterOrderStore } from '@/stores/masterOrderStore';
-
+import SectionBackground from '@/components/common/SectionBackground.vue';
+import Title from '@/components/common/Title.vue';
 const store = useMasterOrderStore();
 
 const topics = ['婚姻愛情', '事業發展', '流年生涯', '家庭親子', '考試升學'];
@@ -68,15 +73,20 @@ const submitForm = () => {
 
 <style scoped lang="scss">
 .master-form {
-  padding: 3rem 1rem;
-  display: flex;
-  justify-content: center;
+  width: 100%;
+  position: relative;
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+
+  }
+
 
   &__card {
     background: #fff;
     border-radius: 12px;
     padding: 2rem;
-    max-width: 720px;
     width: 100%;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   }

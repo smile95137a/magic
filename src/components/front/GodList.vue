@@ -10,7 +10,11 @@
             <p class="god__description" v-html="god.description"></p>
           </div>
           <div class="god__action">
-            <StartButton styleType="red" label="請神保庇" />
+            <StartButton
+              styleType="red"
+              label="請神保庇"
+              @click="goToDivinationGod(key)"
+            />
           </div>
         </div>
       </div>
@@ -19,10 +23,17 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router';
 import godImages from '@/data/godImages';
 import Title from '@/components/common/Title.vue';
 import StartButton from '@/components/front/StartButton.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
+
+const router = useRouter();
+
+const goToDivinationGod = (key) => {
+  router.push({ path: '/divinationGod', query: { god: key } });
+};
 </script>
 
 <style lang="scss" scoped>

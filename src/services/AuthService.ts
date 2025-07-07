@@ -1,5 +1,6 @@
 import { loadState, removeState, saveState } from '@/utils/Localstorage';
 import { api } from './FrontAPI';
+import { ApiResponse } from '@/vite-env';
 
 export interface JWTAuthResponse {
   accessToken: string;

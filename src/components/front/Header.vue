@@ -10,6 +10,9 @@
           />
         </RouterLink>
       </div>
+      <button class="header__menu-toggle" @click="toggleMenu">
+        <span class="header__menu-icon">☰</span>
+      </button>
     </div>
 
     <nav class="header__nav">
@@ -26,31 +29,58 @@
       </div>
       <div class="header__nav-right">
         <template v-if="authStore.isLogin">
-          <RouterLink to="/member-center" class="btn btn--primary"
-            >會員中心</RouterLink
-          >
+          <RouterLink to="/member-center" class="btn btn--primary">會員中心</RouterLink>
           <button class="btn btn--outline" @click="logout">登出</button>
         </template>
         <template v-else>
           <RouterLink to="/login" class="btn btn--primary">登入</RouterLink>
-          <RouterLink to="/register" class="btn btn--outline"
-            >免費加入會員</RouterLink
-          >
+          <RouterLink to="/register" class="btn btn--outline">免費加入會員</RouterLink>
         </template>
       </div>
     </nav>
+
+    <transition name="fade">
+      <div class="header__mobile-nav" v-if="menuOpen">
+          <button class="header__close-btn" @click="closeMenu">
+      <i class="fas fa-xmark"></i>
+    </button>
+        <div class="header__mobile-links">
+          <RouterLink to="/divination" @click="closeMenu">求籤問事</RouterLink>
+          <RouterLink to="/godOffering" @click="closeMenu">請神供奉</RouterLink>
+          <RouterLink to="/blessing" @click="closeMenu">點燈祈福</RouterLink>
+          <RouterLink to="/master" @click="closeMenu">老師親算</RouterLink>
+          <RouterLink to="/store" @click="closeMenu">開運商店</RouterLink>
+          <div class="header__mobile-actions">
+            <template v-if="authStore.isLogin">
+              <RouterLink to="/member-center" @click="closeMenu">會員中心</RouterLink>
+              <button @click="logout">登出</button>
+            </template>
+            <template v-else>
+              <RouterLink to="/login" @click="closeMenu">登入</RouterLink>
+              <RouterLink to="/register" @click="closeMenu">免費加入會員</RouterLink>
+            </template>
+          </div>
+        </div>
+      </div>
+    </transition>
   </header>
 </template>
+
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/authStore';
 import { useRouter } from 'vue-router';
+import { ref } from 'vue';
 
 const authStore = useAuthStore();
 const router = useRouter();
 
+const menuOpen = ref(false);
+const toggleMenu = () => (menuOpen.value = !menuOpen.value);
+const closeMenu = () => (menuOpen.value = false);
+
 const logout = async () => {
   authStore.clearAuthData();
-  router.push('/login'); // 登出後導回登入頁
+  router.push('/login');
 };
 </script>
 
@@ -75,38 +105,6 @@ const logout = async () => {
   &__logo-img {
     height: 60px;
     width: auto;
-  }
-
-  &__slogan {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.4;
-  }
-
-  &__title {
-    font-size: 20px;
-    font-weight: bold;
-    letter-spacing: 2px;
-  }
-
-  &__subtitle {
-    font-size: 12px;
-    color: #444;
-  }
-
-  &__links {
-    font-size: 13px;
-    color: #666;
-
-    a {
-      color: #666;
-      text-decoration: none;
-      margin: 0 0.3rem;
-
-      &:hover {
-        color: #d15b3c;
-      }
-    }
   }
 
   &__nav {
@@ -150,6 +148,64 @@ const logout = async () => {
     display: flex;
     gap: 0.5rem;
   }
+
+  &__menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: #3f2412;
+    font-size: 24px;
+    position: absolute;
+    top: 1.5rem;
+    right: 1rem;
+    z-index: 1001;
+    cursor: pointer;
+  }
+
+  &__mobile-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #3f2412;
+    color: white;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  &__mobile-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    font-size: 18px;
+    text-align: center;
+
+    a,
+    button {
+      color: white;
+      background: none;
+      border: none;
+      font-size: inherit;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &__mobile-actions {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
 }
 
 .btn {
@@ -180,4 +236,55 @@ const logout = async () => {
     }
   }
 }
+
+@media (max-width: 768px) {
+  .header__nav {
+    display: none;
+  }
+
+  .header__menu-toggle {
+    display: block;
+    left: 1.25rem;
+    right: auto;
+     top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .header__top {
+    position: relative;
+    height: 132px; // 建議加一個固定高度，方便置中
+  }
+
+  .header__logo {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}.header__close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 28px;
+  color: white;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 1100;
+
+  &:hover {
+    color: #ffb3a1;
+  }
+}
+
 </style>

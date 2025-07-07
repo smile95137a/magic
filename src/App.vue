@@ -13,7 +13,8 @@ import InfoDialog from '@/components/common/InfoDialog.vue';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import PoeDivinationDialog from '@/components/common/PoeDivinationDialog.vue';
 import LoadingMask from '@/components/common/LoadingMask.vue';
-import { useDialogStore, useLoadingStore } from './stores';
+import { useDialogStore } from './stores/dialogStore';
+import { useLoadingStore } from './stores/loadingStore';
 
 
 const loadingStore = useLoadingStore();

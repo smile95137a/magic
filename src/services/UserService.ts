@@ -1,72 +1,67 @@
-import { api } from './FrontAPI'; // 根據實際路徑調整
+// src/services/front/userServices.ts
+import { UserRegisterRequest, UserLoginRequest, LoginResponse, RefreshTokenRequest, UserProfileModifyRequest, UserProfileResponse, RecordPeriodRequest, RecordVO } from '@/vite-env';
+import { api } from './FrontAPI';
 
 const basePath = '/user';
 
-/**
- * 註冊會員
- * @param payload 包含 email、密碼、手機等註冊資料
- */
-export const registerUser = async (payload: any): Promise<any> => {
+export const register = async (payload: UserRegisterRequest): Promise<boolean> => {
   try {
-    const res = await api.post(`${basePath}/register`, payload);
-    return res.data;
+    const response = await api.post(`${basePath}/register`, payload);
+    return response.data;
   } catch (error) {
-    console.error('registerUser error:', error);
+    console.error('register error:', error);
     throw error;
   }
 };
 
-/**
- * 會員登入
- * @param payload 包含 email、password
- */
-export const loginUser = async (payload: any): Promise<any> => {
+export const login = async (payload: UserLoginRequest): Promise<LoginResponse> => {
   try {
-    const res = await api.post(`${basePath}/login`, payload);
-    return res.data;
+    const response = await api.post(`${basePath}/login`, payload);
+    return response.data;
   } catch (error) {
-    console.error('loginUser error:', error);
+    console.error('login error:', error);
     throw error;
   }
 };
 
-/**
- * 重新取得 access token
- * @param refreshToken refreshToken 字串
- */
-export const refreshToken = async (refreshToken: string): Promise<any> => {
+export const refreshToken = async (payload: RefreshTokenRequest): Promise<LoginResponse> => {
   try {
-    const res = await api.post(`${basePath}/refresh`, { refreshToken });
-    return res.data;
+    const response = await api.post(`${basePath}/refresh`, payload);
+    return response.data;
   } catch (error) {
     console.error('refreshToken error:', error);
     throw error;
   }
 };
 
-/**
- * 修改會員資料
- * @param payload 修改內容
- */
-export const modifyUserProfile = async (payload: any): Promise<any> => {
+export const modifyUser = async (payload: UserProfileModifyRequest): Promise<boolean> => {
   try {
-    const res = await api.post(`${basePath}/modify`, payload);
-    return res.data;
+    const response = await api.post(`${basePath}/modify`, payload);
+    return response.data;
   } catch (error) {
-    console.error('modifyUserProfile error:', error);
+    console.error('modifyUser error:', error);
     throw error;
   }
 };
 
-/**
- * 取得會員個人資料
- */
-export const fetchUserProfile = async (): Promise<any> => {
+export const getProfile = async (): Promise<UserProfileResponse> => {
   try {
-    const res = await api.post(`${basePath}/me`);
-    return res.data;
+    const response = await api.post(`${basePath}/me`);
+    return response.data;
   } catch (error) {
-    console.error('fetchUserProfile error:', error);
+    console.error('getProfile error:', error);
+    throw error;
+  }
+};
+
+export const getPurchaseRecord = async (
+  payload: RecordPeriodRequest
+): Promise<RecordVO[]> => {
+  try {
+    const response = await api.post(`${basePath}/record/purchase`, payload);
+    return response.data;
+  } catch (error) {
+    console.error('getPurchaseRecord error:', error);
     throw error;
   }
 };

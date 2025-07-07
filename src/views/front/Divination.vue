@@ -5,8 +5,6 @@
 </template>
 
 <script setup lang="ts">
-import Header from '@/components/front/Header.vue';
-import Footer from '@/components/front/Footer.vue';
 import DivinationInfo from '@/components/front/DivinationInfo.vue';
 import DivinationConfirm from '@/components/front/DivinationConfirm.vue';
 import DivinationResult from '@/components/front/DivinationResult.vue';
@@ -16,4 +14,9 @@ import { useDivinationStepStore } from '@/stores/divinationStepStore';
 const stepStore = useDivinationStepStore();
 const { stepIndex } = storeToRefs(stepStore);
 const { nextStep, prevStep, resetStep } = stepStore;
+import { onMounted } from 'vue';
+
+onMounted(() => {
+  resetStep();
+});
 </script>

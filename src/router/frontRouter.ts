@@ -5,6 +5,7 @@ import Home from '@/views/front/Home.vue';
 import Login from '@/views/front/Login.vue';
 import Register from '@/views/front/Register.vue';
 import Divination from '@/views/front/Divination.vue';
+import DivinationGod from '@/views/front/DivinationGod.vue';
 import LightProduct from '@/views/front/LightProduct.vue';
 import Worship from '@/views/front/Worship.vue';
 import GodOffering from '@/views/front/GodOffering.vue';
@@ -17,6 +18,9 @@ import MemberProfile from '@/views/front/MemberCenter/MemberProfile.vue';
 import PurchaseHistory from '@/views/front/MemberCenter/PurchaseHistory.vue';
 import MyBlessings from '@/views/front/MemberCenter/MyBlessings.vue';
 import OrderHistory from '@/views/front/MemberCenter/OrderHistory.vue';
+import ProductDetail from '@/views/front/ProductDetail.vue';
+import Cart from '@/views/front/Cart.vue';
+import CheckoutSuccess from '@/views/front/CheckoutSuccess.vue';
 export const frontRoutes: Array<RouteRecordRaw> = [
   {
     path: '/',
@@ -56,12 +60,20 @@ export const frontRoutes: Array<RouteRecordRaw> = [
         ],
       },
       { path: 'divination', component: Divination },
+      { path: 'divinationGod', component: DivinationGod },
       { path: 'worship', component: Worship },
       { path: 'godOffering', component: GodOffering },
       { path: 'lightProduct', component: LightProduct },
       { path: 'blessing', component: Blessing },
       { path: 'master', component: Master },
       { path: 'store', component: Store },
+      { path: 'store/:id', component: ProductDetail, name: 'ProductDetail' },
+      { path: 'cart', component: Cart, name: 'Cart' },
+      {
+        path: 'checkout-success',
+        component: CheckoutSuccess,
+        name: 'CheckoutSuccess',
+      },
       {
         path: ':pathMatch(.*)*',
         name: 'NotFound',

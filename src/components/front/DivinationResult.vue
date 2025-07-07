@@ -101,13 +101,11 @@ import SectionBackground from '@/components/common/SectionBackground.vue';
 import Header from '@/components/front/Header.vue';
 import Footer from '@/components/front/Footer.vue';
 import { ref, onMounted } from 'vue';
-import { drawPoem } from '@/services/PoemFrontAPI';
 
 const poem = ref<any | null>(null);
 
 onMounted(async () => {
   try {
-    poem.value = await drawPoem();
   } catch (err) {
     console.error('抽詩籤失敗', err);
   }

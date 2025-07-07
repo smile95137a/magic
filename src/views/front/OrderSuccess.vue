@@ -1,8 +1,11 @@
 <template>
   <section class="order-success">
+         <SectionBackground variant="divination" />
     <div class="order-success__container">
+               <Title color="dark" text="訂購確認" />
+                 <div class="order-success__main">
+    <div class="order-success__card">
       <div class="order-success__header">
-        <img alt="logo" class="order-success__icon" />
         <h1 class="order-success__title">訂購成功！</h1>
       </div>
 
@@ -39,32 +42,47 @@
           </div>
         </div>
       </div>
-    </div>
+    </div></div></div>
   </section>
 </template>
 
 <script setup lang="ts">
-// 無邏輯
+import SectionBackground from '@/components/common/SectionBackground.vue';
+import Title from '@/components/common/Title.vue';
 </script>
 
 <style scoped lang="scss">
 .order-success {
-  background: #f5e1e0;
+
+    width: 100%;
+  position: relative;
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+
+  }
+&__main{
+    background: #f5e1e0;
   padding: 2rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+ border-radius: 12px;
+}
 
-  &__container {
-    background: #fbeceb;
+
+  &__card {
+     background: #fbeceb;
     border-radius: 16px;
     padding: 3rem;
-    max-width: 600px;
     width: 100%;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
   }
+
+
+
 
   &__header {
     margin-bottom: 2rem;
