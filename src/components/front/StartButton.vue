@@ -15,7 +15,7 @@
       {{ label }}
     </div>
     <div class="start-button__cloud">
-      <img :src="cloudIcon" alt="cloud" />
+      <img :src="resolvedCloudIcon" alt="cloud" />
     </div>
   </div>
 </template>
@@ -24,11 +24,13 @@
 import { computed } from 'vue';
 import cloudR from '@/assets/image/c-r.png';
 import cloudY from '@/assets/image/c-y.png';
+import cloudDivination from '@/assets/image/bwa-sheng.png';
 
 const props = defineProps<{
   label?: string;
   styleType?: 'red' | 'yellow';
   disabled?: boolean;
+  isDivination?: boolean;
 }>();
 
 const emit = defineEmits(['click']);
@@ -38,7 +40,10 @@ const handleClick = () => {
   emit('click');
 };
 
-const cloudIcon = computed(() => (props.styleType === 'red' ? cloudR : cloudY));
+const resolvedCloudIcon = computed(() => {
+  if (props.isDivination) return cloudDivination;
+  return props.styleType === 'red' ? cloudR : cloudY;
+});
 </script>
 
 <style lang="scss" scoped>
@@ -72,7 +77,7 @@ const cloudIcon = computed(() => (props.styleType === 'red' ? cloudR : cloudY));
     img {
       width: 77px;
       height: 61px;
-      object-fit: cover;
+      object-fit: contain;
     }
   }
 

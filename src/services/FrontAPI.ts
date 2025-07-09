@@ -3,7 +3,7 @@ import { removeAllState } from '@/utils/Localstorage';
 import { getAuthToken } from './AuthService';
 
 export const api: AxiosInstance = axios.create({
-  baseURL: `${import.meta.env.VITE_BASE_API_URL}/api`,
+  baseURL: `${import.meta.env.VITE_BASE_API_URL}`,
   timeout: 1000000,
   headers: {
     'Content-Type': 'application/json',

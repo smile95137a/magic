@@ -25,11 +25,17 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import MCard from '@/components/common/MCard.vue';
 import MallProductList from '@/components/front/MallProductList.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import mp from '@/assets/image/mp.png';
+import {
+  getCategoryAvailableList,
+  getProductDetail,
+  getProductListByCategory,
+} from '@/services/productServices';
+import { ref, onMounted } from 'vue';
 const sampleProduct = {
   id: 0,
   name: '黃水晶冰塊晶【自信健康】-水晶香氛擴香組',
@@ -53,6 +59,30 @@ const category3Products = Array.from({ length: 6 }, (_, i) => ({
   ...sampleProduct,
   id: 200 + i,
 }));
+
+const categories = ref<any[]>([]);
+
+const fetchCategoriesWithProducts = async () => {
+  try {
+    getProductDetail(1);
+    const categoryList = await getCategoryAvailableList();
+    const results = await Promise.all(
+      categoryList.map(async (category) => {
+        const products = await getProductListByCategory({
+          categoryId: category.id,
+        });
+        return { ...category, products };
+      })
+    );
+    categories.value = results;
+  } catch (err) {
+    console.error('載入分類與商品失敗', err);
+  }
+};
+
+onMounted(() => {
+  fetchCategoriesWithProducts();
+});
 </script>
 
 <style scoped lang="scss">
