@@ -48,7 +48,6 @@
           :key="page"
           :class="{ 'is-active': page === currentPage }"
           @click="goToPage(page)"
-          v-if="shouldShowPage(page)"
         >
           {{ page }}
         </button>

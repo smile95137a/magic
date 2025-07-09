@@ -43,6 +43,9 @@ const schema = yup.object({
 const { defineField, handleSubmit, errors, setFieldValue } = useForm({
   validationSchema: schema,
   initialValues: {
+    username: '',
+    phoneNumber: '',
+    zipCode: '',
     email: '',
     password: '',
     phone: '',
@@ -56,7 +59,6 @@ const { defineField, handleSubmit, errors, setFieldValue } = useForm({
     agreeTerms: false,
   },
 });
-
 
 const [username, usernameProps] = defineField('username');
 const [email, emailProps] = defineField('email');
