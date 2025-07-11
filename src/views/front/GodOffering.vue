@@ -36,7 +36,7 @@
   <GodList />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import Header from '@/components/front/Header.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import Footer from '@/components/front/Footer.vue';

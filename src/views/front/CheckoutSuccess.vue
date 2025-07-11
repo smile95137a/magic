@@ -4,7 +4,9 @@
     <div class="checkout-success__container">
       <MCard customClass="p-48">
         <h2 class="checkout-success__title">訂購成功！</h2>
-        <p class="checkout-success__subtitle">感謝您的消費！以下為您的訂單明細</p>
+        <p class="checkout-success__subtitle">
+          感謝您的消費！以下為您的訂單明細
+        </p>
 
         <div class="checkout-success__content">
           <!-- 商品資訊 -->
@@ -55,13 +57,15 @@
       <!-- 按鈕 -->
       <div class="checkout-success__actions">
         <button class="btn btn-outline" @click="goHome">回首頁</button>
-        <button class="btn btn-primary" @click="continueShopping">繼續購買</button>
+        <button class="btn btn-primary" @click="continueShopping">
+          繼續購買
+        </button>
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useRouter } from 'vue-router';
 import MCard from '@/components/common/MCard.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
@@ -90,7 +94,8 @@ const products = [
 
 const shippingFee = 150;
 const discount = 50;
-const totalAmount = products.reduce((sum, p) => sum + p.price, 0) + shippingFee - discount;
+const totalAmount =
+  products.reduce((sum, p) => sum + p.price, 0) + shippingFee - discount;
 </script>
 
 <style scoped lang="scss">
@@ -230,5 +235,4 @@ const totalAmount = products.reduce((sum, p) => sum + p.price, 0) + shippingFee 
     }
   }
 }
-
 </style>

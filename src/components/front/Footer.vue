@@ -51,7 +51,7 @@
   </footer>
 </template>
 
-<script setup>
+<script setup lang="ts">
 // 無特殊邏輯，目前空白即可
 </script>
 

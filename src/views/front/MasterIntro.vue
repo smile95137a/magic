@@ -3,54 +3,51 @@
     <SectionBackground variant="divination" />
     <div class="master__container">
       <Title color="dark" text="大師親算" />
-
-      <div class="master__card">
-        <div class="master__header">
-          <div class="master__header-left">
-            <h3 class="master__name">張盛舒</h3>
-            <p class="master__subtitle">科技紫微大師</p>
+      <div class="master__list">
+        <div
+          v-for="(masterItem, index) in masters"
+          :key="masterItem.code"
+          class="master__card"
+        >
+          <div class="master__header">
+            <div class="master__header-left">
+              <h3 class="master__name">{{ masterItem.name }}</h3>
+              <p class="master__subtitle">{{ masterItem.title }}</p>
+            </div>
+            <button class="master__btn" @click="goToReservation(masterItem)">
+              大師親算 <i class="fas fa-chevron-right"></i>
+            </button>
           </div>
-          <button class="master__btn" @click="store.nextStep()">
-            大師親算 <i class="fas fa-chevron-right"></i>
-          </button>
-        </div>
 
-        <div class="master__content">
-          <div class="master__left">
-            <div class="master__desc">
-              <p><strong>主星：</strong>太陰</p>
-              <p>
-                <strong>簡介：</strong
-                >強調科技驗證個體宿命，提供個人正確的命運規劃，幫助個人改變自己的命運，進而達成幸福成功。
-              </p>
-              <p>
-                <strong>學經歷：</strong
-                >台大數學系畢業，經營資訊公司多年，專精命理研究，在資訊界20年，研究命理40年；由科技與命理整合，開創命理新視野，結合心理學、管理學、命理學，創立科技紫微網。
-              </p>
-              <p>
-                <strong>擅長項目：</strong
-                >婚姻情感、姻緣問題、事業發展、流年生涯、學業進修、創業轉職問題、親子問題等，榮獲東森新聞專訪。
-              </p>
-              <p><strong>經歷：</strong>研究與實務並具40年以上。</p>
+          <div class="master__content">
+            <div class="master__left">
+              <div class="master__desc">
+                <p><strong>主星：</strong>{{ masterItem.mainStar }}</p>
+                <p><strong>簡介：</strong>{{ masterItem.bio }}</p>
+                <p><strong>學經歷：</strong>{{ masterItem.experience }}</p>
+                <p><strong>隨身物品：</strong>{{ masterItem.personalItems }}</p>
+              </div>
+            </div>
+            <div class="master__right">
+              <img
+                class="master__image"
+                :src="getMasterImage(masterItem)"
+                alt="大師照片"
+              />
             </div>
           </div>
 
-          <div class="master__right">
-            <img class="master__image" :src="master" alt="大師照片" />
-          </div>
-        </div>
-
-        <!-- 擅長項目 -->
-        <div class="master__topics">
-          <div
-            v-for="(item, index) in topics"
-            :key="index"
-            class="master__topic"
-          >
-            <div class="master__topic-header">
-              <div class="master__topic-title">{{ item.title }}</div>
+          <div class="master__topics">
+            <div
+              v-for="(item, idx) in masterItem.serviceItem"
+              :key="idx"
+              class="master__topic"
+            >
+              <div class="master__topic-header">
+                <div class="master__topic-title">{{ item.title }}</div>
+              </div>
+              <div class="master__topic-desc">{{ item.content }}</div>
             </div>
-            <div class="master__topic-desc">{{ item.desc }}</div>
           </div>
         </div>
       </div>
@@ -61,21 +58,35 @@
 <script setup lang="ts">
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import Title from '@/components/common/Title.vue';
-import master from '@/assets/image/master.png';
+import { onMounted, ref } from 'vue';
 import { useMasterOrderStore } from '@/stores/masterOrderStore';
-import { onMounted } from 'vue';
+import defaultImage from '@/assets/image/master.png';
+import { fetchMasterList } from '@/services/masterServices';
 
 const store = useMasterOrderStore();
+const masters = ref([]);
 
-const topics = [
-  { title: '姻緣愛情', desc: '桃花感應、愛情煩惱、合婚、第三者等' },
-  { title: '婚姻問題', desc: '婚姻、外遇、離婚等' },
-  { title: '事業問題', desc: '求職、轉職、創業、合夥等' },
-  { title: '流年生涯', desc: '流年運勢、生涯規劃等' },
-  { title: '家庭問題', desc: '婆媳關係、媳媳關係、家庭問題等' },
-  { title: '學業進修', desc: '學業、進修、留學' },
-  { title: '親子問題', desc: '親子溝通、事業傳承、子女教育' },
-];
+const getMasterImage = (masterItem: any) => {
+  return masterItem.imageBase64 ? `${masterItem.imageBase64}` : defaultImage;
+};
+
+const fetchData = async () => {
+  try {
+    const { success, data } = await fetchMasterList();
+    if (success) {
+      masters.value = data;
+    }
+  } catch (error) {
+    console.error('fetchMasterList error:', error);
+  }
+};
+
+onMounted(fetchData);
+
+const goToReservation = (masterItem: any) => {
+  store.selectMaster(masterItem);
+  store.nextStep();
+};
 </script>
 
 <style scoped lang="scss">
@@ -86,6 +97,12 @@ const topics = [
     max-width: 1200px;
     margin: 0 auto;
     padding: 4rem 2rem;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
 
   &__card {

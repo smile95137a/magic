@@ -8,33 +8,23 @@
           <h2 class="divination-result__title">求籤問事</h2>
 
           <h3 class="divination-result__poem-title">
-            第七十一籤（古人）文君訪相如
+            {{ sequence }}（{{ zodiac }}）{{ title }}
           </h3>
-          <p class="divination-result__label">【吉凶】中籤</p>
+          <p class="divination-result__label">【吉凶】{{ fortune }}</p>
           <p class="divination-result__label">【詩曰】</p>
-          <p class="divination-result__paragraph">
-            誰知倉龍十九衝 女子當年嫁二夫<br />
-            自是一弓架兩箭 欲恐龍馬上安居
-          </p>
+          <p class="divination-result__paragraph">{{ poemText }}</p>
 
           <p class="divination-result__label">【解曰】</p>
-          <p class="divination-result__paragraph">
-            不出重重 事由天命 振放中間 切宜謹守
-          </p>
+          <p class="divination-result__paragraph">{{ explanation }}</p>
 
           <p class="divination-result__label">【先機】</p>
-          <p class="divination-result__paragraph">
-            此卦一弓架兩箭之象，凡事再合則吉也。此籤家宅損失，自身是非，求財勞力，<br />
-            交易謹防，婚姻再合，行人阻，六甲先虛後實，田蠶晚收，六畜損，尋人見，訟宜，<br />
-            病懸旱，移徒吉，山墳改。
-          </p>
+          <p class="divination-result__paragraph">{{ meaning }}</p>
 
-          <p class="divination-result__label">古人典故《文君訪相如》</p>
-          <p class="divination-result__paragraph">
-            古代戀愛故事，漢朝時，卓文君之夫死後，在家守寡，讀詩書遣日子，一日邂逅了很有學問的司馬相如，
-            卓文君深夜造訪相如，傾訴心中真情，二人遂私奔出城，回到成都結為夫婦。
-            後來司馬相如被漢武帝賞識，在朝庭當官。倉龍、青龍、九衝：繁華的街市。
-          </p>
+          <p class="divination-result__label">【東坡解】</p>
+          <p class="divination-result__paragraph">{{ dongponote }}</p>
+
+          <p class="divination-result__label">【碧仙註】</p>
+          <p class="divination-result__paragraph">{{ bixiannote }}</p>
         </div>
 
         <!-- 右側籤卡獨立 -->
@@ -50,35 +40,36 @@
                     <div class="vertical">解曰</div>
                   </div>
                   <div class="divination__left-content">
-                    <div class="vertical">婚姻再合 行人阻 六甲先虛後實</div>
-                    <div class="vertical">
-                      家宅損失 自身是非 求才努力 交易謹防
-                    </div>
-                    <div class="vertical">
-                      不出重重 事由天命 振放中間 切宜謹守
-                    </div>
+                    <div class="vertical" v-html="meaning" />
+                    <div class="vertical" v-html="explanation" />
                   </div>
                 </div>
 
                 <!-- 右側 -->
                 <div class="divination__right">
                   <div class="divination__right-poem">
-                    <div class="vertical">
-                      誰知倉龍十九衝&nbsp;&nbsp;&nbsp;女子當年嫁二夫
-                    </div>
-                    <div class="vertical">
-                      自是一弓架兩箭&nbsp;&nbsp;&nbsp;欲恐龍馬上安居
+                    <div
+                      class="vertical"
+                      v-for="(linePair, idx) in groupedPoem"
+                      :key="`poem-${idx}`"
+                    >
+                      {{ linePair }}
                     </div>
                   </div>
                   <div class="divination__right-title highlight-text">
-                    <div class="vertical">第七十一籤 古人 文君訪相如 中籤</div>
+                    <div class="vertical">
+                      {{ sequence }} {{ zodiac }} {{ title }} {{ fortune }}籤
+                    </div>
                   </div>
                 </div>
               </div>
 
               <div class="divination__footer">
                 <div class="divination__note">
-                  〔籤語〕此乃一弓架兩箭之象，凡事再合則吉也。
+                  〔籤語〕
+                  <div v-for="(line, idx) in groupedDongpo" :key="idx">
+                    {{ line }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -88,29 +79,98 @@
 
       <!-- 底部祈福按鈕 -->
       <div class="divination-result__footer">
-        <StartButton styleType="red" label="消災解厄，點燈祈福" />
+        <StartButton
+          styleType="red"
+          label="消災解厄，點燈祈福"
+          @click="handleBlessing"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import poemBg from '@/assets/image/poem-bg.png';
 import StartButton from '@/components/front/StartButton.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
-import Header from '@/components/front/Header.vue';
-import Footer from '@/components/front/Footer.vue';
-import { ref, onMounted } from 'vue';
+import { getRandomPoem } from '@/services/poemServices';
+import { withLoading } from '@/utils/loadingUtils';
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+const router = useRouter();
 
-const poem = ref<any | null>(null);
+const sequence = ref('');
+const title = ref('');
+const zodiac = ref('');
+const fortune = ref('');
+const poemText = ref('');
+const meaning = ref('');
+const dongponote = ref('');
+const bixiannote = ref('');
+const explanation = ref('');
+
+const groupedPoem = computed(() => {
+  const lines = poemText.value.split(/[，,。]/).filter(Boolean);
+  const result: string[] = [];
+  for (let i = 0; i < lines.length; i += 2) {
+    result.push(`${lines[i]}　${lines[i + 1] ?? ''}`);
+  }
+  return result;
+});
+const splitByPunctuation = (text: string) =>
+  text.split(/[，,。；、\s]/).filter((s) => !!s && s.trim() !== '');
+
+const groupByN = (arr: string[], n: number): string[] => {
+  const result: string[] = [];
+  for (let i = 0; i < arr.length; i += n) {
+    result.push(arr.slice(i, i + n).join('　'));
+  }
+  return result;
+};
+
+const groupedDongpo = computed(() =>
+  groupByN(splitByPunctuation(dongponote.value), 4)
+);
 
 onMounted(async () => {
   try {
+    const { success, data, message } = await withLoading(() => getRandomPoem());
+    if (success) {
+      const {
+        sequence: s,
+        title: t,
+        zodiac: z,
+        fortune: f,
+        poem,
+        meaning: m,
+        dongponote: dp,
+        bixiannote: bx,
+        explanation: e,
+      } = data;
+
+      sequence.value = s;
+      title.value = t;
+      zodiac.value = z;
+      fortune.value = f;
+      poemText.value = poem;
+      meaning.value = m;
+      dongponote.value = dp;
+      bixiannote.value = bx;
+      explanation.value = e;
+    } else {
+      console.error('抽詩籤失敗', message);
+    }
   } catch (err) {
-    console.error('抽詩籤失敗', err);
+    console.error('抽詩籤錯誤', err);
   }
 });
+
+const handleBlessing = () => {
+  router.push('/blessing');
+};
 </script>
+
 <style lang="scss" scoped>
 .divination-result {
   width: 100%;
@@ -124,7 +184,10 @@ onMounted(async () => {
     display: flex;
     justify-content: space-between;
     gap: 2rem;
-    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
   }
 
   &__card {
@@ -207,11 +270,12 @@ onMounted(async () => {
   padding: 18px;
   position: relative;
 
-  width: 260px;
-  height: 500px;
+  min-width: 260px;
+  min-height: 500px;
   &__bg {
     position: absolute;
     inset: 0;
+    height: 100% !important;
   }
 
   &__container {
@@ -276,7 +340,7 @@ onMounted(async () => {
 
   .vertical {
     writing-mode: vertical-rl;
-    font-size: 16px;
+    font-size: 14px;
     line-height: 1.5;
     white-space: pre-wrap;
   }

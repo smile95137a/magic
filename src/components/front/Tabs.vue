@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref, provide, onMounted } from 'vue';
 
 const activeTab = ref(null);

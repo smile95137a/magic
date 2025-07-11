@@ -28,7 +28,6 @@
                 <input
                   class="login__form-input"
                   v-model="username"
-                  v-bind="usernameProps"
                   :class="{ 'login__form-input--error': errors.username }"
                 />
                 <p class="login__text login__text--error">
@@ -41,7 +40,6 @@
                   type="password"
                   class="login__form-input"
                   v-model="password"
-                  v-bind="passwordProps"
                   :class="{ 'login__form-input--error': errors.password }"
                 />
                 <p class="login__text login__text--error">
@@ -84,8 +82,8 @@ import googleLogo from '@/assets/image/google.svg';
 import MCard from '@/components/common/MCard.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import Header from '@/components/front/Header.vue';
-import { login } from '@/services/AuthService';
-import { useAuthStore } from '@/stores/authStore';
+import { login } from '@/services/UserService';
+import { useAuthFrontStore } from '@/stores/authFrontStore';
 import { useDialogStore } from '@/stores/dialogStore';
 import { useLoadingStore } from '@/stores/loadingStore';
 import { useForm } from 'vee-validate';
@@ -95,7 +93,7 @@ import * as yup from 'yup';
 
 const router = useRouter();
 const loadingStore = useLoadingStore();
-const authStore = useAuthStore();
+const authStore = useAuthFrontStore();
 const dialogStore = useDialogStore();
 
 onMounted(() => {
@@ -117,31 +115,11 @@ const { handleSubmit, errors, defineField } = useForm({
   },
 });
 
-const [username, usernameProps] = defineField('username');
-const [password, passwordProps] = defineField('password');
+const [username] = defineField('username');
+const [password] = defineField('password');
 
 const onSubmit = handleSubmit(async (values) => {
-  try {
-    loadingStore.startLoading();
-    const { success, data, code, message } = await login(values);
-    loadingStore.stopLoading();
-    if (success) {
-      authStore.setToken(data.accessToken);
-      authStore.setUser(data.user);
-      router.push('/home');
-    } else {
-      await dialogStore.openInfoDialog({
-        title: '系統通知',
-        message,
-      });
-    }
-  } catch (error) {
-    loadingStore.stopLoading();
-    await dialogStore.openInfoDialog({
-      title: '系統通知',
-      message: '系統問題，請稍後再嘗試。',
-    });
-  }
+  const res = await login(values);
 });
 
 const forwardRegistration = () => {

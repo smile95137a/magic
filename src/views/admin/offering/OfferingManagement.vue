@@ -6,27 +6,29 @@
     <table class="admin-list__table">
       <thead>
         <tr>
-          <th>圖片</th>
           <th>名稱</th>
-          <th>類型</th>
-          <th>說明</th>
-          <th>價格</th>
-          <th>啟用</th>
-          <th>排序</th>
+          <th>圖片</th>
+          <th>點數</th>
+          <th>金額</th>
           <th>操作</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in offerings" :key="item.offeringId">
-          <td><img :src="item.imageUrl" alt="offering" style="height: 40px" /></td>
-          <td>{{ item.offeringName }}</td>
-          <td>{{ item.offeringType }}</td>
-          <td>{{ item.offeringDesc }}</td>
-          <td>{{ item.price }}</td>
-          <td>{{ item.isActive ? '是' : '否' }}</td>
-          <td>{{ item.sort }}</td>
+        <tr v-for="item in offerings" :key="item.id">
+          <td>{{ item.name }}</td>
           <td>
-            <button @click="goToEdit(item.offeringId)">編輯</button>
+            <img
+              v-if="item.imageBase64"
+              :src="item.imageBase64"
+              :alt="item.name"
+              style="height: 40px"
+            />
+            <span v-else>（無圖片）</span>
+          </td>
+          <td>{{ item.points }}</td>
+          <td>{{ item.price }}</td>
+          <td>
+            <button @click="goToEdit(item.id)">編輯</button>
           </td>
         </tr>
       </tbody>
@@ -35,20 +37,30 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchOfferingList } from '@/services/admin/adminOfferingServices';
 import type { OfferingVO } from '@/vite-env';
+import { withLoading } from '@/utils/loadingUtils';
 
-const offerings = ref<OfferingVO[]>([]);
 const router = useRouter();
+const offerings = ref<OfferingVO[]>([]);
 
 const load = async () => {
-  offerings.value = await fetchOfferingList();
+  try {
+    const res = await withLoading(fetchOfferingList);
+    if (res.success && Array.isArray(res.data)) {
+      offerings.value = res.data;
+    }
+  } catch (error) {
+    console.error('load offerings error:', error);
+  }
 };
 
 const goToAdd = () => router.push('/admin/offerings/add');
-const goToEdit = (id?: string) => router.push(`/admin/offerings/edit/${id}`);
+const goToEdit = (id: string) => router.push(`/admin/offerings/edit/${id}`);
 
-onMounted(load);
+onMounted(() => {
+  load();
+});
 </script>

@@ -27,18 +27,24 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref } from 'vue';
 import MallProductCard from './MallProductCard.vue';
 
-const props = defineProps({
-  title: { type: String, required: true },
-  description: { type: String, default: '' },
-  products: { type: Array, required: true },
-  initialCount: { type: Number, default: 8 }, // 初始顯示幾筆
-  step: { type: Number, default: 8 }, // 每次「更多」顯示幾筆
-});
-
+const props = withDefaults(
+  defineProps<{
+    title: string;
+    description?: string;
+    products: any[];
+    initialCount?: number;
+    step?: number;
+  }>(),
+  {
+    description: '',
+    initialCount: 8,
+    step: 8,
+  }
+);
 const displayCount = ref(props.initialCount);
 const displayedProducts = computed(() =>
   props.products.slice(0, displayCount.value)

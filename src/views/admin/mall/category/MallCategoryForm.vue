@@ -2,93 +2,95 @@
   <div class="category-form">
     <h2 class="form__title">{{ isEdit ? '編輯分類' : '新增分類' }}</h2>
     <form @submit.prevent="onSubmit" class="form">
+      <!-- 分類名稱 -->
       <div class="form__group">
         <label class="form__label">分類名稱</label>
-        <input v-model="categoryName" v-bind="categoryNameAttrs" class="form__input" />
-        <span class="form__error" v-if="errors.categoryName">{{ errors.categoryName }}</span>
+        <input v-model="name" class="form__input" />
+        <span class="form__error" v-if="errors.name">{{ errors.name }}</span>
       </div>
 
+      <!-- 分類描述 -->
       <div class="form__group">
         <label class="form__label">描述</label>
         <input v-model="description" class="form__input" />
       </div>
-
-      <div class="form__group">
-        <label class="form__label">排序</label>
-        <input type="number" v-model="sortOrder" v-bind="sortOrderAttrs" class="form__input" />
-        <span class="form__error" v-if="errors.sortOrder">{{ errors.sortOrder }}</span>
-      </div>
-
-      <div class="form__group">
+      <!-- 啟用狀態 -->
+      <div class="form__group" v-if="isEdit">
         <label class="form__label">啟用</label>
-        <input type="checkbox" v-model="values.isActive" class="form__checkbox" />
+        <input type="checkbox" v-model="status" class="form__checkbox" />
       </div>
 
+      <!-- 操作按鈕 -->
       <div class="form__actions">
-        <button type="button" class="form__button form__button--secondary" @click="goBack">取消</button>
-        <button type="submit" class="form__button form__button--primary">儲存</button>
+        <button
+          type="button"
+          class="form__button form__button--secondary"
+          @click="goBack"
+        >
+          取消
+        </button>
+        <button type="submit" class="form__button form__button--primary">
+          儲存
+        </button>
       </div>
     </form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useForm } from 'vee-validate';
-import { object, string, number } from 'yup';
-import { api } from '@/services/FrontAPI';
-import type { ModifyCategoryAdminRequest } from '@/vite-env';
+import { object, string } from 'yup';
+import { onMounted } from 'vue';
+import {
+  addCategory,
+  modifyCategory,
+} from '@/services/admin/adminCategoryServices';
 
 const route = useRoute();
 const router = useRouter();
 const id = route.params.id as string | undefined;
 const isEdit = !!id;
 
-// schema 定義
+// 驗證 schema
 const schema = object({
-  categoryName: string().required('分類名稱為必填'),
-  sortOrder: number().required('排序為必填').min(0, '排序不可小於 0'),
+  name: string().required('分類名稱為必填'),
 });
 
-// useForm
-const {
-  handleSubmit,
-  defineField,
-  errors,
-  values,
-  setValues,
-} = useForm<ModifyCategoryAdminRequest>({
+const { handleSubmit, defineField, errors, setValues } = useForm({
   validationSchema: schema,
   initialValues: {
-    categoryId: 0,
-    categoryName: '',
+    name: '',
     description: '',
-    sortOrder: 0,
-    isActive: true,
+    status: true,
   },
 });
 
-// 定義欄位綁定
-const [categoryName, categoryNameAttrs] = defineField('categoryName');
-const [sortOrder, sortOrderAttrs] = defineField('sortOrder');
-const [description] = defineField('description'); // 無驗證可不綁 attrs
-
+const [name] = defineField('name');
+const [description] = defineField('description');
+const [status] = defineField('status');
 const goBack = () => router.push('/admin/mall/categories');
 
 const onSubmit = handleSubmit(async (formValues) => {
   if (isEdit) {
-    await api.post('/admin/product-category/edit', formValues);
+    await modifyCategory({ id, ...formValues });
   } else {
-    await api.post('/admin/product-category/add', formValues);
+    await addCategory(formValues);
   }
   goBack();
 });
 
 onMounted(async () => {
   if (isEdit) {
-    const res = await api.get(`/admin/product-category/${id}`);
-    setValues(res.data);
+    // const res = await fetchCategoryDetail(id);
+    // if (res.success && res.data) {
+    //   setValues({
+    //     name: res.data.name,
+    //     description: res.data.description,
+    //   });
+    // }
   }
 });
 </script>
+編輯可以改狀態 @Schema(description = "啟用狀態", example = "true") private
+Boolean status;

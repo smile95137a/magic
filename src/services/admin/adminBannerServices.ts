@@ -1,12 +1,14 @@
-// src/services/admin/adminBannerServices.ts
-import { BannerAdminVO, NewBannerRequest, ModifyBannerRequest } from '@/vite-env';
-import { api } from '../FrontAPI';
+import { BannerAdminVO, ApiResponse } from '@/vite-env';
+import { api } from './AdminApi';
 
 const basePath = '/admin/banner';
 
+/**
+ * 依類型查詢後台 banner
+ */
 export const fetchAdminBannerByType = async (
   type: string
-): Promise<BannerAdminVO[]> => {
+): Promise<ApiResponse<BannerAdminVO[]>> => {
   try {
     const res = await api.post(`${basePath}/${type}`);
     return res.data;
@@ -16,9 +18,12 @@ export const fetchAdminBannerByType = async (
   }
 };
 
+/**
+ * 新增 banner
+ */
 export const addBanner = async (
-  payload: NewBannerRequest
-): Promise<boolean> => {
+  payload: any
+): Promise<ApiResponse<boolean>> => {
   try {
     const res = await api.post(`${basePath}/add`, payload);
     return res.data;
@@ -28,9 +33,12 @@ export const addBanner = async (
   }
 };
 
+/**
+ * 修改 banner
+ */
 export const modifyBanner = async (
-  payload: ModifyBannerRequest
-): Promise<boolean> => {
+  payload: any
+): Promise<ApiResponse<boolean>> => {
   try {
     const res = await api.post(`${basePath}/modify`, payload);
     return res.data;

@@ -3,10 +3,11 @@
     <SectionBackground variant="light" />
     <div class="mall-product-list__container">
       <Title text="開運商店" color="red" />
+
       <div class="mall-product-list__grid">
         <div
           class="product-card"
-          v-for="(product, index) in products"
+          v-for="(product, index) in paginatedProducts"
           :key="index"
         >
           <img :src="product.image" class="product-card__image" />
@@ -15,31 +16,31 @@
               {{ product.title }}
             </div>
             <div class="product-card__price">
-              <span class="product-card__price--current"
-                >NT${{ product.price }}</span
-              >
-              <span class="product-card__price--original"
-                >NT${{ product.originalPrice }}</span
-              >
+              <span class="product-card__price--current">
+                NT${{ product.price }}
+              </span>
+              <span class="product-card__price--original">
+                NT${{ product.originalPrice }}
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="mall-product-list__pagination">
+      <div class="mall-product-list__pagination" v-if="totalPages > 1">
         <button
           class="pagination__btn"
           :disabled="currentPage === 1"
           @click="goToPage(1)"
         >
-          <<
+          &lt;&lt;
         </button>
         <button
           class="pagination__btn"
           :disabled="currentPage === 1"
           @click="goToPage(currentPage - 1)"
         >
-          <
+          &lt;
         </button>
 
         <button
@@ -52,21 +53,19 @@
           {{ page }}
         </button>
 
-        <span class="pagination__ellipsis" v-if="showEllipsis">...</span>
-
         <button
           class="pagination__btn"
           :disabled="currentPage === totalPages"
           @click="goToPage(currentPage + 1)"
         >
-          >
+          &gt;
         </button>
         <button
           class="pagination__btn"
           :disabled="currentPage === totalPages"
           @click="goToPage(totalPages)"
         >
-          >>
+          &gt;&gt;
         </button>
       </div>
     </div>
@@ -74,10 +73,13 @@
 </template>
 
 <script setup lang="ts">
-import mp from '@/assets/image/mp.png';
+import { ref, computed, onMounted } from 'vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import Title from '@/components/common/Title.vue';
-import { ref } from 'vue';
+import {
+  getCategoryAvailableList,
+  getProductListByCategory,
+} from '@/services/productServices';
 
 interface Product {
   title: string;
@@ -86,29 +88,60 @@ interface Product {
   originalPrice: number;
 }
 
-const products = ref<Product[]>(
-  Array.from({ length: 8 }, () => ({
-    title: '黃水晶冰塊晶【自信健康】- 水晶香氛療癒燈',
-    image: mp, // 替換為實際路徑
-    price: 1488,
-    originalPrice: 2099,
-  }))
+const products = ref<Product[]>([]);
+const currentPage = ref(1);
+const pageSize = 8;
+
+const totalPages = computed(() => Math.ceil(products.value.length / pageSize));
+
+const paginatedProducts = computed(() =>
+  products.value.slice(
+    (currentPage.value - 1) * pageSize,
+    currentPage.value * pageSize
+  )
 );
 
-const currentPage = ref(1);
-const totalPages = 10;
-
 const goToPage = (page: number) => {
-  if (page >= 1 && page <= totalPages) currentPage.value = page;
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+  }
 };
 
-const shouldShowPage = (page: number) => {
-  return (
-    page === 1 || page === totalPages || Math.abs(page - currentPage.value) <= 1
-  );
+const fetchAllProducts = async () => {
+  try {
+    const { success, data: categoryList } = await getCategoryAvailableList();
+    if (!success) return;
+
+    const result: Product[] = [];
+
+    for (const category of categoryList) {
+      const { success: ps, data: productList } = await getProductListByCategory(
+        {
+          categoryId: category.id,
+        }
+      );
+
+      if (ps) {
+        result.push(
+          ...productList.map((p) => ({
+            title: p.name.trim(),
+            image: p.mainImageUrl || '',
+            price: p.specialPrice,
+            originalPrice: p.originalPrice,
+          }))
+        );
+      }
+    }
+
+    products.value = result;
+  } catch (error) {
+    console.error('載入商品失敗:', error);
+  }
 };
 
-const showEllipsis = currentPage.value < totalPages - 2;
+onMounted(() => {
+  fetchAllProducts();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -129,6 +162,14 @@ const showEllipsis = currentPage.value < totalPages - 2;
     background: #fff;
     padding: 2rem;
     border-radius: 1rem;
+
+    @media (max-width: 1024px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
   }
 
   &__pagination {
@@ -215,10 +256,5 @@ const showEllipsis = currentPage.value < totalPages - 2;
     background: #d92332;
     color: white;
   }
-}
-
-.pagination__ellipsis {
-  padding: 0 0.5rem;
-  color: #999;
 }
 </style>

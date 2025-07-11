@@ -45,7 +45,7 @@
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const todayList = [
   {
     id: 1,

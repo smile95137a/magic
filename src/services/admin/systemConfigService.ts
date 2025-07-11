@@ -1,12 +1,14 @@
-import { CountRequest } from '@/vite-env';
-import { api } from '../FrontAPI';
+import { ApiResponse, CountRequest } from '@/vite-env';
+import { api } from './AdminApi';
 
 const basePath = '/system/config';
 
 /**
  * 查詢推薦點燈清單
  */
-export const fetchPromotionLanternList = async (): Promise<string[]> => {
+export const fetchPromotionLanternList = async (): Promise<
+  ApiResponse<string[]>
+> => {
   try {
     const res = await api.get(`${basePath}/promotion-lantern`);
     return res.data;
@@ -19,7 +21,9 @@ export const fetchPromotionLanternList = async (): Promise<string[]> => {
 /**
  * 更新推薦點燈清單
  */
-export const updatePromotionLanternList = async (lanternIds: string[]): Promise<boolean> => {
+export const updatePromotionLanternList = async (
+  lanternIds: string[]
+): Promise<ApiResponse<boolean>> => {
   try {
     const res = await api.post(`${basePath}/promotion-lantern`, lanternIds);
     return res.data;
@@ -32,7 +36,9 @@ export const updatePromotionLanternList = async (lanternIds: string[]): Promise<
 /**
  * 查詢要疊加的點燈購買數字
  */
-export const fetchPurchaseLanternCount = async (): Promise<number> => {
+export const fetchPurchaseLanternCount = async (): Promise<
+  ApiResponse<number>
+> => {
   try {
     const res = await api.get(`${basePath}/lantern-count`);
     return res.data;
@@ -45,7 +51,9 @@ export const fetchPurchaseLanternCount = async (): Promise<number> => {
 /**
  * 更新要疊加的點燈購買數字
  */
-export const updatePurchaseLanternCount = async (req: CountRequest): Promise<boolean> => {
+export const updatePurchaseLanternCount = async (
+  req: CountRequest
+): Promise<ApiResponse<boolean>> => {
   try {
     const res = await api.post(`${basePath}/lantern-count`, req);
     return res.data;

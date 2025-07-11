@@ -1,10 +1,12 @@
-// src/services/front/masterServices.ts
-import { MasterVO, MasterServiceRequest } from '@/vite-env';
+import { MasterVO, MasterServiceRequest, ApiResponse } from '@/vite-env';
 import { api } from './FrontAPI';
 
 const basePath = '/master';
 
-export const fetchMasterList = async (): Promise<MasterVO[]> => {
+/**
+ * 取得師父列表
+ */
+export const fetchMasterList = async (): Promise<ApiResponse<MasterVO[]>> => {
   try {
     const response = await api.post(`${basePath}/list`);
     return response.data;
@@ -14,12 +16,15 @@ export const fetchMasterList = async (): Promise<MasterVO[]> => {
   }
 };
 
+/**
+ * 預約師父服務
+ */
 export const reserveMasterService = async (
   payload: MasterServiceRequest
-): Promise<string> => {
+): Promise<ApiResponse<string>> => {
   try {
     const response = await api.post(`${basePath}/reservation`, payload);
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.error('reserveMasterService error:', error);
     throw error;

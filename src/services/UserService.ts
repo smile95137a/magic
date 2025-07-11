@@ -1,10 +1,21 @@
-// src/services/front/userServices.ts
-import { UserRegisterRequest, UserLoginRequest, LoginResponse, RefreshTokenRequest, UserProfileModifyRequest, UserProfileResponse, RecordPeriodRequest, RecordVO } from '@/vite-env';
+import {
+  UserRegisterRequest,
+  UserLoginRequest,
+  LoginResponse,
+  RefreshTokenRequest,
+  UserProfileModifyRequest,
+  UserProfileResponse,
+  RecordPeriodRequest,
+  RecordVO,
+  ApiResponse,
+} from '@/vite-env';
 import { api } from './FrontAPI';
 
 const basePath = '/user';
 
-export const register = async (payload: UserRegisterRequest): Promise<boolean> => {
+export const register = async (
+  payload: UserRegisterRequest
+): Promise<ApiResponse<boolean>> => {
   try {
     const response = await api.post(`${basePath}/register`, payload);
     return response.data;
@@ -14,7 +25,9 @@ export const register = async (payload: UserRegisterRequest): Promise<boolean> =
   }
 };
 
-export const login = async (payload: UserLoginRequest): Promise<LoginResponse> => {
+export const login = async (
+  payload: UserLoginRequest
+): Promise<ApiResponse<LoginResponse>> => {
   try {
     const response = await api.post(`${basePath}/login`, payload);
     return response.data;
@@ -24,7 +37,9 @@ export const login = async (payload: UserLoginRequest): Promise<LoginResponse> =
   }
 };
 
-export const refreshToken = async (payload: RefreshTokenRequest): Promise<LoginResponse> => {
+export const refreshToken = async (
+  payload: RefreshTokenRequest
+): Promise<ApiResponse<LoginResponse>> => {
   try {
     const response = await api.post(`${basePath}/refresh`, payload);
     return response.data;
@@ -34,7 +49,9 @@ export const refreshToken = async (payload: RefreshTokenRequest): Promise<LoginR
   }
 };
 
-export const modifyUser = async (payload: UserProfileModifyRequest): Promise<boolean> => {
+export const modifyUser = async (
+  payload: UserProfileModifyRequest
+): Promise<ApiResponse<boolean>> => {
   try {
     const response = await api.post(`${basePath}/modify`, payload);
     return response.data;
@@ -44,7 +61,9 @@ export const modifyUser = async (payload: UserProfileModifyRequest): Promise<boo
   }
 };
 
-export const getProfile = async (): Promise<UserProfileResponse> => {
+export const getProfile = async (): Promise<
+  ApiResponse<UserProfileResponse>
+> => {
   try {
     const response = await api.post(`${basePath}/me`);
     return response.data;
@@ -56,7 +75,7 @@ export const getProfile = async (): Promise<UserProfileResponse> => {
 
 export const getPurchaseRecord = async (
   payload: RecordPeriodRequest
-): Promise<RecordVO[]> => {
+): Promise<ApiResponse<RecordVO[]>> => {
   try {
     const response = await api.post(`${basePath}/record/purchase`, payload);
     return response.data;

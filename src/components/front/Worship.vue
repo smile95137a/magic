@@ -113,7 +113,7 @@
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import Title from '@/components/common/Title.vue';
 import badge from '@/assets/image/badge.png';

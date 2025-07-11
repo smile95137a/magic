@@ -31,7 +31,7 @@ const showDialog = async () => {
   <button @click="showDialog">開啟提示 Dialog</button>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import lightImages from '@/data/lightImages';
 </script>
 

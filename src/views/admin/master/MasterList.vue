@@ -8,48 +8,76 @@
         <tr>
           <th>名稱</th>
           <th>職稱</th>
+          <th>主星</th>
           <th>啟用</th>
           <th>排序</th>
           <th>操作</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in masters" :key="item.masterId">
-          <td>{{ item.masterName }}</td>
-          <td>{{ item.jobTitle }}</td>
-          <td>{{ item.isActive ? '是' : '否' }}</td>
-          <td>{{ item.sort }}</td>
-          <td>
-            <button @click="editMaster(item.masterId)">編輯</button>
-          </td>
-        </tr>
+        <template v-for="item in masters" :key="item.code">
+          <!-- 主列 -->
+          <tr @click="toggleExpand(item.code)" class="admin-list__row">
+            <td>{{ item.name }}</td>
+            <td>{{ item.title }}</td>
+            <td>{{ item.mainStar }}</td>
+            <td>{{ item.status ? '是' : '否' }}</td>
+            <td>{{ item.sort }}</td>
+            <td>
+              <button @click.stop="goToEdit(item.code)">編輯</button>
+            </td>
+          </tr>
+
+          <!-- 明細列 -->
+          <tr v-if="expandedCode === item.code">
+            <td colspan="6" class="admin-list__details">
+              <strong>簡介：</strong> {{ item.bio }}<br />
+              <strong>經歷：</strong> {{ item.experience }}<br />
+              <strong>隨身物品：</strong> {{ item.personalItems }}<br />
+              <strong>服務項目：</strong>
+              <ul>
+                <li v-for="(service, idx) in item.serviceItem" :key="idx">
+                  <strong>{{ service.title }}：</strong>{{ service.content }}
+                </li>
+              </ul>
+            </td>
+          </tr>
+        </template>
       </tbody>
     </table>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchAllMasters } from '@/services/admin/adminMasterServices';
-import type { MasterAdminVO } from '@/vite-env';
+import { withLoading } from '@/utils/loadingUtils';
 
 const router = useRouter();
-const masters = ref<MasterAdminVO[]>([]);
+const masters = ref<any[]>([]);
+const expandedCode = ref<string | null>(null);
 
-const loadMasters = async () => {
-  masters.value = await fetchAllMasters();
+const load = async () => {
+  try {
+    const res = await withLoading(() => fetchAllMasters());
+    if (res.success && Array.isArray(res.data)) {
+      masters.value = res.data;
+    }
+  } catch (error) {
+    console.error('load masters error:', error);
+  }
 };
 
-const goToAdd = () => {
-  router.push('/admin/masters/add');
-};
+const goToAdd = () => router.push('/admin/masters/add');
+const goToEdit = (id: string) => router.push(`/admin/masters/edit/${id}`);
 
-const editMaster = (id: string) => {
-  router.push(`/admin/masters/edit/${id}`);
+// 切換展開行
+const toggleExpand = (code: string) => {
+  expandedCode.value = expandedCode.value === code ? null : code;
 };
 
 onMounted(() => {
-  loadMasters();
+  load();
 });
 </script>

@@ -45,7 +45,7 @@
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import teacher1 from '@/assets/image/teacher_1.png';
 import lightImages from '@/data/lightImages';
 import Title from '@/components/common/Title.vue';

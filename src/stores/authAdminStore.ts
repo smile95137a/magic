@@ -1,28 +1,29 @@
+// src/stores/authAdminStore.ts
 import { loadState, saveState, removeState } from '@/utils/Localstorage';
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
-export const useAuthStore = defineStore('auth', () => {
-  const user = ref(loadState<any>('user') || null);
-  const token = ref<string | null>(loadState<string>('token') || null);
+export const useAuthAdminStore = defineStore('authAdmin', () => {
+  const user = ref(loadState<any>('admin_user') || null);
+  const token = ref<string | null>(loadState<string>('admin_token') || null);
 
   const isLogin = computed(() => !!token.value);
 
   const setUser = (userData: any) => {
     user.value = userData;
-    saveState('user', userData);
+    saveState('admin_user', userData);
   };
 
   const setToken = (accessToken: string) => {
     token.value = accessToken;
-    saveState('token', accessToken);
+    saveState('admin_token', accessToken);
   };
 
   const clearAuthData = () => {
     user.value = null;
     token.value = null;
-    removeState('user');
-    removeState('token');
+    removeState('admin_user');
+    removeState('admin_token');
   };
 
   return {

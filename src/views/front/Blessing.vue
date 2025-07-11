@@ -20,7 +20,7 @@
             class="light-blessing__lamp"
           >
             <img :src="img.image" class="light-blessing__lamp-img" />
-            <p class="light-blessing__lamp-name">{{ img.label }}</p>
+            <p class="light-blessing__lamp-name">{{ img.name }}</p>
           </div>
         </div>
       </div>
@@ -33,7 +33,7 @@
   <TopLightBlessingScene />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import Header from '@/components/front/Header.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import LightBlessingTabs from '@/components/front/LightBlessingTabs.vue';

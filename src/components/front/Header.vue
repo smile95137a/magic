@@ -29,21 +29,25 @@
       </div>
       <div class="header__nav-right">
         <template v-if="authStore.isLogin">
-          <RouterLink to="/member-center" class="btn btn--primary">會員中心</RouterLink>
+          <RouterLink to="/member-center" class="btn btn--primary"
+            >會員中心</RouterLink
+          >
           <button class="btn btn--outline" @click="logout">登出</button>
         </template>
         <template v-else>
           <RouterLink to="/login" class="btn btn--primary">登入</RouterLink>
-          <RouterLink to="/register" class="btn btn--outline">免費加入會員</RouterLink>
+          <RouterLink to="/register" class="btn btn--outline"
+            >免費加入會員</RouterLink
+          >
         </template>
       </div>
     </nav>
 
     <transition name="fade">
       <div class="header__mobile-nav" v-if="menuOpen">
-          <button class="header__close-btn" @click="closeMenu">
-      <i class="fas fa-xmark"></i>
-    </button>
+        <button class="header__close-btn" @click="closeMenu">
+          <i class="fas fa-xmark"></i>
+        </button>
         <div class="header__mobile-links">
           <RouterLink to="/divination" @click="closeMenu">求籤問事</RouterLink>
           <RouterLink to="/godOffering" @click="closeMenu">請神供奉</RouterLink>
@@ -52,12 +56,16 @@
           <RouterLink to="/store" @click="closeMenu">開運商店</RouterLink>
           <div class="header__mobile-actions">
             <template v-if="authStore.isLogin">
-              <RouterLink to="/member-center" @click="closeMenu">會員中心</RouterLink>
+              <RouterLink to="/member-center" @click="closeMenu"
+                >會員中心</RouterLink
+              >
               <button @click="logout">登出</button>
             </template>
             <template v-else>
               <RouterLink to="/login" @click="closeMenu">登入</RouterLink>
-              <RouterLink to="/register" @click="closeMenu">免費加入會員</RouterLink>
+              <RouterLink to="/register" @click="closeMenu"
+                >免費加入會員</RouterLink
+              >
             </template>
           </div>
         </div>
@@ -67,11 +75,11 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/authStore';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
+import { useAuthFrontStore } from '@/stores/authFrontStore';
 
-const authStore = useAuthStore();
+const authStore = useAuthFrontStore();
 const router = useRouter();
 
 const menuOpen = ref(false);
@@ -246,7 +254,7 @@ const logout = async () => {
     display: block;
     left: 1.25rem;
     right: auto;
-     top: 50%;
+    top: 50%;
     transform: translateY(-50%);
   }
 
@@ -263,7 +271,6 @@ const logout = async () => {
   }
 }
 
-
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;
@@ -271,7 +278,8 @@ const logout = async () => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-}.header__close-btn {
+}
+.header__close-btn {
   position: absolute;
   top: 1rem;
   right: 1rem;
@@ -286,5 +294,4 @@ const logout = async () => {
     color: #ffb3a1;
   }
 }
-
 </style>

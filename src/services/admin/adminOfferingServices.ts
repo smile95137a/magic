@@ -1,13 +1,12 @@
-// src/services/admin/adminOfferingServices.ts
-import { OfferingVO } from '@/vite-env';
-import { api } from '../FrontAPI';
+import { ApiResponse } from '@/vite-env';
+import { api } from './AdminApi';
 
 const basePath = '/admin/offering';
 
 /**
  * 查詢供品清單
  */
-export const fetchOfferingList = async (): Promise<OfferingVO[]> => {
+export const fetchOfferingList = async (): Promise<ApiResponse<any[]>> => {
   try {
     const res = await api.post(`${basePath}/list`);
     return res.data;
@@ -20,7 +19,9 @@ export const fetchOfferingList = async (): Promise<OfferingVO[]> => {
 /**
  * 新增供品
  */
-export const addOffering = async (payload: OfferingVO): Promise<boolean> => {
+export const addOffering = async (
+  payload: any
+): Promise<ApiResponse<boolean>> => {
   try {
     const res = await api.post(`${basePath}/add`, payload);
     return res.data;
@@ -33,7 +34,9 @@ export const addOffering = async (payload: OfferingVO): Promise<boolean> => {
 /**
  * 修改供品
  */
-export const modifyOffering = async (payload: OfferingVO): Promise<boolean> => {
+export const modifyOffering = async (
+  payload: any
+): Promise<ApiResponse<boolean>> => {
   try {
     const res = await api.post(`${basePath}/modify`, payload);
     return res.data;
@@ -42,17 +45,3 @@ export const modifyOffering = async (payload: OfferingVO): Promise<boolean> => {
     throw error;
   }
 };
-
-// 若日後有開放刪除，可加上
-// /**
-//  * 刪除供品
-//  */
-// export const deleteOfferingById = async (id: string): Promise<boolean> => {
-//   try {
-//     const res = await api.post(`${basePath}/delete/${id}`);
-//     return res.data;
-//   } catch (error) {
-//     console.error('deleteOfferingById error:', error);
-//     throw error;
-//   }
-// };

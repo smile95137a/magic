@@ -1,13 +1,12 @@
-import { ProductCategory, CategoryAdminRequest, ModifyCategoryAdminRequest } from '@/vite-env';
-import { api } from '../FrontAPI';
-
+import { ApiResponse } from '@/vite-env';
+import { api } from './AdminApi';
 
 const basePath = '/admin/product/category';
 
 /**
  * 取得商品分類清單
  */
-export const fetchCategoryList = async (): Promise<ProductCategory[]> => {
+export const fetchCategoryList = async (): Promise<ApiResponse<any[]>> => {
   try {
     const res = await api.post(`${basePath}/list`);
     return res.data;
@@ -20,9 +19,11 @@ export const fetchCategoryList = async (): Promise<ProductCategory[]> => {
 /**
  * 新增商品分類
  */
-export const addCategory = async (data: CategoryAdminRequest): Promise<boolean> => {
+export const addCategory = async (
+  payload: any
+): Promise<ApiResponse<boolean>> => {
   try {
-    const res = await api.post(`${basePath}/add`, data);
+    const res = await api.post(`${basePath}/add`, payload);
     return res.data;
   } catch (error) {
     console.error('addCategory error:', error);
@@ -33,9 +34,11 @@ export const addCategory = async (data: CategoryAdminRequest): Promise<boolean> 
 /**
  * 修改商品分類
  */
-export const modifyCategory = async (data: ModifyCategoryAdminRequest): Promise<boolean> => {
+export const modifyCategory = async (
+  payload: any
+): Promise<ApiResponse<boolean>> => {
   try {
-    const res = await api.post(`${basePath}/modify`, data);
+    const res = await api.post(`${basePath}/modify`, payload);
     return res.data;
   } catch (error) {
     console.error('modifyCategory error:', error);

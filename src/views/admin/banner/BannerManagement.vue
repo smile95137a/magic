@@ -13,13 +13,16 @@
       </thead>
       <tbody>
         <tr v-for="banner in banners" :key="banner.id">
-          <td>{{ banner.title }}</td>
+          <td>{{ banner.description || '（無描述）' }}</td>
           <td>
-            <img :src="banner.imageUrl" alt="banner" style="height: 40px" />
+            <img
+              :src="`${banner.imageBase64}`"
+              :alt="banner.description || 'Banner'"
+              style="height: 40px"
+            />
           </td>
           <td>
             <button @click="goToEdit(banner.id)">編輯</button>
-            <button @click="remove(banner.id)">刪除</button>
           </td>
         </tr>
       </tbody>
@@ -30,24 +33,26 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { fetchBannerList, deleteBanner } from '@/services/admin/bannerApi';
+import { fetchAdminBannerByType } from '@/services/admin/adminBannerServices';
+import type { BannerAdminVO } from '@/vite-env';
+import { withLoading } from '@/utils/loadingUtils';
 
 const router = useRouter();
-const banners = ref<any[]>([]);
+const banners = ref<BannerAdminVO[]>([]);
 
 const load = async () => {
-  const res = await fetchBannerList();
-  banners.value = res.data;
+  try {
+    const res = await withLoading(() => fetchAdminBannerByType('A'));
+    if (res.success && Array.isArray(res.data)) {
+      banners.value = res.data;
+    }
+  } catch (error) {
+    console.error('load banners error:', error);
+  }
 };
 
 const goToAdd = () => router.push('/admin/banners/add');
 const goToEdit = (id: number) => router.push(`/admin/banners/edit/${id}`);
-
-const remove = async (id: number) => {
-  await deleteBanner(id);
-  await load();
-  alert(`已刪除 ID: ${id}`);
-};
 
 onMounted(() => {
   load();

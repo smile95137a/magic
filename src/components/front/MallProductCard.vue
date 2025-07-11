@@ -1,5 +1,5 @@
 <template>
-  <div class="mall-card">
+  <div class="mall-card" @click="goToDetail">
     <div class="mall-card__image">
       <img :src="product.image" :alt="product.name" />
     </div>
@@ -17,8 +17,11 @@
   </div>
 </template>
 
-<script setup>
-defineProps({
+<script setup lang="ts">
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const props = defineProps({
   product: {
     type: Object,
     required: true,
@@ -27,6 +30,9 @@ defineProps({
 
 const formatPrice = (value) => {
   return value?.toLocaleString?.() ?? '';
+};
+const goToDetail = () => {
+  router.push(`/store/${props.product.id}`);
 };
 </script>
 

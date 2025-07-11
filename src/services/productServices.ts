@@ -1,17 +1,25 @@
 // src/services/front/productServices.ts
-import { ProductCategoryVO, ProductListRequest, ProductVO, ProductDetailVO } from '@/vite-env';
+import {
+  ProductCategoryVO,
+  ProductListRequest,
+  ProductVO,
+  ProductDetailVO,
+  ApiResponse,
+} from '@/vite-env';
 import { api } from './FrontAPI';
 
 const basePath = '/product';
 
-
-
 /**
  * 取得可用商品分類列表
  */
-export const getCategoryAvailableList = async (): Promise<ProductCategoryVO[]> => {
+export const getCategoryAvailableList = async (): Promise<
+  ApiResponse<ProductCategoryVO[]>
+> => {
   try {
-    const response = await api.post(`${basePath}/category/list`);
+    const response = await api.post<ApiResponse<ProductCategoryVO[]>>(
+      `${basePath}/category/list`
+    );
     return response.data;
   } catch (error) {
     console.error('getCategoryAvailableList error:', error);
@@ -24,9 +32,12 @@ export const getCategoryAvailableList = async (): Promise<ProductCategoryVO[]> =
  */
 export const getProductListByCategory = async (
   payload: ProductListRequest
-): Promise<ProductVO[]> => {
+): Promise<ApiResponse<ProductVO[]>> => {
   try {
-    const response = await api.post(`${basePath}/list`, payload);
+    const response = await api.post<ApiResponse<ProductVO[]>>(
+      `${basePath}/list`,
+      payload
+    );
     return response.data;
   } catch (error) {
     console.error('getProductListByCategory error:', error);
@@ -39,9 +50,11 @@ export const getProductListByCategory = async (
  */
 export const getProductDetail = async (
   productId: number
-): Promise<ProductDetailVO> => {
+): Promise<ApiResponse<ProductDetailVO>> => {
   try {
-    const response = await api.get(`${basePath}/info/${productId}`);
+    const response = await api.get<ApiResponse<ProductDetailVO>>(
+      `${basePath}/info/${productId}`
+    );
     return response.data;
   } catch (error) {
     console.error('getProductDetail error:', error);

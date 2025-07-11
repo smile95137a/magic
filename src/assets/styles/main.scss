@@ -683,7 +683,6 @@ table tbody tr:hover {
   }
 }
 
-
 //
 .form {
   max-width: 600px;
@@ -743,34 +742,9 @@ table tbody tr:hover {
     justify-content: flex-end;
     gap: 12px;
     margin-top: 24px;
-
-    .form__button--secondary {
-      padding: 10px 20px;
-      font-size: 14px;
-      background: #f0f0f0;
-      color: #333;
-      border-radius: 6px;
-      cursor: pointer;
-
-      &:hover {
-        background: #e0e0e0;
-      }
-    }
-
-    .form__button--primary {
-      padding: 10px 20px;
-      font-size: 14px;
-      background: #409eff;
-      color: #fff;
-      border-radius: 6px;
-      cursor: pointer;
-
-      &:hover {
-        background: #66b1ff;
-      }
-    }
   }
 }
+
 //
 .admin-list {
   padding: 24px;
@@ -853,5 +827,45 @@ table tbody tr:hover {
         }
       }
     }
+  }
+}
+
+// btn
+.form__button--secondary {
+  padding: 10px 20px;
+  font-size: 14px;
+  background: #f0f0f0;
+  color: #333;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover {
+    background: #e0e0e0;
+  }
+}
+
+.form__button--primary {
+  padding: 10px 20px;
+  font-size: 14px;
+  background: #409eff;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover {
+    background: #66b1ff;
+  }
+}
+
+.form__button--delete {
+  padding: 10px 20px;
+  font-size: 14px;
+  background: #ff4d4f;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover {
+    background: #d9363e;
   }
 }

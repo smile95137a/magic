@@ -5,7 +5,7 @@
   <MallProductListForHome />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import HomeBlessing from '@/components/front/HomeBlessing.vue';
 import Service from '@/components/front/Service.vue';
 import Service2 from '@/components/front/Service2.vue';

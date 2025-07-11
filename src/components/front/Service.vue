@@ -47,7 +47,7 @@
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import divinationIntro from '@/assets/image/divinationIntro.png';
 import godImages from '@/data/godImages';
 import Title from '@/components/common/Title.vue';

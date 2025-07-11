@@ -1,56 +1,60 @@
 <template>
   <div class="product-detail">
-        <SectionBackground variant="divination" />
+    <SectionBackground variant="divination" />
+
     <div class="product-detail__container">
       <MCard customClass="p-48">
+        <!-- ===== Main ===== -->
         <div class="product-detail__main">
-          <!-- 左圖區 -->
-          <div class="product-detail__left">
-            <!-- 主圖模擬 -->
-            <div class="product-detail__image">
-              <div class="image-block" :style="{ backgroundColor: currentImage }" />
-            </div>
+          <!-- 圖片區 -->
+          <div class="product-detail__left" v-if="product">
+            <div
+              class="product-detail__image"
+              :style="{ backgroundImage: `url(${currentImage})` }"
+            />
 
-            <!-- 小縮圖 -->
             <div class="product-detail__thumbnails">
               <div
-                v-for="(color, index) in productImages"
-                :key="index"
-                :class="['thumbnail', { active: currentImage === color }]"
-                :style="{ backgroundColor: color }"
-                @click="currentImage = color"
+                v-for="(img, idx) in images"
+                :key="idx"
+                :class="['thumbnail', { active: currentImage === img }]"
+                :style="{ backgroundImage: `url(${img})` }"
+                @click="currentImage = img"
               />
             </div>
           </div>
 
-          <!-- 商品資訊 -->
-          <div class="product-detail__info">
-            <h2 class="product-detail__title">
-              黃水晶x綠水晶【自信健康】<br />水晶香氛擴香燈
-            </h2>
-            <p class="product-detail__subtitle">加贈 快樂鼠尾草精油1瓶(10ml)</p>
+          <!-- 資訊區 -->
+          <div class="product-detail__info" v-if="product">
+            <h2 class="product-detail__title">{{ product.name.trim() }}</h2>
+            <p class="product-detail__subtitle">{{ product.subtitle }}</p>
+
             <ul class="product-detail__description">
-              <li>綠水晶：增進事業財運、平衡身心健康</li>
-              <li>黃水晶：幫助集中注意力、提升自信</li>
-              <li>快樂鼠尾草精油：放鬆情緒、迎財招福</li>
+              <li>{{ product.description }}</li>
+              <li v-if="product.remark">{{ product.remark }}</li>
             </ul>
+
             <p class="product-detail__price">
-              NT$2,288 <span class="original">NT$2,979</span>
+              NT${{ product.specialPrice ?? product.originalPrice }}
+              <span class="original">NT${{ product.originalPrice }}</span>
             </p>
 
+            <!-- 若有多規格可改用後端資料 -->
             <select v-model="selectedOption" class="product-detail__select">
               <option value="">請選擇商品選項</option>
-              <option value="黃綠水晶組">黃綠水晶組</option>
-              <option value="粉紫水晶組">粉紫水晶組</option>
+              <option :value="product.name">預設規格</option>
             </select>
 
-            <button class="btn btn-primary" @click="addToCart">加入購物車</button>
-            <button class="btn btn-outline" @click="goToCart">前往購物車</button>
-
+            <button class="btn btn-primary" @click="addToCart">
+              加入購物車
+            </button>
+            <button class="btn btn-outline" @click="goToCart">
+              前往購物車
+            </button>
           </div>
         </div>
 
-        <!-- Tabs -->
+        <!-- ===== Tabs ===== -->
         <div class="product-detail__tabs">
           <button
             class="tab"
@@ -68,21 +72,21 @@
           </button>
         </div>
 
-        <!-- Tab Content -->
         <div class="product-detail__tab-content">
+          <!-- 商品描述 (支援後端 HTML) -->
           <div v-if="tab === 'description'">
-            <p>這款水晶香氛擴香燈結合天然水晶與精油香氛，提升空間療癒感與好運氣。</p>
-            <ul>
-              <li>適合玄關、臥室、書房等空間</li>
-              <li>水晶可重複使用，環保實用</li>
-              <li>贈送精油可滴入燈座使用</li>
-            </ul>
+            <div v-if="product?.detailHtml" v-html="product.detailHtml" />
+            <div v-else>
+              <p>{{ product?.description }}</p>
+            </div>
           </div>
-          <div v-else-if="tab === 'shipping'">
+
+          <!-- 配送付款說明 -->
+          <div v-else>
             <p>📦 配送方式：</p>
             <ul>
-              <li>宅配：NT$150（單筆滿$3000免運）</li>
-              <li>出貨時間：下單後 2~3 個工作天</li>
+              <li>宅配：NT$150（單筆滿 $3000 免運）</li>
+              <li>出貨時間：下單後 2–3 個工作天</li>
             </ul>
             <p>💳 付款方式：</p>
             <ul>
@@ -98,52 +102,68 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useCartStore } from '@/stores/cartStore';
+import { getProductDetail } from '@/services/productServices';
+import type { ProductDetailVO } from '@/vite-env';
 import MCard from '@/components/common/MCard.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
-import { useRouter } from 'vue-router';
+const route = useRoute();
 const router = useRouter();
-
-
-
-const productImages = ['#d2a679', '#c9d4c5', '#f1c0c0', '#b3cde0'];
-const currentImage = ref(productImages[0]);
-const selectedOption = ref('');
-const tab = ref<'description' | 'shipping'>('description');
 const cart = useCartStore();
 
-const product = {
-  id: 1,
-  name: '黃水晶x綠水晶【自信健康】 - 水晶香氛擴香燈',
-  price: 2288,
-};
+const product = ref<ProductDetailVO | null>(null);
+const selectedOption = ref('');
+const tab = ref<'description' | 'shipping'>('description');
+
+const images = computed(() =>
+  product.value
+    ? [product.value.mainImageUrl, ...product.value.galleryImageUrls].filter(
+        Boolean
+      )
+    : []
+);
+const currentImage = ref('');
+
+onMounted(async () => {
+  const id = Number(route.params.id);
+  if (!id) return;
+
+  try {
+    const { success, data } = await getProductDetail(id);
+    if (success) {
+      product.value = data;
+      currentImage.value = data.mainImageUrl;
+    }
+  } catch (err) {
+    console.error('載入商品詳情失敗', err);
+  }
+});
 
 const addToCart = () => {
-  if (!selectedOption.value) {
-    alert('請選擇商品選項');
-    return;
-  }
+  if (!selectedOption.value) return alert('請選擇商品選項');
+  if (!product.value) return;
 
   cart.addItem({
-    id: product.id,
-    name: product.name,
-    price: product.price,
+    id: product.value.id,
+    name: product.value.name.trim(),
+    price: product.value.specialPrice ?? product.value.originalPrice,
     quantity: 1,
     option: selectedOption.value,
   });
-
   alert('已加入購物車！');
 };
-const goToCart = () => {
-  router.push('/cart');
-};
+
+const goToCart = () => router.push('/cart');
 </script>
+
 <style scoped lang="scss">
-.product-detail {  width: 100%;
+.product-detail {
+  width: 100%;
   position: relative;
   &__container {
-     max-width: 1200px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 4rem 2rem;
   }
@@ -271,18 +291,44 @@ const goToCart = () => {
   }
 }
 
-.btn-primary {
-  background: #a93e26;
-  color: white;
+.btn {
   padding: 0.75rem 1.5rem;
   border-radius: 999px;
   font-size: 1rem;
+  font-weight: bold;
   cursor: pointer;
-  border: none;
-  transition: background 0.2s;
+  transition: all 0.2s ease-in-out;
+  display: inline-block;
+  text-align: center;
+  min-width: 160px;
 
-  &:hover {
-    background: #902f1d;
+  & + & {
+    margin-left: 1rem; // 兩個按鈕之間的間距
+  }
+
+  &-primary {
+    background-color: #a93e26;
+    color: #fff;
+    border: none;
+
+    &:hover {
+      background-color: #902f1d;
+    }
+  }
+
+  &-outline {
+    background-color: transparent;
+    color: #a93e26;
+    border: 2px solid #a93e26;
+
+    &:hover {
+      background-color: #f8eae6;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 }
 

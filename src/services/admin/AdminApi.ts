@@ -11,7 +11,7 @@ export const api: AxiosInstance = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = loadState<string>('front_token');
+    const token = loadState<string>('admin_token');
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
@@ -28,6 +28,10 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       removeAllState();
       window.location.href = '/login';
+    }
+    if (error.response && error.response.status === 403) {
+      removeAllState();
+      window.location.href = '/admin/login';
     }
     return Promise.reject(error);
   }

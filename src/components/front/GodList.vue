@@ -22,7 +22,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useRouter } from 'vue-router';
 import godImages from '@/data/godImages';
 import Title from '@/components/common/Title.vue';
