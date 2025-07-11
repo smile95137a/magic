@@ -10,7 +10,6 @@
               :modules="[Navigation]"
               :slides-per-view="1"
               :loop="true"
-              navigation
               class="home-blessing__swiper"
             >
               <SwiperSlide v-for="(banner, index) in bannerAList" :key="index">
@@ -30,15 +29,31 @@
 
         <!-- 右側 日曆卡 + 次圖 Swiper -->
         <div class="home-blessing__calendar">
-          <CalendarCard :calendarData="calendarData" />
-
+          <CalendarCard
+            :calendarData="{
+              month: '四月',
+              day: '12',
+              weekday: '星期六',
+              lunarYear: '2025 乙巳年',
+              lunarDate: '三月十五',
+              zodiac: '蛇',
+              info: [
+                {
+                  type: '沖',
+                  text: '屬蛇(乙巳，1歲)、屬蛇(乙巳，61歲)',
+                  color: 'green',
+                },
+                { type: '宜', text: '塞穴、掃舍', color: 'purple' },
+                { type: '忌', text: '受死', color: 'gray' },
+              ],
+            }"
+          />
           <div class="home-blessing__sub-banner">
             <template v-if="bannerBList.length">
               <Swiper
                 :modules="[Navigation, Autoplay]"
                 :slides-per-view="1"
                 :loop="true"
-                :autoplay="{ delay: 3000 }"
                 class="home-blessing__sub-swiper"
               >
                 <SwiperSlide
