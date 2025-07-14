@@ -86,6 +86,7 @@ import { login } from '@/services/UserService';
 import { useAuthFrontStore } from '@/stores/authFrontStore';
 import { useDialogStore } from '@/stores/dialogStore';
 import { useLoadingStore } from '@/stores/loadingStore';
+import { withLoading } from '@/utils/loadingUtils';
 import { useForm } from 'vee-validate';
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
@@ -119,6 +120,15 @@ const [username] = defineField('username');
 const [password] = defineField('password');
 
 const onSubmit = handleSubmit(async (values) => {
+  try {
+    const { success, data, message } = await withLoading(() => login(values));
+    if (success) {
+      authStore.setToken(data.accessToken);
+      router.push('/home');
+    }
+  } catch (error) {
+    console.error('登入失敗', error);
+  }
   const res = await login(values);
 });
 

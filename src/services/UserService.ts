@@ -65,7 +65,7 @@ export const getProfile = async (): Promise<
   ApiResponse<UserProfileResponse>
 > => {
   try {
-    const response = await api.post(`${basePath}/me`);
+    const response = await api.post(`${basePath}/info`);
     return response.data;
   } catch (error) {
     console.error('getProfile error:', error);
@@ -74,7 +74,7 @@ export const getProfile = async (): Promise<
 };
 
 export const getPurchaseRecord = async (
-  payload: RecordPeriodRequest
+  payload
 ): Promise<ApiResponse<RecordVO[]>> => {
   try {
     const response = await api.post(`${basePath}/record/purchase`, payload);

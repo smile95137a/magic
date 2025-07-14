@@ -7,25 +7,31 @@
       <div class="top-light-blessing__list">
         <div
           v-for="(item, index) in lightList"
-          :key="item.id"
+          :key="item.name + item.createTime + index"
           class="top-light-blessing__card"
         >
           <div class="top-light-blessing__badge-wrapper">
-            <img :src="badge" alt="步驟徽章" />
+            <img :src="badge" alt="徽章" />
             <div class="top-light-blessing__badge-wrapper-text">
               {{ index + 1 }}
             </div>
           </div>
 
           <img
-            :src="imageMap[item.imageKey]"
-            :alt="item.name"
+            :src="imageMap[item.lanternCode]"
             class="top-light-blessing__image"
           />
           <div class="top-light-blessing__content">
-            <div class="top-light-blessing__type">{{ item.type }}</div>
-            <p class="top-light-blessing__desc">{{ item.description }}</p>
-            <div class="top-light-blessing__date">於{{ item.date }}點燈</div>
+            <div class="top-light-blessing__type">信眾 {{ item.name }}</div>
+            <p class="top-light-blessing__desc">{{ item.message }}</p>
+            <div class="top-light-blessing__date">
+              於
+              <DateFormatter
+                :date="item.createTime"
+                :format="'YYYY/MM/DD HH:mm:ss'"
+              />
+              點燈
+            </div>
           </div>
           <button class="top-light-blessing__btn">
             請祝福我 <i class="fas fa-chevron-right"></i>
@@ -37,39 +43,30 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import Title from '@/components/common/Title.vue';
+import SectionBackground from '@/components/common/SectionBackground.vue';
 import lightImages from '@/data/lightImages';
 import badge from '@/assets/image/badge.png';
-import SectionBackground from '@/components/common/SectionBackground.vue';
+import { getRankLanterns } from '@/services/lanternServices';
+import DateFormatter from '../common/DateFormatter.vue';
+
+const lightList = ref<any[]>([]);
+
 const imageMap = Object.fromEntries(
   lightImages.map((item) => [item.key, item.image])
 );
-const lightList = [
-  {
-    id: 1,
-    name: '招財燈',
-    type: '信女 張',
-    description: '保佑張~收入越來越好，財運亨通，嘿……',
-    date: '2025-04-27',
-    imageKey: 'lightZhaocai',
-  },
-  {
-    id: 2,
-    name: '平安燈',
-    type: '信女 張',
-    description: '保佑張~平安健康，闔家順遂……',
-    date: '2025-04-27',
-    imageKey: 'lightPingan',
-  },
-  {
-    id: 3,
-    name: '事業燈',
-    type: '信女 張',
-    description: '保佑張~事業順利，步步高升……',
-    date: '2025-04-27',
-    imageKey: 'lightShiye',
-  },
-];
+
+onMounted(async () => {
+  try {
+    const res = await getRankLanterns({ count: 3 });
+    if (res.success) {
+      lightList.value = res.data;
+    }
+  } catch (error) {
+    console.error('getRankLanterns error:', error);
+  }
+});
 </script>
 
 <style scoped lang="scss">

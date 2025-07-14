@@ -86,9 +86,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import moment from 'moment';
 import Pagination from '@/components/common/Pagination.vue';
 import NoData from '@/components/common/NoData.vue';
 import { usePagination } from '@/hook/usePagination';
+import { getOrderList } from '@/services/OrderService';
 
 const startDate = ref('2024-08-04');
 const endDate = ref('2024-08-04');
@@ -109,13 +111,24 @@ const {
 const showDialog = ref(false);
 const selectedItem = ref<any>({});
 
-const handleSearch = () => {
-  list.value = Array.from({ length: 24 }, (_, i) => ({
-    date: '2024/07/01 18:22',
-    orderId: '123456789012345678',
-    content: '內容文字內容文字\n內容文字內容文字',
-    status: '訂單準備中',
-  }));
+const handleSearch = async () => {
+  const payload = {
+    startTime: moment(startDate.value).format('YYYY/MM/DD'),
+    endTime: moment(endDate.value).format('YYYY/MM/DD'),
+  };
+
+  try {
+    const res = await getOrderList(payload);
+    if (res.success) {
+      list.value = res.data ?? [];
+    } else {
+      console.warn('查詢失敗:', res.message);
+      list.value = [];
+    }
+  } catch (error) {
+    console.error('查詢錯誤:', error);
+    list.value = [];
+  }
 };
 
 const openDialog = (item: any) => {

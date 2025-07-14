@@ -11,7 +11,7 @@ import godYuelaoG from '@/assets/image/god_yuelao_g.png';
 import godZhongkuiG from '@/assets/image/god_zhongkui_g.png';
 
 const godImages = {
-  caishen: {
+  'g-cs': {
     label: '財神',
     default: godCaishen,
     highlighted: godCaishenG,
@@ -22,7 +22,7 @@ const godImages = {
 "台灣農曆正月特有的廟宇活動「炸寒單」"
 在台灣,在下被稱「寒單爺」,人們傳說在下懼冷,所以每年農曆正月,有些廟宇就會舉辦「炸寒單」的活動:請人赤裸半身,手持樹枝,扮演在下的模樣。人們便以鞭炮丟擲扮演在下的人,以讓在下可以感受溫暖,可以保佑大家。`,
   },
-  guangong: {
+  'g-gg': {
     label: '關公',
     default: godGuangong,
     highlighted: godGuangongG,
@@ -32,7 +32,7 @@ const godImages = {
 <br><br>
 人們信奉、參拜我的理由有三:一是我生前精於計算,被後世公認為會計專才,也被稱為「商業神」;二是因為我做人、做事重義氣和信用;三是人們希望可以像我一樣,即使失敗了,也能東山再起,取得最後的勝利。`,
   },
-  wenchang: {
+  'g-wc': {
     label: '文昌',
     default: godWenchang,
     highlighted: godWenchangG,
@@ -43,7 +43,7 @@ const godImages = {
 說到我的事蹟,那可要先從東晉時期說起,當時,我是一個對母親非常孝順的人,後來,不幸戰死在沙場,當地人幫我立了一座廟, 讚頌我的英勇事蹟。之後則成為梓潼的地方神,叫做梓潼神。
 因為科舉制度盛行,考生要進京趕考之前,會請在地家鄉神明來庇佑,於是在我庇佑之下,大家紛紛覺得靈驗,漸漸的我就越來有知名度嘍!也因為這樣,玉皇大帝讓我掌管文昌府和人間的功名利祿利祿。那更之後呢?我又跟文昌星逐漸合而為一,神力也就更加強大。到了元代,元仁宗封我為「輔文開化文昌司祿宏仁帝君」,這麼長是不是不好念?沒關係,大家可以簡單的稱呼我為文昌帝君就可以了。`,
   },
-  yuelao: {
+  'g-yl': {
     label: '月老',
     default: godYuelao,
     highlighted: godYuelaoG,
@@ -52,7 +52,7 @@ const godImages = {
 <br><br>
 《唐·李復言·續幽怪錄‧定婚店》記載著,有一次在宋城的客棧裡, 當俺正在月光下翻閱姻緣簿的時候遇到一個少年叫韋固,那少年問俺這本書是什麼?俺回答他說:『這本書叫「鴛鴦譜」是全天下人的婚姻登記。你瞧瞧路邊那個賣菜老嫗的女兒,現在三歲,就是你十四年後的妻子。』,那少年嫌那女娃兒不漂亮,找人刺傷那個小女孩。結果,十幾年後,那位少年結婚了,看到妻子眉上有道疤痕,發現就是當年被他找人刺傷的小女娃。後來,宋城縣宰知道這個故事之後,把那少年遇到俺的客棧定名叫「定婚店」。而俺就成了中國人心目中,對愛情期待的善男信女們信奉最忠誠的神明了。`,
   },
-  zhongkui: {
+  'g-zk': {
     label: '鐘馗',
     default: godZhongkui,
     highlighted: godZhongkuiG,

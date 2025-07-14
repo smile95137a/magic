@@ -5,9 +5,8 @@ import Home from '@/views/front/Home.vue';
 import Login from '@/views/front/Login.vue';
 import Register from '@/views/front/Register.vue';
 import Divination from '@/views/front/Divination.vue';
-import DivinationGod from '@/views/front/DivinationGod.vue';
 import LightProduct from '@/views/front/LightProduct.vue';
-import Worship from '@/views/front/Worship.vue';
+import OfferingHall from '@/views/front/OfferingHall.vue';
 import GodOffering from '@/views/front/GodOffering.vue';
 import Blessing from '@/views/front/Blessing.vue';
 import Master from '@/views/front/Master.vue';
@@ -60,8 +59,7 @@ export const frontRoutes: Array<RouteRecordRaw> = [
         ],
       },
       { path: 'divination', component: Divination },
-      { path: 'divinationGod', component: DivinationGod },
-      { path: 'worship', component: Worship },
+      { path: 'offeringHall', component: OfferingHall },
       { path: 'godOffering', component: GodOffering },
       { path: 'lightProduct', component: LightProduct },
       { path: 'blessing', component: Blessing },

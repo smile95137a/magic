@@ -32,7 +32,7 @@ import SectionBackground from '@/components/common/SectionBackground.vue';
 const router = useRouter();
 
 const goToDivinationGod = (key) => {
-  router.push({ path: '/divinationGod', query: { god: key } });
+  router.push({ path: '/offeringHall' });
 };
 </script>
 

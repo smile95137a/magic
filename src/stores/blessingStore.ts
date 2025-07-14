@@ -1,16 +1,10 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
-export interface Lamp {
-  key: string;
-  name: string;
-  image: string;
-}
-
 export interface BlessingContact {
   name: string;
   birthday: string;
-  blessing: string;
+  message: string;
 }
 
 export const useBlessingStore = defineStore('blessing', () => {
@@ -30,7 +24,7 @@ export const useBlessingStore = defineStore('blessing', () => {
   };
 
   // 已選燈種
-  const selectedLamp = ref<Lamp | null>(null);
+  const selectedLamp = ref<any | null>(null);
 
   // 燈數
   const quantity = ref(1);
@@ -38,7 +32,7 @@ export const useBlessingStore = defineStore('blessing', () => {
   // 每盞燈對應的祈福人資料
   const contactInfos = ref<BlessingContact[]>([]);
 
-  const setSelectedLamp = (lamp: Lamp) => {
+  const setSelectedLamp = (lamp: any) => {
     selectedLamp.value = lamp;
   };
 
@@ -47,7 +41,7 @@ export const useBlessingStore = defineStore('blessing', () => {
     contactInfos.value = Array.from({ length: val }, () => ({
       name: '',
       birthday: '',
-      blessing: '',
+      message: '',
     }));
   };
 

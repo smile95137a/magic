@@ -49,13 +49,23 @@ import r3 from '@/assets/image/r3.png';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import Title from '@/components/common/Title.vue';
 import StartButton from '@/components/front/StartButton.vue';
+import { getPoeRank } from '@/services/poeService';
+import { withLoading } from '@/utils/loadingUtils';
+import { onMounted, ref } from 'vue';
 
-const topRankings = [
-  { name: '王小明', score: 632 },
-  { name: '王小明', score: 451 },
-  { name: '王小明', score: 423 },
-  { name: '王小明', score: 310 },
-];
+// 替換原本 topRankings 為 API 資料
+const topRankings = ref<any[]>([]);
+
+onMounted(async () => {
+  try {
+    const res = await withLoading(() => getPoeRank({ count: 10 }));
+    if (res.success) {
+      topRankings.value = res.data;
+    }
+  } catch (e) {
+    console.error('排行榜載入失敗', e);
+  }
+});
 
 const maskName = (name: string) => {
   if (name.length <= 2) return name[0] + '*';

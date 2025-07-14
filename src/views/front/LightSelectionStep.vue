@@ -1,97 +1,114 @@
 <template>
-  <div class="blessing-page">
-    <SectionBackground variant="divination" />
-    <div class="blessing-page__container">
-      <Title color="white" text="點燈祈福" />
-      <div class="blessing-page__header">
-        <p class="blessing-page__description">
-          請點選下列表的任一盞燈，即可看到該盞燈的介紹，並進行選購。
+  <!-- Step 1：選擇燈數 -->
+  <div class="lamp-box">
+    <div class="lamp-box__header">
+      <img
+        :src="imageMap[store.selectedLamp?.iconName]"
+        :alt="store.selectedLamp?.name"
+        class="lamp-box__image"
+      />
+      <div class="lamp-box__info">
+        <div class="lamp-box__title">{{ store.selectedLamp?.name }}</div>
+        <p class="lamp-box__desc">
+          安奉 {{ store.selectedLamp?.name }}，順利無災
+        </p>
+      </div>
+      <div class="lamp-box__stat">
+        <p>
+          目前有
+          <span class="lamp-box__highlight">22753</span> 盞
+          {{ store.selectedLamp?.name }}
+        </p>
+        <p>肖：蛇、虎、猴、豬 沖煞必點</p>
+      </div>
+    </div>
+
+    <div class="lamp-box__row">
+      <div class="lamp-box__column">
+        <label class="lamp-box__label">點燈費用：</label>
+        <label><input type="radio" checked /> 1年期NT$188元</label>
+      </div>
+
+      <div class="lamp-box__column">
+        <label class="lamp-box__label">您要選購的燈數：</label>
+        <div class="lamp-box__select-wrapper">
+          <select
+            v-model="store.quantity"
+            class="lamp-box__select"
+            @change="store.setQuantity(store.quantity)"
+          >
+            <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
+          </select>
+          <span>盞</span>
+        </div>
+      </div>
+
+      <div class="lamp-box__column lamp-box__column--wide">
+        <label class="lamp-box__label">貼心提醒：</label>
+        <p class="lamp-box__reminder">
+          除了幫自己點燈，也別忘了幫親友一起點燈祈福唷！<br />
+          每次系統正規購買的數量上限為10盞燈，若想超過分次依序點，謝謝。
         </p>
       </div>
 
-      <LightBlessingTabs />
-      <template v-if="step === 1">
-        <!-- 燈品列表 -->
-        <div class="blessing-page__section">
-          <Title color="dark" text="祈福燈產品" />
-          <div class="blessing-page__grid">
-            <div
-              class="blessing-page__item"
-              v-for="lamp in lamps"
-              :key="lamp.id"
-              @click="selectLamp(lamp)"
-            >
-              <img
-                :src="imageMap[lamp.iconName]"
-                :alt="lamp.name"
-                class="blessing-page__item-image"
-              />
-            </div>
-          </div>
-        </div>
-      </template>
-      <MCard>
-        <template v-if="step === 1">
-          <LightSelectionStep />
-        </template>
-        <BlessingInfoStep v-if="step === 2" />
-      </MCard>
+      <div class="lamp-box__actions">
+        <button class="lamp-box__submit" @click="handleNext">下一步</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 燈資訊說明 -->
+  <div class="lamp-info">
+    <div
+      class="lamp-info__block"
+      v-for="section in parsedSections"
+      :key="section.title"
+    >
+      <div class="lamp-info__title">
+        <div class="lamp-info__title-text">{{ section.title }}</div>
+      </div>
+      <div class="lamp-info__content">{{ section.content }}</div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useBlessingStore } from '@/stores/blessingStore';
+import { computed } from 'vue';
 import lightImages from '@/data/lightImages';
-import LightSelectionStep from '@/views/front/LightSelectionStep.vue';
-import BlessingInfoStep from '@/views/front/BlessingInfoStep.vue';
-import { getLanternList } from '@/services/lanternServices';
-import SectionBackground from '@/components/common/SectionBackground.vue';
-import LightBlessingTabs from '@/components/front/LightBlessingTabs.vue';
-import MCard from '@/components/common/MCard.vue';
-const blessingStore = useBlessingStore();
-const { step, selectedLamp, quantity, contactInfos } =
-  storeToRefs(blessingStore);
+import { useBlessingStore } from '@/stores/blessingStore';
 
-const { setSelectedLamp, setQuantity, nextStep, updateContact } = blessingStore;
+const store = useBlessingStore();
 
-// 燈品列表
-const lamps = ref<any[]>([]);
-
+// 建立 imageMap 用於圖片路徑對應
 const imageMap = Object.fromEntries(
   lightImages.map((item) => [item.key, item.image])
 );
 
-const fetchLamps = async () => {
+// 點擊下一步
+const handleNext = () => {
+  store.setQuantity(store.quantity);
+  store.nextStep();
+};
+
+const finalSubmit = () => {
+  console.log('選擇燈數：', store.quantity);
+  console.log('祈福者資料：', store.contactInfos);
+  alert('送出成功！');
+};
+
+const parsedSections = computed(() => {
   try {
-    const res = await getLanternList();
-    if (res.success && res.data.length > 0) {
-      lamps.value = res.data;
-      const defaultLamp = lamps.value[0];
-      setSelectedLamp(defaultLamp);
-    } else {
-      lamps.value = lightImages;
-      setSelectedLamp(lamps.value[0]);
-    }
-  } catch (err) {
-    lamps.value = lightImages;
-    setSelectedLamp(lamps.value[0]);
+    return store.selectedLamp?.qaJson
+      ? JSON.parse(store.selectedLamp.qaJson)
+      : [];
+  } catch (e) {
+    console.warn('解析 qaJson 失敗：', e);
+    return [];
   }
-};
-
-// 點選燈品
-const selectLamp = (lamp: any) => {
-  setSelectedLamp(lamp);
-};
-
-onMounted(() => {
-  blessingStore.resetBlessing();
-  fetchLamps();
 });
 </script>
 
 <style scoped lang="scss">
+/* Blessing page 與燈品列表區塊樣式 */
 .blessing-page {
   width: 100%;
   position: relative;

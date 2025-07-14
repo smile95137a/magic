@@ -7,15 +7,22 @@
       <div class="light-scene__list">
         <div class="light-scene__card" v-for="item in lightList" :key="item.id">
           <img
-            :src="imageMap[item.imageKey]"
+            :src="imageMap[item.lanternCode]"
             alt="light image"
             class="light-scene__image"
           />
 
           <div class="light-scene__info">
-            <div class="light-scene__type">{{ item.type }}</div>
-            <p class="light-scene__desc">{{ item.description }}</p>
-            <div class="light-scene__date">於{{ item.date }}點燈</div>
+            <div class="light-scene__type">信眾 {{ item.name }}</div>
+            <p class="light-scene__desc">{{ item.message }}</p>
+            <div class="light-scene__date">
+              於
+              <DateFormatter
+                :date="item.createTime"
+                :format="'YYYY/MM/DD HH:mm:ss'"
+              />
+              點燈
+            </div>
           </div>
         </div>
       </div>
@@ -24,38 +31,32 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import Title from '@/components/common/Title.vue';
-import lightImages from '@/data/lightImages';
 import SectionBackground from '@/components/common/SectionBackground.vue';
+import lightImages from '@/data/lightImages';
+import { getLatestLanterns } from '@/services/lanternServices';
+import DateFormatter from '../common/DateFormatter.vue';
+
+const lightList = ref<any[]>([]);
+
 const imageMap = Object.fromEntries(
   lightImages.map((item) => [item.key, item.image])
 );
-const lightList = [
-  {
-    id: 1,
-    name: '招財燈',
-    type: '信女 張',
-    description: '保佑張~收入越來越好，財運亨通，嘿……',
-    date: '2025-04-27',
-    imageKey: 'lightZhaocai',
-  },
-  {
-    id: 2,
-    name: '平安燈',
-    type: '信女 張',
-    description: '保佑張~平安健康，闔家順遂……',
-    date: '2025-04-27',
-    imageKey: 'lightPingan',
-  },
-  {
-    id: 3,
-    name: '求子燈',
-    type: '信女 張',
-    description: '保佑張~早生貴子，家庭幸福……',
-    date: '2025-04-27',
-    imageKey: 'lightQiuzi',
-  },
-];
+
+// 載入 API 資料
+onMounted(async () => {
+  try {
+    const res = await getLatestLanterns({ count: 3 });
+    if (res.success) {
+      lightList.value = res.data;
+    } else {
+      console.warn('getLatestLanterns failed:', res.message);
+    }
+  } catch (error) {
+    console.error('getLatestLanterns error:', error);
+  }
+});
 </script>
 
 <style scoped lang="scss">

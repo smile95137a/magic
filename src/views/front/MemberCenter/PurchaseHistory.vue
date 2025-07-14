@@ -14,39 +14,41 @@
       </div>
       <button class="purchase-history__btn" @click="handleSearch">查詢</button>
     </div>
+    <template v-if="currentPageItems.length > 0">
+      <!-- 資料表格 -->
+      <table class="purchase-history__table">
+        <thead>
+          <tr>
+            <th>日期</th>
+            <th>項目</th>
+            <th>內容</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, index) in currentPageItems" :key="index">
+            <td>{{ item.date }}</td>
+            <td>{{ item.item }}</td>
+            <td>{{ item.content }}</td>
+          </tr>
+        </tbody>
+      </table>
 
-    <!-- 資料表格 -->
-    <table class="purchase-history__table">
-      <thead>
-        <tr>
-          <th>日期</th>
-          <th>項目</th>
-          <th>內容</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(item, index) in currentPageItems" :key="index">
-          <td>{{ item.date }}</td>
-          <td>{{ item.title }}</td>
-          <td>{{ item.content }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- 分頁 -->
-    <div class="flex justify-center m-t-12">
-      <Pagination
-        :totalPages="totalPages"
-        :renderPaginationNums="renderPaginationNums"
-        :currentPage="currentPage"
-        :nextPage="nextPage"
-        :previousPage="previousPage"
-        :goToPage="goToPage"
-        :pageLimitSize="pageLimitSize"
-        :totalItems="list.length"
-        @update:pageLimitSize="pageLimitSize = $event"
-      />
-    </div>
+      <!-- 分頁 -->
+      <div class="flex justify-center m-t-12">
+        <Pagination
+          :totalPages="totalPages"
+          :renderPaginationNums="renderPaginationNums"
+          :currentPage="currentPage"
+          :nextPage="nextPage"
+          :previousPage="previousPage"
+          :goToPage="goToPage"
+          :pageLimitSize="pageLimitSize"
+          :totalItems="list.length"
+          @update:pageLimitSize="pageLimitSize = $event"
+        />
+      </div>
+    </template>
+    <NoData v-else />
   </div>
 </template>
 
@@ -54,7 +56,9 @@
 import { ref } from 'vue';
 import Pagination from '@/components/common/Pagination.vue';
 import { usePagination } from '@/hook/usePagination';
-
+import { getPurchaseRecord } from '@/services/UserService';
+import moment from 'moment';
+import NoData from '@/components/common/NoData.vue';
 const startDate = ref('2024-08-04');
 const endDate = ref('2024-08-04');
 
@@ -72,12 +76,22 @@ const {
 } = usePagination<any>(list, pageLimitSize);
 
 // 模擬查詢
-const handleSearch = () => {
-  list.value = Array.from({ length: 35 }, (_, i) => ({
-    date: '2025/06/03 18:22',
-    title: `項目名稱`,
-    content: `內容文字 ${i + 1}`,
-  }));
+const handleSearch = async () => {
+  const payload = {
+    startTime: moment(startDate.value).format('YYYY/MM/DD'),
+    endTime: moment(endDate.value).format('YYYY/MM/DD'),
+  };
+  try {
+    const res = await getPurchaseRecord(payload);
+    if (res.success) {
+      list.value = res.data;
+    } else {
+      alert('查詢失敗：' + res.message);
+    }
+  } catch (e) {
+    console.error('getPurchaseRecord error:', e);
+    alert('查詢失敗，請稍後再試');
+  }
 };
 </script>
 

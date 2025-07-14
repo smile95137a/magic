@@ -20,8 +20,8 @@ const router = useRouter();
 const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
 const schema = yup.object({
-  username: yup.string().required('Email 是必填項').email('Email 格式不正確'),
-  phoneNumber: yup.string().required('手機是必填項'),
+  email: yup.string().required('Email 是必填項').email('Email 格式不正確'),
+  phone: yup.string().required('手機是必填項'),
   password: yup.string().required('密碼是必填項').min(6, '密碼最少6個字符'),
   confirmPassword: yup
     .string()
@@ -43,15 +43,12 @@ const schema = yup.object({
 const { defineField, handleSubmit, errors, setFieldValue } = useForm({
   validationSchema: schema,
   initialValues: {
-    username: '',
-    phoneNumber: '',
-    zipCode: '',
     email: '',
     password: '',
+    confirmPassword: '',
     phone: '',
     nickname: '',
     lineId: '',
-    confirmPassword: '',
     addressName: '',
     city: '',
     area: '',
@@ -60,9 +57,8 @@ const { defineField, handleSubmit, errors, setFieldValue } = useForm({
   },
 });
 
-const [username, usernameProps] = defineField('username');
 const [email, emailProps] = defineField('email');
-const [phoneNumber, phoneNumberProps] = defineField('phoneNumber');
+const [phone, phoneProps] = defineField('phone');
 const [password, passwordProps] = defineField('password');
 const [confirmPassword, confirmPasswordProps] = defineField('confirmPassword');
 const [nickname, nicknameProps] = defineField('nickname');
@@ -73,7 +69,9 @@ const [address, addressProps] = defineField('address');
 const [lineId, lineIdProps] = defineField('lineId');
 const [agreeTerms, agreeTermsProps] = defineField('agreeTerms');
 
-const onSubmit = handleSubmit(async (values) => {});
+const onSubmit = handleSubmit(async (values) => {
+  console.log(values);
+});
 
 onMounted(() => {
   const cityNames = getAllCityNames();
@@ -102,13 +100,10 @@ watch(city, (newCity) => {
 
 watch(area, (newArea) => {
   if (newArea) {
-    setFieldValue('zipCode', '');
     const zipCode = getZipCodeByCityAndAreaName(city.value, newArea);
     if (zipCode) {
-      setFieldValue('zipCode', zipCode);
     }
   } else {
-    setFieldValue('zipCode', '');
   }
 });
 </script>
@@ -126,26 +121,26 @@ watch(area, (newArea) => {
                   <p class="register__text register__text--required">信箱</p>
                   <input
                     class="register__form-input"
-                    v-model="username"
-                    v-bind="usernameProps"
-                    :class="{ 'register__form-input--error': errors.username }"
+                    v-model="email"
+                    v-bind="emailProps"
+                    :class="{ 'register__form-input--error': errors.email }"
                   />
                   <p class="register__text register__text--error">
-                    {{ errors.username }}
+                    {{ errors.email }}
                   </p>
                 </div>
                 <div class="register__form-inputs m-t-20">
                   <p class="register__text register__text--required">手機</p>
                   <input
                     class="register__form-input"
-                    v-model="phoneNumber"
-                    v-bind="phoneNumberProps"
+                    v-model="phone"
+                    v-bind="phoneProps"
                     :class="{
-                      'register__form-input--error': errors.phoneNumber,
+                      'register__form-input--error': errors.phone,
                     }"
                   />
                   <p class="register__text register__text--error">
-                    {{ errors.phoneNumber }}
+                    {{ errors.phone }}
                   </p>
                 </div>
                 <div class="register__form-inputs m-t-20">

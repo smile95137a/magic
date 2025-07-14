@@ -1,10 +1,9 @@
-// src/services/front/lanternServices.ts
-import { Lantern, CountRequest, LanternBlessingVO, LanternVO, LanternPurchaseRequest } from '@/vite-env';
+import { ApiResponse } from '@/vite-env';
 import { api } from './FrontAPI';
 
 const basePath = '/lantern';
 
-export const getLanternList = async (): Promise<Lantern[]> => {
+export const getLanternList = async (): Promise<ApiResponse<any[]>> => {
   try {
     const response = await api.post(`${basePath}/list`);
     return response.data;
@@ -14,7 +13,9 @@ export const getLanternList = async (): Promise<Lantern[]> => {
   }
 };
 
-export const getLatestLanterns = async (payload: CountRequest): Promise<LanternBlessingVO[]> => {
+export const getLatestLanterns = async (
+  payload: any
+): Promise<ApiResponse<any[]>> => {
   try {
     const response = await api.post(`${basePath}/latest`, payload);
     return response.data;
@@ -25,8 +26,8 @@ export const getLatestLanterns = async (payload: CountRequest): Promise<LanternB
 };
 
 export const getRecommendationLanterns = async (
-  payload: CountRequest
-): Promise<LanternBlessingVO[]> => {
+  payload: any
+): Promise<ApiResponse<any[]>> => {
   try {
     const response = await api.post(`${basePath}/recommendation`, payload);
     return response.data;
@@ -36,7 +37,9 @@ export const getRecommendationLanterns = async (
   }
 };
 
-export const getRankLanterns = async (payload: CountRequest): Promise<LanternBlessingVO[]> => {
+export const getRankLanterns = async (
+  payload: any
+): Promise<ApiResponse<any[]>> => {
   try {
     const response = await api.post(`${basePath}/rank`, payload);
     return response.data;
@@ -46,7 +49,9 @@ export const getRankLanterns = async (payload: CountRequest): Promise<LanternBle
   }
 };
 
-export const getLanternByCode = async (code: string): Promise<LanternVO> => {
+export const getLanternByCode = async (
+  code: string
+): Promise<ApiResponse<any>> => {
   try {
     const response = await api.post(`${basePath}/${code}`);
     return response.data;
@@ -56,7 +61,9 @@ export const getLanternByCode = async (code: string): Promise<LanternVO> => {
   }
 };
 
-export const purchaseLantern = async (payload: LanternPurchaseRequest): Promise<boolean> => {
+export const purchaseLantern = async (
+  payload: any
+): Promise<ApiResponse<boolean>> => {
   try {
     const response = await api.post(`${basePath}/purchase/info`, payload);
     return response.data;

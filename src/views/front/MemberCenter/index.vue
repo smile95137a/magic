@@ -6,16 +6,28 @@
       <MCard customClass="mcard--member-center member-center__card">
         <!-- 導覽 Tabs -->
         <div class="member-center__tabs">
-          <router-link to="/member-center/profile" exact-active-class="active">
+          <router-link
+            to="/member-center/memberProfile"
+            exact-active-class="active"
+          >
             <i class="fas fa-user"></i> 會員資料
           </router-link>
-          <router-link to="/member-center/history" exact-active-class="active">
+          <router-link
+            to="/member-center/purchaseHistory"
+            exact-active-class="active"
+          >
             <i class="fas fa-receipt"></i> 消費紀錄
           </router-link>
-          <router-link to="/member-center/blessing" exact-active-class="active">
+          <router-link
+            to="/member-center/myBlessings"
+            exact-active-class="active"
+          >
             <i class="fas fa-hands"></i> 我的供奉
           </router-link>
-          <router-link to="/member-center/orders" exact-active-class="active">
+          <router-link
+            to="/member-center/orderHistory"
+            exact-active-class="active"
+          >
             <i class="fas fa-clipboard-list"></i> 訂單記錄
           </router-link>
         </div>

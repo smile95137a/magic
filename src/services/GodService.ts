@@ -1,10 +1,10 @@
 // src/services/front/godServices.ts
-import { God, GodInfoRequest, GodInfoVO, GodExtendPeriodRequest, OfferingVO, PresentOfferingRequest } from '@/vite-env';
+import { ApiResponse } from '@/vite-env';
 import { api } from './FrontAPI';
 
 const basePath = '/god';
 
-export const fetchAllGod = async (): Promise<God[]> => {
+export const fetchAllGod = async (): Promise<ApiResponse<any>> => {
   try {
     const response = await api.post(`${basePath}/list`);
     return response.data;
@@ -14,7 +14,7 @@ export const fetchAllGod = async (): Promise<God[]> => {
   }
 };
 
-export const godDescend = async (payload: GodInfoRequest): Promise<boolean> => {
+export const godDescend = async (payload: any): Promise<ApiResponse<any>> => {
   try {
     const response = await api.post(`${basePath}/descend`, payload);
     return response.data;
@@ -24,10 +24,10 @@ export const godDescend = async (payload: GodInfoRequest): Promise<boolean> => {
   }
 };
 
-export const getGodInfo = async (payload: GodInfoRequest): Promise<GodInfoVO | null> => {
+export const getGodInfo = async (payload: any): Promise<ApiResponse<any>> => {
   try {
     const response = await api.post(`${basePath}/info`, payload);
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.error('getGodInfo error:', error);
     throw error;
@@ -35,8 +35,8 @@ export const getGodInfo = async (payload: GodInfoRequest): Promise<GodInfoVO | n
 };
 
 export const extendGodPeriod = async (
-  payload: GodExtendPeriodRequest
-): Promise<boolean> => {
+  payload: any
+): Promise<ApiResponse<any>> => {
   try {
     const response = await api.post(`${basePath}/extend`, payload);
     return response.data;
@@ -46,7 +46,7 @@ export const extendGodPeriod = async (
   }
 };
 
-export const fetchOfferingList = async (): Promise<OfferingVO[]> => {
+export const fetchOfferingList = async (): Promise<ApiResponse<any>> => {
   try {
     const response = await api.post(`${basePath}/offering/list`);
     return response.data;
@@ -57,8 +57,8 @@ export const fetchOfferingList = async (): Promise<OfferingVO[]> => {
 };
 
 export const presentOffering = async (
-  payload: PresentOfferingRequest
-): Promise<GodInfoVO> => {
+  payload: any
+): Promise<ApiResponse<any>> => {
   try {
     const response = await api.post(`${basePath}/offering/present`, payload);
     return response.data;

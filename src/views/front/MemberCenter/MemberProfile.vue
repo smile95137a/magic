@@ -79,13 +79,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import type { UserProfileResponse } from '@/vite-env'; // 型別定義
+import { getProfile } from '@/services/UserService';
 
 const profile = ref({
-  nickname: '王小明',
-  lineId: 'abc123',
-  receiverName: '王小明',
-  receiverPhone: '0912345678',
+  nickname: '',
+  lineId: '',
+  receiverName: '',
+  receiverPhone: '',
   city: '',
   district: '',
   detailAddress: '',
@@ -93,7 +95,33 @@ const profile = ref({
 
 const invoice = ref({
   type: '',
-  email: 'abc123@gmail.com',
+  email: '',
+});
+
+const initProfile = async () => {
+  try {
+    const res = await getProfile();
+    if (res.success && res.data) {
+      const data: any = res.data;
+
+      profile.value.nickname = data.nickname || '';
+      profile.value.lineId = data.lineId || '';
+      profile.value.receiverName = data.receiverName || '';
+      profile.value.receiverPhone = data.receiverPhone || '';
+      profile.value.city = data.city || '';
+      profile.value.district = data.district || '';
+      profile.value.detailAddress = data.detailAddress || '';
+
+      invoice.value.type = data.invoiceType || '';
+      invoice.value.email = data.invoiceEmail || '';
+    }
+  } catch (error) {
+    console.error('取得會員資料失敗', error);
+  }
+};
+
+onMounted(() => {
+  initProfile();
 });
 
 const submitProfile = () => {

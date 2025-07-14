@@ -1,10 +1,10 @@
-// src/services/front/poeServices.ts
-import { CountRequest, PoeRankVO } from '@/vite-env';
+import { ApiResponse } from '@/vite-env';
 import { api } from './FrontAPI';
 
 const basePath = '/poe';
 
-export const getPoeRank = async (payload: CountRequest): Promise<PoeRankVO[]> => {
+// 取得詩籤排行
+export const getPoeRank = async (payload: any): Promise<ApiResponse<any[]>> => {
   try {
     const response = await api.post(`${basePath}/rank`, payload);
     return response.data;
@@ -14,7 +14,10 @@ export const getPoeRank = async (payload: CountRequest): Promise<PoeRankVO[]> =>
   }
 };
 
-export const addSiunnPoe = async (payload: CountRequest): Promise<boolean> => {
+// 新增詢籤紀錄
+export const addSiunnPoe = async (
+  payload: any
+): Promise<ApiResponse<boolean>> => {
   try {
     const response = await api.post(`${basePath}/siunn`, payload);
     return response.data;

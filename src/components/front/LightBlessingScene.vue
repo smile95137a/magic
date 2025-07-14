@@ -6,19 +6,26 @@
 
       <div class="light-blessing__list">
         <div
-          v-for="item in lightList"
-          :key="item.id"
+          v-for="(item, index) in lightList"
+          :key="item.name + item.createTime + index"
           class="light-blessing__card"
         >
           <img
-            :src="imageMap[item.imageKey]"
-            :alt="item.name"
+            :src="imageMap[item.lanternCode]"
             class="light-blessing__image"
           />
           <div class="light-blessing__content">
-            <div class="light-blessing__type">{{ item.type }}</div>
-            <p class="light-blessing__desc">{{ item.description }}</p>
-            <div class="light-blessing__date">於{{ item.date }}點燈</div>
+            <div class="light-blessing__type">信眾 {{ item.name }}</div>
+            <p class="light-blessing__desc">{{ item.message }}</p>
+            <div class="light-blessing__date">
+              於
+              <DateFormatter
+                :date="item.createTime"
+                :format="'YYYY/MM/DD HH:mm:ss'"
+              />
+
+              點燈
+            </div>
           </div>
           <button class="light-blessing__btn">
             請祝福我 <i class="fas fa-chevron-right"></i>
@@ -30,38 +37,30 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import Title from '@/components/common/Title.vue';
-import lightImages from '@/data/lightImages';
 import SectionBackground from '@/components/common/SectionBackground.vue';
+import lightImages from '@/data/lightImages';
+import DateFormatter from '../common/DateFormatter.vue';
+import { getRecommendationLanterns } from '@/services/lanternServices';
+
+const lightList = ref<any[]>([]);
+
 const imageMap = Object.fromEntries(
   lightImages.map((item) => [item.key, item.image])
 );
-const lightList = [
-  {
-    id: 1,
-    name: '招財燈',
-    type: '信女 張',
-    description: '保佑張~收入越來越好，財運亨通，嘿……',
-    date: '2025-04-27',
-    imageKey: 'lightZhaocai',
-  },
-  {
-    id: 2,
-    name: '平安燈',
-    type: '信女 張',
-    description: '保佑張~平安健康，闔家順遂……',
-    date: '2025-04-27',
-    imageKey: 'lightPingan',
-  },
-  {
-    id: 3,
-    name: '事業燈',
-    type: '信女 張',
-    description: '保佑張~事業順利，步步高升……',
-    date: '2025-04-27',
-    imageKey: 'lightShiye',
-  },
-];
+
+// 初始化 API
+onMounted(async () => {
+  try {
+    const res = await getRecommendationLanterns({ count: 3 });
+    if (res.success) {
+      lightList.value = res.data;
+    }
+  } catch (error) {
+    console.error('getRecommendationLanterns error:', error);
+  }
+});
 </script>
 
 <style scoped lang="scss">

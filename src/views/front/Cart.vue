@@ -1,171 +1,58 @@
-<template>
-  <div class="checkout">
-     <SectionBackground variant="divination" />
-    <div class="checkout__container">
-      <MCard customClass="p-48">
-        <!-- 商品資訊 -->
-        <h3>商品資訊</h3>
-        <div v-for="(item, index) in cartItems" :key="index" class="checkout__item">
-          <div class="checkout__item-img" />
-          <div class="checkout__item-info">
-            <p>{{ item.name }}</p>
-            <div class="checkout__item-control">
-              <button @click="changeQty(index, -1)">−</button>
-              <span>{{ item.quantity }}</span>
-              <button @click="changeQty(index, 1)">＋</button>
-              <p class="price">NT${{ item.price * item.quantity }}</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- 購買人資訊 -->
-        <h3>購買人資訊</h3>
-        <div class="checkout__block">
-          <div class="checkout__form-grid">
-            <div
-              class="checkout__form-group"
-              v-for="field in buyerFields"
-              :key="field.label"
-              :class="{ 'checkout__form-group--full': field.fullWidth }"
-            >
-              <label>{{ field.label }}</label>
-              <component :is="field.type === 'select' ? 'select' : 'input'" v-model="buyer[field.model]">
-                <option v-for="option in field.options || []" :key="option" :value="option">{{ option }}</option>
-              </component>
-            </div>
-          </div>
-        </div>
-
-        <!-- 收件人資訊 -->
-        <h3>收件人資訊</h3>
-        <div class="checkout__block">
-          <label><input type="checkbox" v-model="sameAsBuyer" @change="copyBuyer" /> 同購買人資料</label>
-          <div class="checkout__form-grid">
-            <div
-              class="checkout__form-group"
-              v-for="field in recipientFields"
-              :key="field.label"
-              :class="{ 'checkout__form-group--full': field.fullWidth }"
-            >
-              <label>{{ field.label }}</label>
-              <component :is="field.type === 'select' ? 'select' : 'input'" v-model="recipient[field.model]">
-                <option v-for="option in field.options || []" :key="option" :value="option">{{ option }}</option>
-              </component>
-            </div>
-          </div>
-        </div>
-
-        <!-- 寄送資訊 -->
-        <h3>寄送資訊</h3>
-        <div class="checkout__block">
-          <label><input type="radio" value="宅配" v-model="shippingMethod" /> 宅配（$150）</label>
-          <label><input type="radio" value="7-11" v-model="shippingMethod" /> 7-11 超商取貨（$60）</label>
-          <label><input type="radio" value="全家" v-model="shippingMethod" /> 全家超商取貨（$60）</label>
-        </div>
-
-        <!-- 發票 -->
-        <h3>發票</h3>
-        <select v-model="invoiceType">
-          <option value="二聯式">發票開立（二聯式）</option>
-          <option value="三聯式">發票開立（三聯式）</option>
-        </select>
-
-        <!-- 優惠與付款 -->
-        <h3>優惠及結帳</h3>
-        <div class="checkout__block">
-          <label>
-            <input type="radio" v-model="couponType" value="voucher" />
-            優惠券
-            <select v-model="selectedCoupon">
-              <option value="50">滿499折50</option>
-              <option value="0">不使用</option>
-            </select>
-          </label>
-          <label>
-            <input type="radio" v-model="couponType" value="code" />
-            優惠碼
-            <input v-model="customCode" placeholder="請輸入優惠碼" />
-          </label>
-          <label>
-            <input type="radio" value="card" v-model="payment" /> 信用卡一次付清
-          </label>
-          <label>
-            <input type="radio" value="store" v-model="payment" /> 超商取貨付款
-          </label>
-        </div>
-
-        <!-- 小計 -->
-        <div class="checkout__total">
-          <p>商品：NT${{ productTotal }}</p>
-          <p>運費：NT${{ shippingFee }}</p>
-          <p>折扣：-NT${{ discount }}</p>
-          <p class="total">總金額：<strong>NT${{ total }}</strong></p>
-        </div>
-
-        <!-- 按鈕 -->
-        <div class="checkout__buttons">
-          <button class="btn btn-outline" @click="$router.back()">回上頁</button>
-          <button class="btn btn-primary" @click="submitOrder">結帳</button>
-        </div>
-      </MCard>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useCartStore } from '@/stores/cartStore';
 import MCard from '@/components/common/MCard.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import { useRouter } from 'vue-router';
-const router = useRouter();
 
+const router = useRouter();
 const cart = useCartStore();
 const cartItems = cart.cartItems;
 
 const shippingMethod = ref('宅配');
 const invoiceType = ref('二聯式');
-const couponType = ref('voucher');
 const selectedCoupon = ref('50');
-const customCode = ref('');
 const payment = ref('card');
 const sameAsBuyer = ref(false);
 
 const buyer = ref({
-  name: '',
-  email: '',
-  phone: '',
+  name: '王大明',
+  email: 'demo@example.com',
+  phone: '0912345678',
   city: '台北市',
-  district: '中正區',
-  address: ''
+  area: '中正區',
+  address: '重慶南路一段1號',
 });
 
 const recipient = ref({
-  name: '',
-  email: '',
-  phone: '',
-  city: '',
-  district: '',
-  address: ''
+  name: '林小華',
+  email: 'receiver@example.com',
+  phone: '0987654321',
+  city: '新北市',
+  area: '板橋區',
+  address: '文化路二段88號',
 });
 
 const buyerFields = [
   { label: '姓名', model: 'name' },
   { label: 'Email', model: 'email' },
   { label: '電話', model: 'phone' },
-  { label: '縣市', model: 'city', type: 'select', options: ['台北市', '新北市'] },
-  { label: '行政區', model: 'district', type: 'select', options: ['中正區', '大安區'] },
-  { label: '詳細地址', model: 'address', fullWidth: true }
+  {
+    label: '縣市',
+    model: 'city',
+    type: 'select',
+    options: ['台北市', '新北市'],
+  },
+  {
+    label: '行政區',
+    model: 'area',
+    type: 'select',
+    options: ['中正區', '大安區', '板橋區'],
+  },
+  { label: '詳細地址', model: 'address', fullWidth: true },
 ];
 
-const recipientFields = [
-  { label: '姓名', model: 'name' },
-  { label: 'Email', model: 'email' },
-  { label: '電話', model: 'phone' },
-  { label: '縣市', model: 'city', type: 'select', options: ['台北市', '新北市'] },
-  { label: '行政區', model: 'district', type: 'select', options: ['中正區', '大安區'] },
-  { label: '詳細地址', model: 'address', fullWidth: true }
-];
+const recipientFields = [...buyerFields];
 
 const copyBuyer = () => {
   if (sameAsBuyer.value) {
@@ -183,13 +70,11 @@ const shippingFee = computed(() => {
   return 0;
 });
 
-const discount = computed(() => {
-  if (couponType.value === 'voucher' && selectedCoupon.value === '50') return 50;
-  if (couponType.value === 'code' && customCode.value === 'DISCOUNT50') return 50;
-  return 0;
-});
+const discount = computed(() => (selectedCoupon.value === '50' ? 50 : 0));
 
-const total = computed(() => productTotal.value + shippingFee.value - discount.value);
+const total = computed(
+  () => productTotal.value + shippingFee.value - discount.value
+);
 
 const changeQty = (index: number, delta: number) => {
   const item = cartItems[index];
@@ -199,10 +84,165 @@ const changeQty = (index: number, delta: number) => {
 };
 
 const submitOrder = () => {
-  alert(`訂單已送出！總金額為 NT$${total.value}`);
+  const payload = {
+    items: cartItems,
+    buyer: { ...buyer.value },
+    recipient: { ...recipient.value },
+    shippingMethod: shippingMethod.value,
+    invoiceType: invoiceType.value,
+    selectedCoupon: selectedCoupon.value,
+    payment: payment.value,
+    productTotal: productTotal.value,
+    shippingFee: shippingFee.value,
+    discount: discount.value,
+    total: total.value,
+  };
+
+  console.log('🧾 訂單送出資料:', JSON.stringify(payload, null, 2));
   router.push({ name: 'CheckoutSuccess' });
 };
 </script>
+
+<template>
+  <div class="checkout">
+    <SectionBackground variant="divination" />
+    <div class="checkout__container">
+      <MCard customClass="p-48">
+        <h3>商品資訊</h3>
+        <div
+          v-for="(item, index) in cartItems"
+          :key="index"
+          class="checkout__item"
+        >
+          <div class="checkout__item-img" />
+          <div class="checkout__item-info">
+            <p>{{ item.name }}</p>
+            <div class="checkout__item-control">
+              <button @click="changeQty(index, -1)">−</button>
+              <span>{{ item.quantity }}</span>
+              <button @click="changeQty(index, 1)">＋</button>
+              <p class="price">NT${{ item.price * item.quantity }}</p>
+            </div>
+          </div>
+        </div>
+
+        <h3>購買人資訊</h3>
+        <div class="checkout__block">
+          <div class="checkout__form-grid">
+            <div
+              class="checkout__form-group"
+              v-for="field in buyerFields"
+              :key="field.label"
+              :class="{ 'checkout__form-group--full': field.fullWidth }"
+            >
+              <label>{{ field.label }}</label>
+              <component
+                :is="field.type === 'select' ? 'select' : 'input'"
+                v-model="buyer[field.model]"
+              >
+                <option
+                  v-for="option in field.options || []"
+                  :key="option"
+                  :value="option"
+                >
+                  {{ option }}
+                </option>
+              </component>
+            </div>
+          </div>
+        </div>
+
+        <h3>收件人資訊</h3>
+        <div class="checkout__block">
+          <label>
+            <input type="checkbox" v-model="sameAsBuyer" @change="copyBuyer" />
+            同購買人資料
+          </label>
+          <div class="checkout__form-grid">
+            <div
+              class="checkout__form-group"
+              v-for="field in recipientFields"
+              :key="field.label"
+              :class="{ 'checkout__form-group--full': field.fullWidth }"
+            >
+              <label>{{ field.label }}</label>
+              <component
+                :is="field.type === 'select' ? 'select' : 'input'"
+                v-model="recipient[field.model]"
+              >
+                <option
+                  v-for="option in field.options || []"
+                  :key="option"
+                  :value="option"
+                >
+                  {{ option }}
+                </option>
+              </component>
+            </div>
+          </div>
+        </div>
+
+        <h3>寄送資訊</h3>
+        <div class="checkout__block">
+          <label
+            ><input type="radio" value="宅配" v-model="shippingMethod" />
+            宅配（$150）</label
+          >
+          <label
+            ><input type="radio" value="7-11" v-model="shippingMethod" /> 7-11
+            超商取貨（$60）</label
+          >
+          <label
+            ><input type="radio" value="全家" v-model="shippingMethod" />
+            全家超商取貨（$60）</label
+          >
+        </div>
+
+        <h3>發票</h3>
+        <select v-model="invoiceType">
+          <option value="二聯式">發票開立（二聯式）</option>
+          <option value="三聯式">發票開立（三聯式）</option>
+        </select>
+
+        <h3>優惠及結帳</h3>
+        <div class="checkout__block">
+          <label>
+            使用優惠：
+            <select v-model="selectedCoupon">
+              <option value="50">滿499折50</option>
+              <option value="0">不使用</option>
+            </select>
+          </label>
+
+          <label
+            ><input type="radio" value="card" v-model="payment" />
+            信用卡一次付清</label
+          >
+          <label
+            ><input type="radio" value="store" v-model="payment" />
+            超商取貨付款</label
+          >
+        </div>
+
+        <div class="checkout__total">
+          <p>商品：NT${{ productTotal }}</p>
+          <p>運費：NT${{ shippingFee }}</p>
+          <p>折扣：-NT${{ discount }}</p>
+          <p class="total">
+            總金額：<strong>NT${{ total }}</strong>
+          </p>
+        </div>
+
+        <div class="checkout__buttons">
+          <button class="btn btn-outline" @click="$router.back()">
+            回上頁
+          </button>
+          <button class="btn btn-primary" @click="submitOrder">結帳</button>
+        </div>
+      </MCard>
+    </div>
+  </div>
+</template>
 
 <style scoped lang="scss">
 .checkout {
@@ -215,7 +255,6 @@ const submitOrder = () => {
     padding: 4rem 2rem;
   }
 
-  // 表單區塊
   &__block {
     background: #fde3de;
     border-radius: 16px;
@@ -223,7 +262,6 @@ const submitOrder = () => {
     margin-bottom: 2rem;
   }
 
-  // 商品資訊
   &__item {
     display: flex;
     align-items: center;
@@ -278,7 +316,6 @@ const submitOrder = () => {
     }
   }
 
-  // 表單欄位群組
   &__form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -307,7 +344,6 @@ const submitOrder = () => {
     grid-column: 1 / -1;
   }
 
-  // 小計區
   &__total {
     text-align: right;
     font-size: 1rem;
@@ -325,7 +361,6 @@ const submitOrder = () => {
     }
   }
 
-  // 按鈕
   &__buttons {
     margin-top: 2rem;
     display: flex;
@@ -361,7 +396,6 @@ const submitOrder = () => {
     }
   }
 
-  // 手機 RWD 調整
   @media (max-width: 600px) {
     &__form-grid {
       grid-template-columns: 1fr !important;
@@ -391,5 +425,4 @@ const submitOrder = () => {
     }
   }
 }
-
 </style>
