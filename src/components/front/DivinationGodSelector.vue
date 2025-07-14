@@ -9,7 +9,7 @@
       <div class="god-selector__main">
         <div class="god-selector__circle">
           <img
-            :src="selectedGod ? selectedGod.highlighted : defaultGodImage"
+            :src="selectedGod.highlighted"
             alt="主神"
             class="god-selector__main-god"
           />
@@ -61,7 +61,6 @@ const selectGod = (key: GodKey) => {
 const selectedGod = computed(() =>
   selectedKey.value ? godList[selectedKey.value] : null
 );
-const defaultGodImage = godList.yuelao.default;
 </script>
 
 <style lang="scss" scoped>

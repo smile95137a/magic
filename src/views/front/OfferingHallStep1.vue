@@ -7,7 +7,10 @@
       <div class="offering__temple">
         <div class="offering__main">
           <img class="offering__main-img" :src="tample" alt="" />
-          <div class="offering__sign">月老</div>
+          <div class="offering__sign">
+            {{ offerStore.selectedGod?.name || '請神中' }}
+          </div>
+
           <div v-if="offerStore.isGodInvoked" class="offering__god-image">
             <img
               :src="godImages[offerStore.selectedGod?.imageCode]?.default"

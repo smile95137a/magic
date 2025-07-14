@@ -1,108 +1,131 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { useForm } from 'vee-validate';
+import * as yup from 'yup';
 import { useCartStore } from '@/stores/cartStore';
 import MCard from '@/components/common/MCard.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
-import { useRouter } from 'vue-router';
 
-const router = useRouter();
 const cart = useCartStore();
 const cartItems = cart.cartItems;
+const router = useRouter();
 
-const shippingMethod = ref('宅配');
-const invoiceType = ref('二聯式');
-const selectedCoupon = ref('50');
-const payment = ref('card');
-const sameAsBuyer = ref(false);
-
-const buyer = ref({
-  name: '王大明',
-  email: 'demo@example.com',
-  phone: '0912345678',
-  city: '台北市',
-  area: '中正區',
-  address: '重慶南路一段1號',
+// ---- 驗證 schema ----
+const schema = yup.object({
+  buyer: yup.object({
+    name: yup.string().required('姓名為必填'),
+    email: yup.string().email('Email 格式錯誤').required('Email 為必填'),
+    phone: yup.string().required('電話為必填'),
+    city: yup.string().required('縣市為必填'),
+    area: yup.string().required('行政區為必填'),
+    address: yup.string().required('地址為必填'),
+  }),
+  recipient: yup.object({
+    name: yup.string().required('姓名為必填'),
+    email: yup.string().email('Email 格式錯誤').required('Email 為必填'),
+    phone: yup.string().required('電話為必填'),
+    city: yup.string().required('縣市為必填'),
+    area: yup.string().required('行政區為必填'),
+    address: yup.string().required('地址為必填'),
+  }),
+  sameAsBuyer: yup.boolean(),
+  shippingMethod: yup.string().required('請選擇寄送方式'),
+  invoiceType: yup.string().required('請選擇發票格式'),
+  selectedCoupon: yup.string().required(),
+  payment: yup.string().required('請選擇付款方式'),
 });
 
-const recipient = ref({
-  name: '林小華',
-  email: 'receiver@example.com',
-  phone: '0987654321',
-  city: '新北市',
-  area: '板橋區',
-  address: '文化路二段88號',
-});
+// ---- useForm 統一表單 ----
+const { handleSubmit, defineField, errors, values, setFieldValue, setValues } =
+  useForm({
+    validationSchema: schema,
+    initialValues: {
+      buyer: {
+        name: '王大明',
+        email: 'demo@example.com',
+        phone: '0912345678',
+        city: '台北市',
+        area: '中正區',
+        address: '重慶南路一段1號',
+      },
+      recipient: {
+        name: '林小華',
+        email: 'receiver@example.com',
+        phone: '0987654321',
+        city: '新北市',
+        area: '板橋區',
+        address: '文化路二段88號',
+      },
+      sameAsBuyer: false,
+      shippingMethod: '宅配',
+      invoiceType: '二聯式',
+      selectedCoupon: '50',
+      payment: 'card',
+    },
+  });
 
-const buyerFields = [
-  { label: '姓名', model: 'name' },
-  { label: 'Email', model: 'email' },
-  { label: '電話', model: 'phone' },
-  {
-    label: '縣市',
-    model: 'city',
-    type: 'select',
-    options: ['台北市', '新北市'],
-  },
-  {
-    label: '行政區',
-    model: 'area',
-    type: 'select',
-    options: ['中正區', '大安區', '板橋區'],
-  },
-  { label: '詳細地址', model: 'address', fullWidth: true },
-];
+// ---- 拆解欄位綁定（v-model） ----
+const [buyerName] = defineField('buyer.name');
+const [buyerEmail] = defineField('buyer.email');
+const [buyerPhone] = defineField('buyer.phone');
+const [buyerCity] = defineField('buyer.city');
+const [buyerArea] = defineField('buyer.area');
+const [buyerAddress] = defineField('buyer.address');
 
-const recipientFields = [...buyerFields];
+const [recipientName] = defineField('recipient.name');
+const [recipientEmail] = defineField('recipient.email');
+const [recipientPhone] = defineField('recipient.phone');
+const [recipientCity] = defineField('recipient.city');
+const [recipientArea] = defineField('recipient.area');
+const [recipientAddress] = defineField('recipient.address');
 
-const copyBuyer = () => {
-  if (sameAsBuyer.value) {
-    recipient.value = { ...buyer.value };
+const [sameAsBuyer] = defineField('sameAsBuyer');
+const [shippingMethod] = defineField('shippingMethod');
+const [invoiceType] = defineField('invoiceType');
+const [selectedCoupon] = defineField('selectedCoupon');
+const [payment] = defineField('payment');
+
+// ---- 同購買人資料 → 複製收件人 ----
+watch(
+  () => values.sameAsBuyer,
+  (checked) => {
+    if (checked) {
+      setFieldValue('recipient', { ...values.buyer });
+    }
   }
-};
+);
 
+// ---- 價格計算 ----
 const productTotal = computed(() =>
   cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
 );
 
 const shippingFee = computed(() => {
-  if (shippingMethod.value === '宅配') return 150;
-  if (['7-11', '全家'].includes(shippingMethod.value)) return 60;
+  if (values.shippingMethod === '宅配') return 150;
+  if (['7-11', '全家'].includes(values.shippingMethod)) return 60;
   return 0;
 });
 
-const discount = computed(() => (selectedCoupon.value === '50' ? 50 : 0));
-
+const discount = computed(() => (values.selectedCoupon === '50' ? 50 : 0));
 const total = computed(
   () => productTotal.value + shippingFee.value - discount.value
 );
 
-const changeQty = (index: number, delta: number) => {
-  const item = cartItems[index];
-  if (item.quantity + delta >= 1) {
-    item.quantity += delta;
-  }
-};
-
-const submitOrder = () => {
+// ---- 送出訂單 ----
+const submitOrder = handleSubmit((formData) => {
   const payload = {
     items: cartItems,
-    buyer: { ...buyer.value },
-    recipient: { ...recipient.value },
-    shippingMethod: shippingMethod.value,
-    invoiceType: invoiceType.value,
-    selectedCoupon: selectedCoupon.value,
-    payment: payment.value,
+    ...formData,
     productTotal: productTotal.value,
     shippingFee: shippingFee.value,
     discount: discount.value,
     total: total.value,
   };
-
-  console.log('🧾 訂單送出資料:', JSON.stringify(payload, null, 2));
+  console.log('✅ 訂單送出:', payload);
   router.push({ name: 'CheckoutSuccess' });
-};
+});
 </script>
-
 <template>
   <div class="checkout">
     <SectionBackground variant="divination" />
@@ -118,9 +141,11 @@ const submitOrder = () => {
           <div class="checkout__item-info">
             <p>{{ item.name }}</p>
             <div class="checkout__item-control">
-              <button @click="changeQty(index, -1)">−</button>
+              <button @click="item.quantity > 1 && (item.quantity -= 1)">
+                −
+              </button>
               <span>{{ item.quantity }}</span>
-              <button @click="changeQty(index, 1)">＋</button>
+              <button @click="item.quantity += 1">＋</button>
               <p class="price">NT${{ item.price * item.quantity }}</p>
             </div>
           </div>
@@ -129,25 +154,44 @@ const submitOrder = () => {
         <h3>購買人資訊</h3>
         <div class="checkout__block">
           <div class="checkout__form-grid">
-            <div
-              class="checkout__form-group"
-              v-for="field in buyerFields"
-              :key="field.label"
-              :class="{ 'checkout__form-group--full': field.fullWidth }"
-            >
-              <label>{{ field.label }}</label>
-              <component
-                :is="field.type === 'select' ? 'select' : 'input'"
-                v-model="buyer[field.model]"
-              >
-                <option
-                  v-for="option in field.options || []"
-                  :key="option"
-                  :value="option"
-                >
-                  {{ option }}
-                </option>
-              </component>
+            <div class="checkout__form-group">
+              <label>姓名</label>
+              <input v-model="buyerName" />
+              <p v-if="errors['buyer.name']">{{ errors['buyer.name'] }}</p>
+            </div>
+            <div class="checkout__form-group">
+              <label>Email</label>
+              <input v-model="buyerEmail" />
+              <p v-if="errors['buyer.email']">{{ errors['buyer.email'] }}</p>
+            </div>
+            <div class="checkout__form-group">
+              <label>電話</label>
+              <input v-model="buyerPhone" />
+              <p v-if="errors['buyer.phone']">{{ errors['buyer.phone'] }}</p>
+            </div>
+            <div class="checkout__form-group">
+              <label>縣市</label>
+              <select v-model="buyerCity">
+                <option value="台北市">台北市</option>
+                <option value="新北市">新北市</option>
+              </select>
+              <p v-if="errors['buyer.city']">{{ errors['buyer.city'] }}</p>
+            </div>
+            <div class="checkout__form-group">
+              <label>行政區</label>
+              <select v-model="buyerArea">
+                <option value="中正區">中正區</option>
+                <option value="大安區">大安區</option>
+                <option value="板橋區">板橋區</option>
+              </select>
+              <p v-if="errors['buyer.area']">{{ errors['buyer.area'] }}</p>
+            </div>
+            <div class="checkout__form-group checkout__form-group--full">
+              <label>詳細地址</label>
+              <input v-model="buyerAddress" />
+              <p v-if="errors['buyer.address']">
+                {{ errors['buyer.address'] }}
+              </p>
             </div>
           </div>
         </div>
@@ -155,47 +199,77 @@ const submitOrder = () => {
         <h3>收件人資訊</h3>
         <div class="checkout__block">
           <label>
-            <input type="checkbox" v-model="sameAsBuyer" @change="copyBuyer" />
+            <input type="checkbox" v-model="sameAsBuyer" />
             同購買人資料
           </label>
           <div class="checkout__form-grid">
-            <div
-              class="checkout__form-group"
-              v-for="field in recipientFields"
-              :key="field.label"
-              :class="{ 'checkout__form-group--full': field.fullWidth }"
-            >
-              <label>{{ field.label }}</label>
-              <component
-                :is="field.type === 'select' ? 'select' : 'input'"
-                v-model="recipient[field.model]"
-              >
-                <option
-                  v-for="option in field.options || []"
-                  :key="option"
-                  :value="option"
-                >
-                  {{ option }}
-                </option>
-              </component>
+            <div class="checkout__form-group">
+              <label>姓名</label>
+              <input v-model="recipientName" />
+              <p v-if="errors['recipient.name']">
+                {{ errors['recipient.name'] }}
+              </p>
+            </div>
+            <div class="checkout__form-group">
+              <label>Email</label>
+              <input v-model="recipientEmail" />
+              <p v-if="errors['recipient.email']">
+                {{ errors['recipient.email'] }}
+              </p>
+            </div>
+            <div class="checkout__form-group">
+              <label>電話</label>
+              <input v-model="recipientPhone" />
+              <p v-if="errors['recipient.phone']">
+                {{ errors['recipient.phone'] }}
+              </p>
+            </div>
+            <div class="checkout__form-group">
+              <label>縣市</label>
+              <select v-model="recipientCity">
+                <option value="台北市">台北市</option>
+                <option value="新北市">新北市</option>
+              </select>
+              <p v-if="errors['recipient.city']">
+                {{ errors['recipient.city'] }}
+              </p>
+            </div>
+            <div class="checkout__form-group">
+              <label>行政區</label>
+              <select v-model="recipientArea">
+                <option value="中正區">中正區</option>
+                <option value="大安區">大安區</option>
+                <option value="板橋區">板橋區</option>
+              </select>
+              <p v-if="errors['recipient.area']">
+                {{ errors['recipient.area'] }}
+              </p>
+            </div>
+            <div class="checkout__form-group checkout__form-group--full">
+              <label>詳細地址</label>
+              <input v-model="recipientAddress" />
+              <p v-if="errors['recipient.address']">
+                {{ errors['recipient.address'] }}
+              </p>
             </div>
           </div>
         </div>
 
         <h3>寄送資訊</h3>
         <div class="checkout__block">
-          <label
-            ><input type="radio" value="宅配" v-model="shippingMethod" />
-            宅配（$150）</label
-          >
-          <label
-            ><input type="radio" value="7-11" v-model="shippingMethod" /> 7-11
-            超商取貨（$60）</label
-          >
-          <label
-            ><input type="radio" value="全家" v-model="shippingMethod" />
-            全家超商取貨（$60）</label
-          >
+          <label>
+            <input type="radio" value="宅配" v-model="shippingMethod" />
+            宅配（$150）
+          </label>
+          <label>
+            <input type="radio" value="7-11" v-model="shippingMethod" />
+            7-11 超商取貨（$60）
+          </label>
+          <label>
+            <input type="radio" value="全家" v-model="shippingMethod" />
+            全家超商取貨（$60）
+          </label>
+          <p v-if="errors.shippingMethod">{{ errors.shippingMethod }}</p>
         </div>
 
         <h3>發票</h3>
@@ -203,6 +277,7 @@ const submitOrder = () => {
           <option value="二聯式">發票開立（二聯式）</option>
           <option value="三聯式">發票開立（三聯式）</option>
         </select>
+        <p v-if="errors.invoiceType">{{ errors.invoiceType }}</p>
 
         <h3>優惠及結帳</h3>
         <div class="checkout__block">
@@ -213,15 +288,17 @@ const submitOrder = () => {
               <option value="0">不使用</option>
             </select>
           </label>
+          <p v-if="errors.selectedCoupon">{{ errors.selectedCoupon }}</p>
 
-          <label
-            ><input type="radio" value="card" v-model="payment" />
-            信用卡一次付清</label
-          >
-          <label
-            ><input type="radio" value="store" v-model="payment" />
-            超商取貨付款</label
-          >
+          <label>
+            <input type="radio" value="card" v-model="payment" />
+            信用卡一次付清
+          </label>
+          <label>
+            <input type="radio" value="store" v-model="payment" />
+            超商取貨付款
+          </label>
+          <p v-if="errors.payment">{{ errors.payment }}</p>
         </div>
 
         <div class="checkout__total">

@@ -40,10 +40,6 @@
             </p>
 
             <!-- 若有多規格可改用後端資料 -->
-            <select v-model="selectedOption" class="product-detail__select">
-              <option value="">請選擇商品選項</option>
-              <option :value="product.name">預設規格</option>
-            </select>
 
             <button class="btn btn-primary" @click="addToCart">
               加入購物車
@@ -114,7 +110,6 @@ const router = useRouter();
 const cart = useCartStore();
 
 const product = ref<ProductDetailVO | null>(null);
-const selectedOption = ref('');
 const tab = ref<'description' | 'shipping'>('description');
 
 const images = computed(() =>
@@ -142,7 +137,6 @@ onMounted(async () => {
 });
 
 const addToCart = () => {
-  if (!selectedOption.value) return alert('請選擇商品選項');
   if (!product.value) return;
 
   cart.addItem({
@@ -150,7 +144,6 @@ const addToCart = () => {
     name: product.value.name.trim(),
     price: product.value.specialPrice ?? product.value.originalPrice,
     quantity: 1,
-    option: selectedOption.value,
   });
   alert('已加入購物車！');
 };
