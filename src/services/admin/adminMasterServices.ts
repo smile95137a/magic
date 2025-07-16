@@ -45,3 +45,18 @@ export const modifyMaster = async (
     throw error;
   }
 };
+
+/**
+ * 查詢單一老師資訊
+ */
+export const fetchMasterByCode = async (
+  code: string
+): Promise<ApiResponse<any>> => {
+  try {
+    const res = await api.get(`${basePath}/${code}`);
+    return res.data;
+  } catch (error) {
+    console.error('fetchMasterByCode error:', error);
+    throw error;
+  }
+};

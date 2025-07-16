@@ -44,6 +44,7 @@ import { object, string } from 'yup';
 import { onMounted } from 'vue';
 import {
   addCategory,
+  fetchCategoryById,
   modifyCategory,
 } from '@/services/admin/adminCategoryServices';
 
@@ -81,16 +82,19 @@ const onSubmit = handleSubmit(async (formValues) => {
 });
 
 onMounted(async () => {
-  if (isEdit) {
-    // const res = await fetchCategoryDetail(id);
-    // if (res.success && res.data) {
-    //   setValues({
-    //     name: res.data.name,
-    //     description: res.data.description,
-    //   });
-    // }
+  if (isEdit && id) {
+    try {
+      const res = await fetchCategoryById(id);
+      if (res.success && res.data) {
+        setValues({
+          name: res.data.name,
+          description: res.data.description,
+          status: res.data.status,
+        });
+      }
+    } catch (error) {
+      console.error('載入分類失敗', error);
+    }
   }
 });
 </script>
-編輯可以改狀態 @Schema(description = "啟用狀態", example = "true") private
-Boolean status;

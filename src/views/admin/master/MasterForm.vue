@@ -8,7 +8,7 @@
       <!-- 老師代號 -->
       <div class="form__group">
         <label class="form__label">老師代號</label>
-        <input v-model="code" class="form__input" />
+        <input v-model="code" class="form__input" :readonly="isEdit" />
         <span class="form__error" v-if="errors.code">{{ errors.code }}</span>
       </div>
 
@@ -136,6 +136,7 @@ import {
   addMaster,
   modifyMaster,
   fetchAllMasters,
+  fetchMasterByCode,
 } from '@/services/admin/adminMasterServices';
 
 const router = useRouter();
@@ -213,27 +214,33 @@ const onSubmit = handleSubmit(async (formValues) => {
 
 const loadData = async () => {
   if (!id) return;
-  const res = await fetchAllMasters();
-  const target = res.success ? res.data.find((m) => m.code === id) : null;
-  if (target) {
-    setValues({
-      code: target.code,
-      name: target.name,
-      title: target.title,
-      mainStar: target.mainStar,
-      bio: target.bio,
-      experience: target.experience,
-      personalItems: target.personalItems,
-      serviceItem:
-        target.serviceItem?.map((item) => ({
-          title: item.title || '',
-          content: item.content || '',
-          price: item.price || 0,
-        })) ?? [],
-      status: target.status,
-      imageBase64: target.imageBase64,
-      sort: target.sort,
-    });
+
+  try {
+    const res = await fetchMasterByCode(id);
+    if (res.success && res.data) {
+      const target = res.data;
+
+      setValues({
+        code: target.code,
+        name: target.name,
+        title: target.title,
+        mainStar: target.mainStar,
+        bio: target.bio,
+        experience: target.experience,
+        personalItems: target.personalItems,
+        serviceItem:
+          target.serviceItem?.map((item) => ({
+            title: item.title || '',
+            content: item.content || '',
+            price: item.price || 0,
+          })) ?? [],
+        status: target.status,
+        imageBase64: target.imageBase64,
+        sort: target.sort,
+      });
+    }
+  } catch (error) {
+    console.error('loadData error:', error);
   }
 };
 

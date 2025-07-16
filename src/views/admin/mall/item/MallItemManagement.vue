@@ -34,29 +34,33 @@
 </template>
 
 <script setup lang="ts">
-import DateFormatter from '@/components/common/DateFormatter.vue';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { fetchCategoryList } from '@/services/admin/adminCategoryServices';
+import DateFormatter from '@/components/common/DateFormatter.vue';
+import { getProductList } from '@/services/admin/adminProductServices';
 import { withLoading } from '@/utils/loadingUtils';
 
-const categories = ref<any[]>([]);
+const products = ref<any[]>([]);
 const router = useRouter();
 
 const load = async () => {
   try {
-    const res = await withLoading(() => fetchCategoryList());
-    if (res.success && Array.isArray(res.data)) {
-      categories.value = res.data;
+    const res = await withLoading(() =>
+      getProductList({
+        page: 1,
+        size: 1000,
+      })
+    );
+    if (res.success && Array.isArray(res.data?.list)) {
+      products.value = res.data.list;
     }
   } catch (error) {
-    console.error('fetchCategoryList error:', error);
+    console.error('getProductList error:', error);
   }
 };
 
-const goToAdd = () => router.push('/admin/mall/categories/add');
-const goToEdit = (id: number) =>
-  router.push(`/admin/mall/categories/edit/${id}`);
+const goToAdd = () => router.push('/admin/mall/products/add');
+const goToEdit = (id: number) => router.push(`/admin/mall/products/edit/${id}`);
 
 onMounted(() => {
   load();

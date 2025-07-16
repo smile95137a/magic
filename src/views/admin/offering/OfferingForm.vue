@@ -62,6 +62,7 @@ import { object, string, number } from 'yup';
 import { onMounted } from 'vue';
 import {
   addOffering,
+  fetchOfferingList,
   modifyOffering,
 } from '@/services/admin/adminOfferingServices';
 import type { OfferingVO } from '@/vite-env';
@@ -125,11 +126,17 @@ const onSubmit = handleSubmit(async (formValues) => {
 });
 
 onMounted(async () => {
-  if (isEdit) {
-    const res = await fetch(`/admin/offering/${id}`);
-    const data = await res.json();
-    if (data.success) {
-      setValues(data.data);
+  if (isEdit && id) {
+    try {
+      const res = await fetchOfferingList();
+      if (res.success) {
+        const target = res.data.find((item) => item.id === id);
+        if (target) {
+          setValues(target);
+        }
+      }
+    } catch (err) {
+      console.error('供品載入失敗', err);
     }
   }
 });

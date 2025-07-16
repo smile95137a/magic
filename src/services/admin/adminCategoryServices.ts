@@ -45,3 +45,18 @@ export const modifyCategory = async (
     throw error;
   }
 };
+
+/**
+ * 取得單一商品分類
+ */
+export const fetchCategoryById = async (
+  id: string
+): Promise<ApiResponse<any>> => {
+  try {
+    const res = await api.post(`${basePath}/${id}`);
+    return res.data;
+  } catch (error) {
+    console.error('fetchCategoryById error:', error);
+    throw error;
+  }
+};

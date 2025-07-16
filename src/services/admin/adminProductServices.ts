@@ -93,3 +93,16 @@ export const deleteProductImage = async (
     throw error;
   }
 };
+
+/**
+ * 查詢商品列表（分頁）
+ */
+export const getProductList = async (data: any): Promise<ApiResponse<any>> => {
+  try {
+    const res = await api.post(`${basePath}/list`, data);
+    return res.data;
+  } catch (error) {
+    console.error('getProductList error:', error);
+    throw error;
+  }
+};

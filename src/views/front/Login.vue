@@ -1,315 +1,151 @@
-<script setup lang="ts">
-import { computed, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { useCartStore } from '@/stores/cartStore';
-import { useForm } from 'vee-validate';
-import * as yup from 'yup';
-import MCard from '@/components/common/MCard.vue';
-import SectionBackground from '@/components/common/SectionBackground.vue';
-
-const cart = useCartStore();
-const cartItems = cart.cartItems;
-const router = useRouter();
-
-const shippingMethod = ref('宅配');
-const invoiceType = ref('二聯式');
-const selectedCoupon = ref('50');
-const payment = ref('card');
-const sameAsBuyer = ref(false);
-
-// ---- 購買人驗證表單 ----
-const buyerSchema = yup.object({
-  name: yup.string().required('姓名為必填'),
-  email: yup.string().email('Email 格式錯誤').required('Email 為必填'),
-  phone: yup.string().required('電話為必填'),
-  city: yup.string().required('縣市為必填'),
-  area: yup.string().required('行政區為必填'),
-  address: yup.string().required('地址為必填'),
-});
-
-const {
-  handleSubmit: handleBuyerSubmit,
-  defineField: defineBuyerField,
-  errors: buyerErrors,
-  values: buyerValues,
-} = useForm({
-  validationSchema: buyerSchema,
-  initialValues: {
-    name: '王大明',
-    email: 'demo@example.com',
-    phone: '0912345678',
-    city: '台北市',
-    area: '中正區',
-    address: '重慶南路一段1號',
-  },
-});
-
-const [buyerName] = defineBuyerField('name');
-const [buyerEmail] = defineBuyerField('email');
-const [buyerPhone] = defineBuyerField('phone');
-const [buyerCity] = defineBuyerField('city');
-const [buyerArea] = defineBuyerField('area');
-const [buyerAddress] = defineBuyerField('address');
-
-// ---- 收件人驗證表單 ----
-const recipientSchema = buyerSchema;
-
-const {
-  handleSubmit: handleRecipientSubmit,
-  defineField: defineRecipientField,
-  errors: recipientErrors,
-  setValues: setRecipientValues,
-  values: recipientValues,
-} = useForm({
-  validationSchema: recipientSchema,
-  initialValues: {
-    name: '林小華',
-    email: 'receiver@example.com',
-    phone: '0987654321',
-    city: '新北市',
-    area: '板橋區',
-    address: '文化路二段88號',
-  },
-});
-
-const [recipientName] = defineRecipientField('name');
-const [recipientEmail] = defineRecipientField('email');
-const [recipientPhone] = defineRecipientField('phone');
-const [recipientCity] = defineRecipientField('city');
-const [recipientArea] = defineRecipientField('area');
-const [recipientAddress] = defineRecipientField('address');
-
-// 同購買人 → 複製欄位
-watch(sameAsBuyer, (val) => {
-  if (val) {
-    setRecipientValues({ ...buyerValues });
-  }
-});
-
-// ---- 價格計算 ----
-const productTotal = computed(() =>
-  cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-);
-
-const shippingFee = computed(() => {
-  if (shippingMethod.value === '宅配') return 150;
-  if (['7-11', '全家'].includes(shippingMethod.value)) return 60;
-  return 0;
-});
-
-const discount = computed(() => (selectedCoupon.value === '50' ? 50 : 0));
-
-const total = computed(
-  () => productTotal.value + shippingFee.value - discount.value
-);
-
-const changeQty = (index: number, delta: number) => {
-  const item = cartItems[index];
-  if (item.quantity + delta >= 1) {
-    item.quantity += delta;
-  }
-};
-
-// ---- 送出訂單 ----
-const submitOrder = handleBuyerSubmit(() => {
-  handleRecipientSubmit(() => {
-    const payload = {
-      items: cartItems,
-      buyer: { ...buyerValues },
-      recipient: { ...recipientValues },
-      shippingMethod: shippingMethod.value,
-      invoiceType: invoiceType.value,
-      selectedCoupon: selectedCoupon.value,
-      payment: payment.value,
-      productTotal: productTotal.value,
-      shippingFee: shippingFee.value,
-      discount: discount.value,
-      total: total.value,
-    };
-
-    console.log('✅ 訂單送出:', payload);
-    router.push({ name: 'CheckoutSuccess' });
-  })();
-});
-</script>
-
 <template>
-  <div class="checkout">
+  <div class="login">
     <SectionBackground variant="divination" />
-    <div class="checkout__container">
-      <MCard customClass="p-48">
-        <h3>商品資訊</h3>
-        <div
-          v-for="(item, index) in cartItems"
-          :key="index"
-          class="checkout__item"
-        >
-          <div class="checkout__item-img" />
-          <div class="checkout__item-info">
-            <p>{{ item.name }}</p>
-            <div class="checkout__item-control">
-              <button @click="changeQty(index, -1)">−</button>
-              <span>{{ item.quantity }}</span>
-              <button @click="changeQty(index, 1)">＋</button>
-              <p class="price">NT${{ item.price * item.quantity }}</p>
-            </div>
+    <div class="login__container">
+      <MCard customClass="mcard--login login__card">
+        <div class="login__content">
+          <h2 class="login__title">會員登入</h2>
+          <div class="login__main">
+            <form class="login__form" @submit.prevent="onSubmit">
+              <div class="login__auth">
+                <div
+                  class="login__auth-btn"
+                  @click="handleOauthLogin('google')"
+                >
+                  <div class="login__auth-btn-icon">
+                    <img :src="googleLogo" />
+                  </div>
+                  <div class="login__auth-btn-text">Google 帳號登入</div>
+                </div>
+              </div>
+
+              <div class="login__divider">
+                <div class="login__divider-line"></div>
+                <div class="login__divider-text">或</div>
+              </div>
+              <div class="login__form-inputs">
+                <p class="login__text">電子信箱</p>
+                <input
+                  class="login__form-input"
+                  v-model="username"
+                  :class="{ 'login__form-input--error': errors.username }"
+                />
+                <p class="login__text login__text--error">
+                  {{ errors.username }}
+                </p>
+              </div>
+              <div class="login__form-inputs">
+                <p class="login__text">密碼</p>
+                <input
+                  type="password"
+                  class="login__form-input"
+                  v-model="password"
+                  :class="{ 'login__form-input--error': errors.password }"
+                />
+                <p class="login__text login__text--error">
+                  {{ errors.password }}
+                </p>
+              </div>
+
+              <div class="login__forgot">
+                <p
+                  class="login__text login__text--forgot"
+                  @click="handleForgotPassword"
+                >
+                  忘記密碼?
+                </p>
+              </div>
+
+              <div class="login__btns">
+                <button type="submit" class="login__btn">登入</button>
+              </div>
+              <div class="login__footer">
+                <p>尚未加入會員？請註冊新帳號</p>
+                <button
+                  type="button"
+                  class="login__btn login__btn--register"
+                  @click="forwardRegistration"
+                >
+                  註冊
+                </button>
+              </div>
+            </form>
           </div>
-        </div>
-
-        <h3>購買人資訊</h3>
-        <div class="checkout__block">
-          <div class="checkout__form-grid">
-            <div class="checkout__form-group">
-              <label>姓名</label>
-              <input v-model="buyerName" />
-              <p v-if="buyerErrors.name">{{ buyerErrors.name }}</p>
-            </div>
-            <div class="checkout__form-group">
-              <label>Email</label>
-              <input v-model="buyerEmail" />
-              <p v-if="buyerErrors.email">{{ buyerErrors.email }}</p>
-            </div>
-            <div class="checkout__form-group">
-              <label>電話</label>
-              <input v-model="buyerPhone" />
-              <p v-if="buyerErrors.phone">{{ buyerErrors.phone }}</p>
-            </div>
-            <div class="checkout__form-group">
-              <label>縣市</label>
-              <select v-model="buyerCity">
-                <option value="台北市">台北市</option>
-                <option value="新北市">新北市</option>
-              </select>
-              <p v-if="buyerErrors.city">{{ buyerErrors.city }}</p>
-            </div>
-            <div class="checkout__form-group">
-              <label>行政區</label>
-              <select v-model="buyerArea">
-                <option value="中正區">中正區</option>
-                <option value="大安區">大安區</option>
-                <option value="板橋區">板橋區</option>
-              </select>
-              <p v-if="buyerErrors.area">{{ buyerErrors.area }}</p>
-            </div>
-            <div class="checkout__form-group checkout__form-group--full">
-              <label>詳細地址</label>
-              <input v-model="buyerAddress" />
-              <p v-if="buyerErrors.address">{{ buyerErrors.address }}</p>
-            </div>
-          </div>
-        </div>
-
-        <h3>收件人資訊</h3>
-        <div class="checkout__block">
-          <label>
-            <input type="checkbox" v-model="sameAsBuyer" />
-            同購買人資料
-          </label>
-          <div class="checkout__form-grid">
-            <div class="checkout__form-group">
-              <label>姓名</label>
-              <input v-model="recipientName" />
-              <p v-if="recipientErrors.name">{{ recipientErrors.name }}</p>
-            </div>
-            <div class="checkout__form-group">
-              <label>Email</label>
-              <input v-model="recipientEmail" />
-              <p v-if="recipientErrors.email">{{ recipientErrors.email }}</p>
-            </div>
-            <div class="checkout__form-group">
-              <label>電話</label>
-              <input v-model="recipientPhone" />
-              <p v-if="recipientErrors.phone">{{ recipientErrors.phone }}</p>
-            </div>
-            <div class="checkout__form-group">
-              <label>縣市</label>
-              <select v-model="recipientCity">
-                <option value="台北市">台北市</option>
-                <option value="新北市">新北市</option>
-              </select>
-              <p v-if="recipientErrors.city">{{ recipientErrors.city }}</p>
-            </div>
-            <div class="checkout__form-group">
-              <label>行政區</label>
-              <select v-model="recipientArea">
-                <option value="中正區">中正區</option>
-                <option value="大安區">大安區</option>
-                <option value="板橋區">板橋區</option>
-              </select>
-              <p v-if="recipientErrors.area">{{ recipientErrors.area }}</p>
-            </div>
-            <div class="checkout__form-group checkout__form-group--full">
-              <label>詳細地址</label>
-              <input v-model="recipientAddress" />
-              <p v-if="recipientErrors.address">
-                {{ recipientErrors.address }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <h3>寄送資訊</h3>
-        <div class="checkout__block">
-          <label
-            ><input type="radio" value="宅配" v-model="shippingMethod" />
-            宅配（$150）</label
-          >
-          <label
-            ><input type="radio" value="7-11" v-model="shippingMethod" /> 7-11
-            超商取貨（$60）</label
-          >
-          <label
-            ><input type="radio" value="全家" v-model="shippingMethod" />
-            全家超商取貨（$60）</label
-          >
-        </div>
-
-        <h3>發票</h3>
-        <select v-model="invoiceType">
-          <option value="二聯式">發票開立（二聯式）</option>
-          <option value="三聯式">發票開立（三聯式）</option>
-        </select>
-
-        <h3>優惠及結帳</h3>
-        <div class="checkout__block">
-          <label>
-            使用優惠：
-            <select v-model="selectedCoupon">
-              <option value="50">滿499折50</option>
-              <option value="0">不使用</option>
-            </select>
-          </label>
-
-          <label
-            ><input type="radio" value="card" v-model="payment" />
-            信用卡一次付清</label
-          >
-          <label
-            ><input type="radio" value="store" v-model="payment" />
-            超商取貨付款</label
-          >
-        </div>
-
-        <div class="checkout__total">
-          <p>商品：NT${{ productTotal }}</p>
-          <p>運費：NT${{ shippingFee }}</p>
-          <p>折扣：-NT${{ discount }}</p>
-          <p class="total">
-            總金額：<strong>NT${{ total }}</strong>
-          </p>
-        </div>
-
-        <div class="checkout__buttons">
-          <button class="btn btn-outline" @click="$router.back()">
-            回上頁
-          </button>
-          <button class="btn btn-primary" @click="submitOrder">結帳</button>
         </div>
       </MCard>
     </div>
   </div>
 </template>
 
-<style scoped lang="scss">
-/* 使用你原本的 checkout SCSS 即可 */
+<script setup lang="ts">
+import googleLogo from '@/assets/image/google.svg';
+import MCard from '@/components/common/MCard.vue';
+import SectionBackground from '@/components/common/SectionBackground.vue';
+import Header from '@/components/front/Header.vue';
+import { login } from '@/services/UserService';
+import { useAuthFrontStore } from '@/stores/authFrontStore';
+import { useDialogStore } from '@/stores/dialogStore';
+import { useLoadingStore } from '@/stores/loadingStore';
+import { withLoading } from '@/utils/loadingUtils';
+import { useForm } from 'vee-validate';
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import * as yup from 'yup';
+
+const router = useRouter();
+const loadingStore = useLoadingStore();
+const authStore = useAuthFrontStore();
+const dialogStore = useDialogStore();
+
+onMounted(() => {
+  if (authStore.isLogin) {
+    router.push('/home');
+  }
+});
+
+const schema = yup.object({
+  username: yup.string().required('電子信箱為必填'),
+  password: yup.string().required('密碼為必填'),
+});
+
+const { handleSubmit, errors, defineField } = useForm({
+  validationSchema: schema,
+  initialValues: {
+    username: '',
+    password: '',
+  },
+});
+
+const [username] = defineField('username');
+const [password] = defineField('password');
+
+const onSubmit = handleSubmit(async (values) => {
+  try {
+    const { success, data, message } = await withLoading(() => login(values));
+    if (success) {
+      authStore.setToken(data.accessToken);
+      router.push('/home');
+    }
+  } catch (error) {
+    console.error('登入失敗', error);
+  }
+  const res = await login(values);
+});
+
+const forwardRegistration = () => {
+  router.push('/register');
+};
+
+const handleOauthLogin = (provider: string) => {};
+
+const handleForgotPassword = async () => {};
+</script>
+
+<style scoped>
+.login__card {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
 </style>
