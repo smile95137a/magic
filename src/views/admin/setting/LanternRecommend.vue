@@ -1,107 +1,61 @@
 <template>
-  <div class="lantern-recommend">
-    <h1>推薦燈籠管理</h1>
-    <button @click="goToAdd">新增推薦</button>
+  <div class="admin-list">
+    <h1 class="admin-list__title">推薦燈品管理</h1>
+    <button class="admin-list__add-btn" @click="goToAdd">新增推薦燈品</button>
 
-    <table>
+    <table class="admin-list__table" v-if="lanterns.length">
       <thead>
         <tr>
-          <th>標題</th>
-          <th>描述</th>
-          <th>圖片</th>
+          <th>燈品名稱</th>
           <th>操作</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in list" :key="item.id">
-          <td>{{ item.title }}</td>
-          <td>{{ item.description }}</td>
+        <tr v-for="lanternId in lanterns" :key="lanternId">
+          <td>{{ getLanternLabel(lanternId) }}</td>
           <td>
-            <img
-              :src="item.imageUrl"
-              alt="圖片"
-              width="100"
-              v-if="item.imageUrl"
-            />
-          </td>
-          <td>
-            <button @click="goToEdit(item.id)">編輯</button>
-            <button @click="remove(item.id)">刪除</button>
+            <button @click="goToEdit" class="admin-list__edit-btn">編輯</button>
           </td>
         </tr>
       </tbody>
     </table>
+
+    <p v-else>尚未設定推薦燈品</p>
   </div>
 </template>
 
 <script setup lang="ts">
+import { fetchPromotionLanternList } from '@/services/admin/systemConfigService';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import {
-  fetchLanternRecommendList,
-  deleteLanternRecommend,
-} from '@/services/admin/lanternRecommendApi';
 
 const router = useRouter();
-const list = ref<any[]>([]);
+const lanterns = ref<string[]>([]);
 
-const load = async () => {
-  const res = await fetchLanternRecommendList();
-  list.value = res.data;
+// 固定選項（如有 API 可改為動態載入）
+const lanternOptions = [
+  { label: '平安燈', value: 'peace' },
+  { label: '光明燈', value: 'light' },
+  { label: '財神燈', value: 'wealth' },
+  { label: '文昌燈', value: 'wisdom' },
+  { label: '姻緣燈', value: 'love' },
+];
+
+const getLanternLabel = (value: string) =>
+  lanternOptions.find((opt) => opt.value === value)?.label || value;
+
+const loadData = async () => {
+  try {
+    const res = await fetchPromotionLanternList();
+    if (res.success) lanterns.value = res.data;
+  } catch {}
 };
 
 const goToAdd = () => router.push('/admin/settings/lantern-recommend/add');
-const goToEdit = (id: number) =>
-  router.push(`/admin/settings/lantern-recommend/edit/${id}`);
-
-const remove = async (id: number) => {
-  if (confirm('確定要刪除這筆推薦嗎？')) {
-    await deleteLanternRecommend(id);
-    await load();
-    alert('刪除成功');
-  }
-};
+// 編輯直接導去 add 頁（單一畫面）
+const goToEdit = () => router.push('/admin/lantern-recommend/add');
 
 onMounted(() => {
-  load();
+  loadData();
 });
 </script>
-
-<style scoped lang="scss">
-.lantern-recommend {
-  h1 {
-    font-size: 22px;
-    margin-bottom: 16px;
-  }
-
-  button {
-    margin: 8px 8px 16px 0;
-    padding: 6px 12px;
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-
-    &:hover {
-      background-color: #2563eb;
-    }
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    th,
-    td {
-      padding: 8px;
-      border: 1px solid #ccc;
-      text-align: left;
-    }
-
-    img {
-      border: 1px solid #eee;
-      border-radius: 4px;
-    }
-  }
-}
-</style>

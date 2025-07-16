@@ -7,8 +7,11 @@ import {
   getAreaListByCityName,
   getZipCodeByCityAndAreaName,
 } from '@/services/taiwanCitiesService';
+import { register } from '@/services/UserService';
 import { useDialogStore } from '@/stores/dialogStore';
 import { useLoadingStore } from '@/stores/loadingStore';
+import { getErrorMessage } from '@/utils/ErrorUtils';
+import { withLoading } from '@/utils/loadingUtils';
 import { useForm } from 'vee-validate';
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
@@ -17,7 +20,6 @@ import * as yup from 'yup';
 const cityOptions = ref<{ value: string; label: string }[]>([]);
 const areaOptions = ref<{ value: string; label: string }[]>([]);
 const router = useRouter();
-const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
 const schema = yup.object({
   email: yup.string().required('Email 是必填項').email('Email 格式不正確'),
@@ -27,7 +29,7 @@ const schema = yup.object({
     .string()
     .oneOf([yup.ref('password')], '密碼不匹配')
     .required('確認密碼是必填項'),
-  nickname: yup.string().required('暱稱是必填項'),
+  nickName: yup.string().required('暱稱是必填項'),
   addressName: yup.string(),
   zipCode: yup.string(),
   city: yup.string(),
@@ -47,7 +49,7 @@ const { defineField, handleSubmit, errors, setFieldValue } = useForm({
     password: '',
     confirmPassword: '',
     phone: '',
-    nickname: '',
+    nickName: '',
     lineId: '',
     addressName: '',
     city: '',
@@ -61,7 +63,7 @@ const [email, emailProps] = defineField('email');
 const [phone, phoneProps] = defineField('phone');
 const [password, passwordProps] = defineField('password');
 const [confirmPassword, confirmPasswordProps] = defineField('confirmPassword');
-const [nickname, nicknameProps] = defineField('nickname');
+const [nickName, nickNameProps] = defineField('nickName');
 const [addressName, addressNameProps] = defineField('addressName');
 const [city, cityProps] = defineField('city');
 const [area, areaProps] = defineField('area');
@@ -70,7 +72,30 @@ const [lineId, lineIdProps] = defineField('lineId');
 const [agreeTerms, agreeTermsProps] = defineField('agreeTerms');
 
 const onSubmit = handleSubmit(async (values) => {
-  console.log(values);
+  const payload = {
+    ...values,
+  };
+
+  try {
+    const { success } = await withLoading(() => register(payload));
+    if (success) {
+      await dialogStore.openInfoDialog({
+        title: '系統通知',
+        message: '註冊成功，歡迎加入祈願文舍！',
+      });
+      router.push('/home');
+    } else {
+      dialogStore.openInfoDialog({
+        title: '錯誤',
+        message: '註冊失敗，請稍後再試。',
+      });
+    }
+  } catch (error: any) {
+    dialogStore.openInfoDialog({
+      title: '錯誤',
+      message: getErrorMessage(error),
+    });
+  }
 });
 
 onMounted(() => {
@@ -182,12 +207,12 @@ watch(area, (newArea) => {
                   <p class="register__text register__text--required">暱稱</p>
                   <input
                     class="register__form-input"
-                    v-model="nickname"
-                    v-bind="nicknameProps"
-                    :class="{ 'register__form-input--error': errors.nickname }"
+                    v-model="nickName"
+                    v-bind="nickNameProps"
+                    :class="{ 'register__form-input--error': errors.nickName }"
                   />
                   <p class="register__text register__text--error">
-                    {{ errors.nickname }}
+                    {{ errors.nickName }}
                   </p>
                 </div>
                 <div class="register__form-inputs m-t-20">

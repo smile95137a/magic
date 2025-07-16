@@ -10,6 +10,7 @@ import OfferingHall from '@/views/front/OfferingHall.vue';
 import GodOffering from '@/views/front/GodOffering.vue';
 import Blessing from '@/views/front/Blessing.vue';
 import Master from '@/views/front/Master.vue';
+import RestPwd from '@/views/front/RestPwd.vue';
 import Store from '@/views/front/Store.vue';
 import NotFound from '@/views/front/NotFound.vue';
 import MemberCenter from '@/views/front/MemberCenter/index.vue';
@@ -27,6 +28,10 @@ export const frontRoutes: Array<RouteRecordRaw> = [
     meta: { layout: 'default' },
     children: [
       { path: '', redirect: '/home' },
+      {
+        path: '/restPwd/:token',
+        component: RestPwd,
+      },
       { path: 'home', component: Home },
       { path: 'login', component: Login },
       { path: 'register', component: Register },

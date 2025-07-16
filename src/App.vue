@@ -6,6 +6,7 @@
   <ConfirmDialog v-if="dialogStore.isConfirmDialogOpen" />
   <PoeDivinationDialog v-if="dialogStore.isPoeDivinationDialogOpen" />
   <PoeOfferingDialog v-if="dialogStore.isPoeOfferingDialogOpen" />
+  <RestPwdDialog v-if="dialogStore.isRestPwdDialogOpen" />
   <LoadingMask v-if="loadingStore.isLoading" />
 </template>
 
@@ -14,6 +15,7 @@ import InfoDialog from '@/components/common/InfoDialog.vue';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import PoeDivinationDialog from '@/components/common/PoeDivinationDialog.vue';
 import PoeOfferingDialog from '@/components/common/PoeOfferingDialog.vue';
+import RestPwdDialog from '@/components/common/RestPwdDialog.vue';
 import LoadingMask from '@/components/common/LoadingMask.vue';
 import { useDialogStore } from './stores/dialogStore';
 import { useLoadingStore } from './stores/loadingStore';

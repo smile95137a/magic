@@ -138,7 +138,9 @@ const forwardRegistration = () => {
 
 const handleOauthLogin = (provider: string) => {};
 
-const handleForgotPassword = async () => {};
+const handleForgotPassword = async () => {
+  await dialogStore.openRestPwdDialog();
+};
 </script>
 
 <style scoped>

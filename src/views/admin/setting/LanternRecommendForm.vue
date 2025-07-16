@@ -1,134 +1,110 @@
 <template>
   <div class="lantern-recommend-form">
-    <h2>{{ isEdit ? '編輯推薦燈籠' : '新增推薦燈籠' }}</h2>
-    <form @submit.prevent="onSubmit">
-      <div>
-        <label>推薦標題：</label>
-        <input v-bind="titleProps" />
-        <span class="error" v-if="errors.title">{{ errors.title }}</span>
+    <h1 class="lantern-recommend-form__title">編輯推薦燈品</h1>
+
+    <form @submit.prevent="onSubmit" class="form">
+      <!-- 推薦燈品選擇 -->
+      <div class="form__group">
+        <label class="form__label">推薦燈品（可複選）</label>
+        <select class="form__input" multiple v-model="lanternIds">
+          <option
+            v-for="option in lanternOptions"
+            :key="option.value"
+            :value="option.value"
+          >
+            {{ option.label }}
+          </option>
+        </select>
+        <span class="form__error" v-if="errors.lanternIds">
+          {{ errors.lanternIds }}
+        </span>
       </div>
 
-      <div>
-        <label>描述：</label>
-        <textarea rows="3" v-bind="descriptionProps"></textarea>
-        <span class="error" v-if="errors.description">{{ errors.description }}</span>
+      <!-- 操作按鈕 -->
+      <div class="form__actions">
+        <button
+          type="button"
+          class="form__button form__button--secondary"
+          @click="goBack"
+        >
+          取消
+        </button>
+        <button type="submit" class="form__button form__button--primary">
+          儲存
+        </button>
       </div>
-
-      <div>
-        <label>圖片連結：</label>
-        <input v-bind="imageUrlProps" />
-        <span class="error" v-if="errors.imageUrl">{{ errors.imageUrl }}</span>
-      </div>
-
-      <button type="submit">儲存</button>
     </form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useRoute, useRouter } from 'vue-router';
-import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useForm } from 'vee-validate';
-import { object, string } from 'yup';
+import { object, array, string } from 'yup';
+import { onMounted } from 'vue';
 import {
-  fetchLanternRecommendById,
-  createLanternRecommend,
-  updateLanternRecommend,
-} from '@/services/admin/lanternRecommendApi';
+  updatePromotionLanternList,
+  fetchPromotionLanternList,
+} from '@/services/admin/systemConfigService';
 
-const route = useRoute();
 const router = useRouter();
-const isEdit = route.name === 'LanternRecommendEdit';
-const recommendId = route.params.id as string;
+const goBack = () => router.push('/admin/lantern-recommend');
 
-// yup 驗證規則
+const lanternOptions = [
+  { label: '平安燈', value: 'peace' },
+  { label: '光明燈', value: 'light' },
+  { label: '財神燈', value: 'wealth' },
+  { label: '文昌燈', value: 'wisdom' },
+  { label: '姻緣燈', value: 'love' },
+];
+
 const schema = object({
-  title: string().required('推薦標題為必填'),
-  description: string().required('描述為必填'),
-  imageUrl: string().url('請輸入有效圖片連結').nullable(),
+  lanternIds: array().of(string()).min(1, '請至少選擇一項推薦燈品'),
 });
 
-// 建立 useForm 表單
-const { defineField, handleSubmit, errors, setValues } = useForm({
+const { handleSubmit, defineField, errors, setValues } = useForm({
   validationSchema: schema,
   initialValues: {
-    title: '',
-    description: '',
-    imageUrl: '',
+    lanternIds: [] as string[],
   },
 });
 
-// 欄位綁定
-const [title, titleProps] = defineField('title');
-const [description, descriptionProps] = defineField('description');
-const [imageUrl, imageUrlProps] = defineField('imageUrl');
+const [lanternIds] = defineField('lanternIds');
 
-// 載入資料（編輯模式）
-onMounted(async () => {
-  if (isEdit && recommendId) {
-    const res = await fetchLanternRecommendById(recommendId);
-    setValues(res.data);
-  }
+const onSubmit = handleSubmit(async (values) => {
+  try {
+    const res = await updatePromotionLanternList(values.lanternIds);
+    if (res.success) {
+      goBack();
+    } else {
+    }
+  } catch (e) {}
 });
 
-// 提交處理
-const onSubmit = handleSubmit(async (values) => {
-  if (isEdit) {
-    await updateLanternRecommend(recommendId, values);
-    alert('更新成功');
-  } else {
-    await createLanternRecommend(values);
-    alert('新增成功');
-  }
-  router.push('/admin/settings/lantern-recommend');
+onMounted(async () => {
+  try {
+    const res = await fetchPromotionLanternList();
+    if (res.success) {
+      setValues({ lanternIds: res.data });
+    }
+  } catch (e) {}
 });
 </script>
 
 <style scoped lang="scss">
 .lantern-recommend-form {
-  h2 {
-    font-size: 20px;
-    margin-bottom: 16px;
-  }
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 32px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    max-width: 500px;
-  }
-
-  label {
-    display: block;
-    margin-bottom: 4px;
-  }
-
-  input,
-  textarea {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 100%;
-  }
-
-  .error {
-    color: #e74c3c;
-    font-size: 13px;
-    margin-top: -8px;
-  }
-
-  button {
-    align-self: flex-start;
-    padding: 8px 16px;
-    background: #10b981;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-
-  button:hover {
-    background: #059669;
+  &__title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    text-align: center;
   }
 }
 </style>
