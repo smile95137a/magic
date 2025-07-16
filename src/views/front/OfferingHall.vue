@@ -6,6 +6,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue';
 import { useOfferStore } from '@/stores/offerStore';
 
 import OfferingHallStep1 from '@/views/front/OfferingHallStep1.vue';
@@ -14,4 +15,8 @@ import OfferingHallStep3 from '@/views/front/OfferingHallStep3.vue';
 import OfferingHallStep4 from '@/views/front/OfferingHallStep4.vue';
 
 const offerStore = useOfferStore();
+
+onMounted(() => {
+  offerStore.resetOfferProcess();
+});
 </script>
