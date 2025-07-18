@@ -1,14 +1,12 @@
 <template>
   <header class="header">
     <div class="header__top">
-      <div class="header__logo">
-        <RouterLink to="/">
-          <img
-            src="@/assets/image/magic_joe.png"
-            alt="祈願文舍 Logo"
-            class="header__logo-img"
-          />
-        </RouterLink>
+      <div class="header__logo" @click="router.push('/')">
+        <img
+          src="@/assets/image/magic_joe.png"
+          alt="祈願文舍 Logo"
+          class="header__logo-img"
+        />
       </div>
       <button class="header__menu-toggle" @click="toggleMenu">
         <span class="header__menu-icon">☰</span>
@@ -17,34 +15,38 @@
 
     <nav class="header__nav">
       <div class="header__nav-left">
-        <RouterLink to="/divination">求籤問事</RouterLink>
+        <div class="nav-link" @click="router.push('/divination')">求籤問事</div>
         <span>|</span>
-        <RouterLink to="/godOffering">請神供奉</RouterLink>
+        <div class="nav-link" @click="router.push('/godOffering')">
+          請神供奉
+        </div>
         <span>|</span>
-        <RouterLink to="/blessing">點燈祈福</RouterLink>
+        <div class="nav-link" @click="router.push('/blessing')">點燈祈福</div>
         <span>|</span>
-        <RouterLink to="/master">老師親算</RouterLink>
+        <div class="nav-link" @click="router.push('/master')">老師親算</div>
         <span>|</span>
-        <RouterLink to="/store">開運商店</RouterLink>
+        <div class="nav-link" @click="router.push('/store')">開運商店</div>
       </div>
       <div class="header__nav-right">
         <template v-if="authStore.isLogin">
-          <RouterLink to="/member-center" class="btn btn--primary"
-            >會員中心</RouterLink
-          >
-          <RouterLink to="/cart" class="btn btn--outline">
-            <i class="fas fa-shopping-cart"></i
-          ></RouterLink>
+          <div class="btn btn--primary" @click="router.push('/member-center')">
+            會員中心
+          </div>
+          <div class="btn btn--outline" @click="router.push('/cart')">
+            <i class="fas fa-shopping-cart"></i>
+          </div>
           <button class="btn btn--outline" @click="logout">登出</button>
         </template>
         <template v-else>
-          <RouterLink to="/login" class="btn btn--primary">登入</RouterLink>
-          <RouterLink to="/register" class="btn btn--outline"
-            >免費加入會員</RouterLink
-          >
-          <RouterLink to="/cart" class="btn btn--outline">
-            <i class="fas fa-shopping-cart"></i
-          ></RouterLink>
+          <div class="btn btn--primary" @click="router.push('/login')">
+            登入
+          </div>
+          <div class="btn btn--outline" @click="router.push('/register')">
+            免費加入會員
+          </div>
+          <div class="btn btn--outline" @click="router.push('/cart')">
+            <i class="fas fa-shopping-cart"></i>
+          </div>
         </template>
       </div>
     </nav>
@@ -55,26 +57,22 @@
           <i class="fas fa-xmark"></i>
         </button>
         <div class="header__mobile-links">
-          <RouterLink to="/divination" @click="closeMenu">求籤問事</RouterLink>
-          <RouterLink to="/godOffering" @click="closeMenu">請神供奉</RouterLink>
-          <RouterLink to="/blessing" @click="closeMenu">點燈祈福</RouterLink>
-          <RouterLink to="/master" @click="closeMenu">老師親算</RouterLink>
-          <RouterLink to="/store" @click="closeMenu">開運商店</RouterLink>
-          <RouterLink to="/cart" @click="closeMenu">
+          <div @click="navigate('/divination')">求籤問事</div>
+          <div @click="navigate('/godOffering')">請神供奉</div>
+          <div @click="navigate('/blessing')">點燈祈福</div>
+          <div @click="navigate('/master')">老師親算</div>
+          <div @click="navigate('/store')">開運商店</div>
+          <div @click="navigate('/cart')">
             <i class="fas fa-shopping-cart"></i> 購物車
-          </RouterLink>
+          </div>
           <div class="header__mobile-actions">
             <template v-if="authStore.isLogin">
-              <RouterLink to="/member-center" @click="closeMenu"
-                >會員中心</RouterLink
-              >
+              <div @click="navigate('/member-center')">會員中心</div>
               <button @click="logout">登出</button>
             </template>
             <template v-else>
-              <RouterLink to="/login" @click="closeMenu">登入</RouterLink>
-              <RouterLink to="/register" @click="closeMenu"
-                >免費加入會員</RouterLink
-              >
+              <div @click="navigate('/login')">登入</div>
+              <div @click="navigate('/register')">免費加入會員</div>
             </template>
           </div>
         </div>
@@ -99,6 +97,11 @@ const logout = async () => {
   authStore.clearAuthData();
   router.push('/login');
 };
+
+const navigate = (path: string) => {
+  closeMenu();
+  router.push(path);
+};
 </script>
 
 <style scoped lang="scss">
@@ -106,6 +109,7 @@ const logout = async () => {
   height: 100%;
   min-height: 132px;
   position: relative;
+  z-index: 9999;
   &__top {
     display: flex;
     justify-content: space-between;
@@ -117,6 +121,7 @@ const logout = async () => {
     display: flex;
     align-items: center;
     gap: 1rem;
+    cursor: pointer;
   }
 
   &__logo-img {
@@ -144,15 +149,25 @@ const logout = async () => {
   &__nav-left {
     display: flex;
     align-items: center;
-    gap: 1.2rem;
+    gap: 0.25rem;
 
-    a {
+    .nav-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 80px;
+      height: 44px;
+      padding: 0 1rem;
       color: #fff;
       font-weight: bold;
-      text-decoration: none;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.2s;
+      text-align: center;
+      white-space: nowrap;
 
       &:hover {
-        text-decoration: underline;
+        background-color: rgba(255, 255, 255, 0.15);
       }
     }
 
@@ -197,22 +212,27 @@ const logout = async () => {
   &__mobile-links {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
     font-size: 18px;
     text-align: center;
 
-    a,
+    div,
     button {
+      display: block;
+      width: 100%;
+      padding: 1rem;
       color: white;
       background: none;
       border: none;
       font-size: inherit;
       font-weight: bold;
       cursor: pointer;
-      text-decoration: none;
+      border-radius: 8px;
+      text-align: center;
+      transition: background 0.2s;
 
       &:hover {
-        text-decoration: underline;
+        background-color: rgba(255, 255, 255, 0.1);
       }
     }
   }
@@ -232,6 +252,8 @@ const logout = async () => {
   font-weight: bold;
   text-decoration: none;
   text-align: center;
+  display: inline-block;
+  cursor: pointer;
 
   &--primary {
     background-color: #eb6c4d;
@@ -269,7 +291,7 @@ const logout = async () => {
 
   .header__top {
     position: relative;
-    height: 132px; // 建議加一個固定高度，方便置中
+    height: 132px;
   }
 
   .header__logo {
@@ -288,6 +310,7 @@ const logout = async () => {
 .fade-leave-to {
   opacity: 0;
 }
+
 .header__close-btn {
   position: absolute;
   top: 1rem;

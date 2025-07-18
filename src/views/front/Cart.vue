@@ -296,7 +296,7 @@ const handleDecrease = (index: number) => {
                 </button>
                 <p class="price">
                   NT$
-                  <NumberFormatter :number="item.price * item.quantity ?? 0" />
+                  <NumberFormatter :number="~~item.price * ~~item.quantity" />
                 </p>
               </div>
             </div>

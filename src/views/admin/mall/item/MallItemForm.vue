@@ -196,7 +196,7 @@ const removeGalleryImage = (index: number) => {
   galleryImages.value.splice(index, 1);
 };
 
-const goBack = () => router.push('/admin/mall/products');
+const goBack = () => router.push('/admin/mall/items');
 
 const handleImageUpload = async (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0];
