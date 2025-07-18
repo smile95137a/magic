@@ -95,7 +95,11 @@ import { onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { object, string, number } from 'yup';
 import { useForm } from 'vee-validate';
-import { addBanner, modifyBanner } from '@/services/admin/adminBannerServices';
+import {
+  addBanner,
+  fetchBannerById,
+  modifyBanner,
+} from '@/services/admin/adminBannerServices';
 import moment from 'moment';
 
 const router = useRouter();
@@ -172,21 +176,22 @@ const onSubmit = handleSubmit(async (formValues) => {
 });
 
 const loadData = async () => {
-  // const res = await getBannerDetail(id!);
-  // if (res.success) {
-  //   const data = res.data;
-  //   setValues({
-  //     title: data.title,
-  //     link: data.link,
-  //     sort: data.sort,
-  //     imageBase64: data.imageBase64,
-  //     filename: data.filename,
-  //     type: data.type,
-  //     availableFrom: data.availableFrom,
-  //     availableUntil: data.availableUntil,
-  //     description: data.description,
-  //   });
-  // }
+  if (!id) return;
+  const res = await fetchBannerById(id);
+  if (res.success) {
+    const data = res.data;
+    setValues({
+      title: data.title || '',
+      link: data.link || '',
+      sort: data.sort,
+      imageBase64: data.imageBase64,
+      filename: data.filename ?? 'banner.jpg', // 加入 filename，否則驗證會卡住
+      type: data.type,
+      availableFrom: moment(data.availableFrom).format('YYYY-MM-DD'),
+      availableUntil: moment(data.availableUntil).format('YYYY-MM-DD'),
+      description: data.description ?? '',
+    });
+  }
 };
 
 onMounted(() => {

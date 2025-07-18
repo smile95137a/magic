@@ -32,6 +32,9 @@
           <RouterLink to="/member-center" class="btn btn--primary"
             >會員中心</RouterLink
           >
+          <RouterLink to="/cart" class="btn btn--outline">
+            <i class="fas fa-shopping-cart"></i
+          ></RouterLink>
           <button class="btn btn--outline" @click="logout">登出</button>
         </template>
         <template v-else>
@@ -39,6 +42,9 @@
           <RouterLink to="/register" class="btn btn--outline"
             >免費加入會員</RouterLink
           >
+          <RouterLink to="/cart" class="btn btn--outline">
+            <i class="fas fa-shopping-cart"></i
+          ></RouterLink>
         </template>
       </div>
     </nav>
@@ -54,6 +60,9 @@
           <RouterLink to="/blessing" @click="closeMenu">點燈祈福</RouterLink>
           <RouterLink to="/master" @click="closeMenu">老師親算</RouterLink>
           <RouterLink to="/store" @click="closeMenu">開運商店</RouterLink>
+          <RouterLink to="/cart" @click="closeMenu">
+            <i class="fas fa-shopping-cart"></i> 購物車
+          </RouterLink>
           <div class="header__mobile-actions">
             <template v-if="authStore.isLogin">
               <RouterLink to="/member-center" @click="closeMenu"

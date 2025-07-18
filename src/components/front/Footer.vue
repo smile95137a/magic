@@ -43,7 +43,8 @@
     <div class="footer__bottom">
       <p class="footer__copyright">© 2025. ABC All rights reserved.</p>
       <div class="footer__policies">
-        <a href="#">服務條款</a>｜<a href="#">隱私權政策</a>｜<a href="#"
+        <RouterLink to="/policy">服務條款</RouterLink>
+        ｜<RouterLink to="/privacy">隱私權政策</RouterLink> ｜<a href="#"
           >防詐騙提醒</a
         >
       </div>

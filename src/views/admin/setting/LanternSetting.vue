@@ -1,5 +1,5 @@
 <template>
-  <div class="lantern-setting">
+  <!-- <div class="lantern-setting">
     <MCard>
       <form class="lantern-setting__form" @submit.prevent="onSubmit">
         <h2 class="lantern-setting__title">推薦點燈設定</h2>
@@ -36,61 +36,61 @@
         </div>
       </form>
     </MCard>
-  </div>
+  </div> -->
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+// import { ref, onMounted } from 'vue';
 
-import { withLoading } from '@/utils/loadingUtils';
-import {
-  fetchPromotionLanternList,
-  fetchPurchaseLanternCount,
-  updatePromotionLanternList,
-  updatePurchaseLanternCount,
-} from '@/services/admin/systemConfigService';
+// import { withLoading } from '@/utils/loadingUtils';
+// import {
+//   fetchPromotionLanternList,
+//   fetchPurchaseLanternCount,
+//   updatePromotionLanternList,
+//   updatePurchaseLanternCount,
+// } from '@/services/admin/systemConfigService';
 
-const availableLanterns = ref<{ label: string; value: string }[]>([
-  { label: '平安燈', value: 'peace' },
-  { label: '光明燈', value: 'light' },
-  { label: '財神燈', value: 'wealth' },
-  { label: '文昌燈', value: 'wisdom' },
-  { label: '姻緣燈', value: 'love' },
-]);
+// const availableLanterns = ref<{ label: string; value: string }[]>([
+//   { label: '平安燈', value: 'peace' },
+//   { label: '光明燈', value: 'light' },
+//   { label: '財神燈', value: 'wealth' },
+//   { label: '文昌燈', value: 'wisdom' },
+//   { label: '姻緣燈', value: 'love' },
+// ]);
 
-const form = ref({
-  promotionLanterns: [] as string[],
-  count: 0,
-});
+// const form = ref({
+//   promotionLanterns: [] as string[],
+//   count: 0,
+// });
 
-const loadConfig = async () => {
-  try {
-    const [promotionRes, countRes] = await Promise.all([
-      fetchPromotionLanternList(),
-      fetchPurchaseLanternCount(),
-    ]);
-    if (promotionRes.success) {
-      form.value.promotionLanterns = promotionRes.data;
-    }
-    if (countRes.success) {
-      form.value.count = countRes.data;
-    }
-  } catch (err) {}
-};
+// const loadConfig = async () => {
+//   try {
+//     const [promotionRes, countRes] = await Promise.all([
+//       fetchPromotionLanternList(),
+//       fetchPurchaseLanternCount(),
+//     ]);
+//     if (promotionRes.success) {
+//       form.value.promotionLanterns = promotionRes.data;
+//     }
+//     if (countRes.success) {
+//       form.value.count = countRes.data;
+//     }
+//   } catch (err) {}
+// };
 
-const onSubmit = withLoading(async () => {
-  try {
-    const [res1, res2] = await Promise.all([
-      updatePromotionLanternList(form.value.promotionLanterns),
-      updatePurchaseLanternCount({ count: form.value.count }),
-    ]);
-    if (res1.success && res2.success) {
-    } else {
-    }
-  } catch (err) {}
-});
+// const onSubmit = withLoading(async () => {
+//   try {
+//     const [res1, res2] = await Promise.all([
+//       updatePromotionLanternList(form.value.promotionLanterns),
+//       updatePurchaseLanternCount({ count: form.value.count }),
+//     ]);
+//     if (res1.success && res2.success) {
+//     } else {
+//     }
+//   } catch (err) {}
+// });
 
-onMounted(loadConfig);
+// onMounted(loadConfig);
 </script>
 
 <style scoped lang="scss">

@@ -8,17 +8,16 @@
         <div class="product-detail__main">
           <!-- 圖片區 -->
           <div class="product-detail__left" v-if="product">
-            <div
-              class="product-detail__image"
-              :style="{ backgroundImage: `url(${currentImage})` }"
-            />
+            <div class="product-detail__image">
+              <img :src="getImageUrl(currentImage)" alt="商品主圖" />
+            </div>
 
             <div class="product-detail__thumbnails">
               <div
                 v-for="(img, idx) in images"
                 :key="idx"
                 :class="['thumbnail', { active: currentImage === img }]"
-                :style="{ backgroundImage: `url(${img})` }"
+                :style="{ backgroundImage: `url(${getImageUrl(img)})` }"
                 @click="currentImage = img"
               />
             </div>
@@ -35,11 +34,15 @@
             </ul>
 
             <p class="product-detail__price">
-              NT${{ product.specialPrice ?? product.originalPrice }}
-              <span class="original">NT${{ product.originalPrice }}</span>
+              NT$
+              <NumberFormatter
+                :number="product.specialPrice ?? product.originalPrice ?? 0"
+              />
+              <span class="original">
+                NT$
+                <NumberFormatter :number="product.originalPrice ?? 0" />
+              </span>
             </p>
-
-            <!-- 若有多規格可改用後端資料 -->
 
             <button class="btn btn-primary" @click="addToCart">
               加入購物車
@@ -69,7 +72,6 @@
         </div>
 
         <div class="product-detail__tab-content">
-          <!-- 商品描述 (支援後端 HTML) -->
           <div v-if="tab === 'description'">
             <div v-if="product?.detailHtml" v-html="product.detailHtml" />
             <div v-else>
@@ -77,7 +79,6 @@
             </div>
           </div>
 
-          <!-- 配送付款說明 -->
           <div v-else>
             <p>📦 配送方式：</p>
             <ul>
@@ -102,21 +103,23 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useCartStore } from '@/stores/cartStore';
 import { getProductDetail } from '@/services/productServices';
+import { getImageUrl } from '@/utils/ImageUtils';
 import type { ProductDetailVO } from '@/vite-env';
 import MCard from '@/components/common/MCard.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
+import NumberFormatter from '@/components/common/NumberFormatter.vue';
+import { useDialogStore } from '@/stores/dialogStore';
 const route = useRoute();
 const router = useRouter();
 const cart = useCartStore();
+const dialogStore = useDialogStore();
 
 const product = ref<ProductDetailVO | null>(null);
 const tab = ref<'description' | 'shipping'>('description');
 
 const images = computed(() =>
   product.value
-    ? [product.value.mainImageUrl, ...product.value.galleryImageUrls].filter(
-        Boolean
-      )
+    ? [...(product.value.galleryImageUrls ?? [])].filter(Boolean)
     : []
 );
 const currentImage = ref('');
@@ -145,7 +148,10 @@ const addToCart = () => {
     price: product.value.specialPrice ?? product.value.originalPrice,
     quantity: 1,
   });
-  alert('已加入購物車！');
+  dialogStore.openInfoDialog({
+    title: '系統通知',
+    message: '已加入購物車！',
+  });
 };
 
 const goToCart = () => router.push('/cart');
@@ -155,6 +161,7 @@ const goToCart = () => router.push('/cart');
 .product-detail {
   width: 100%;
   position: relative;
+
   &__container {
     max-width: 1200px;
     margin: 0 auto;
@@ -172,10 +179,17 @@ const goToCart = () => router.push('/cart');
   }
 
   &__image {
-    .image-block {
+    width: 100%;
+    height: 400px;
+    border-radius: 1rem;
+    overflow: hidden;
+    background: #f5f5f5;
+
+    img {
       width: 100%;
-      height: 400px;
-      border-radius: 1rem;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
   }
 
@@ -192,6 +206,10 @@ const goToCart = () => router.push('/cart');
       border-radius: 8px;
       cursor: pointer;
       border: 2px solid transparent;
+      background-color: #eee;
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
 
       &.active {
         border-color: #a93e26;
@@ -235,14 +253,6 @@ const goToCart = () => router.push('/cart');
       color: #888;
       margin-left: 1rem;
     }
-  }
-
-  &__select {
-    margin: 1rem 0;
-    padding: 0.5rem;
-    border-radius: 6px;
-    width: 100%;
-    border: 1px solid #ccc;
   }
 
   &__tabs {
@@ -296,7 +306,7 @@ const goToCart = () => router.push('/cart');
   min-width: 160px;
 
   & + & {
-    margin-left: 1rem; // 兩個按鈕之間的間距
+    margin-left: 1rem;
   }
 
   &-primary {
@@ -325,7 +335,6 @@ const goToCart = () => router.push('/cart');
   }
 }
 
-/* ✅ RWD：手機版調整 */
 @media (max-width: 768px) {
   .product-detail {
     &__main {
@@ -337,9 +346,7 @@ const goToCart = () => router.push('/cart');
     }
 
     &__image {
-      .image-block {
-        height: 300px;
-      }
+      height: 300px;
     }
 
     &__thumbnails {

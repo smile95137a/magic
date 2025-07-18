@@ -1,7 +1,7 @@
 <template>
   <div class="mall-card" @click="goToDetail">
     <div class="mall-card__image">
-      <img :src="product.image" :alt="product.name" />
+      <img :src="getImageUrl(product.image)" :alt="product.name" />
     </div>
     <div class="mall-card__info">
       <p class="mall-card__name">{{ product.name }}</p>
@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-
+import { getImageUrl } from '@/utils/ImageUtils';
 const router = useRouter();
 const props = defineProps({
   product: {

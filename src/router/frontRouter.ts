@@ -20,6 +20,9 @@ import MyBlessings from '@/views/front/MemberCenter/MyBlessings.vue';
 import OrderHistory from '@/views/front/MemberCenter/OrderHistory.vue';
 import ProductDetail from '@/views/front/ProductDetail.vue';
 import Cart from '@/views/front/Cart.vue';
+import Privacy from '@/views/front/Privacy.vue';
+import Policy from '@/views/front/Policy.vue';
+
 import CheckoutSuccess from '@/views/front/CheckoutSuccess.vue';
 export const frontRoutes: Array<RouteRecordRaw> = [
   {
@@ -77,6 +80,9 @@ export const frontRoutes: Array<RouteRecordRaw> = [
         component: CheckoutSuccess,
         name: 'CheckoutSuccess',
       },
+      { path: 'privacy', component: Privacy, name: 'Privacy' },
+      { path: 'policy', component: Policy, name: 'Policy' },
+
       {
         path: ':pathMatch(.*)*',
         name: 'NotFound',

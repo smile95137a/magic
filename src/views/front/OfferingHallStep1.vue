@@ -1,3 +1,4 @@
+｀
 <template>
   <section class="offering">
     <SectionBackground variant="red" />

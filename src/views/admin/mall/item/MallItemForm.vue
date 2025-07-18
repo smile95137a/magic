@@ -59,7 +59,11 @@
       <div class="form__group">
         <label class="form__label">主圖</label>
         <input type="file" @change="handleImageUpload" />
-        <img v-if="mainImageUrl" :src="mainImageUrl" class="form__preview" />
+        <img
+          v-if="mainImageUrl"
+          :src="getImageUrl(mainImageUrl)"
+          class="form__preview"
+        />
       </div>
 
       <!-- 圖集上傳 -->
@@ -72,7 +76,7 @@
             :key="index"
             class="form__gallery-image"
           >
-            <img :src="img.url" />
+            <img :src="getImageUrl(img.url)" />
             <button
               type="button"
               class="form__remove-button"
@@ -125,6 +129,7 @@ import {
 } from '@/services/admin/adminProductServices';
 import { withLoading } from '@/utils/loadingUtils';
 import { fetchCategoryList } from '@/services/admin/adminCategoryServices';
+import { getImageUrl } from '@/utils/ImageUtils';
 
 const route = useRoute();
 const router = useRouter();

@@ -11,7 +11,7 @@ export const createProductDraft = async (): Promise<ApiResponse<any>> => {
     const res = await api.post(`${basePath}/draft`);
     return res.data;
   } catch (error) {
-    console.error('createProductDraft error:', error);
+    console.error('[createProductDraft] Failed:', error);
     throw error;
   }
 };
@@ -33,7 +33,7 @@ export const uploadProductImage = async (
     });
     return res.data;
   } catch (error) {
-    console.error('uploadProductImage error:', error);
+    console.error('[uploadProductImage] Failed:', error);
     throw error;
   }
 };
@@ -46,7 +46,7 @@ export const editProduct = async (data: any): Promise<ApiResponse<any>> => {
     const res = await api.post(`${basePath}/edit`, data);
     return res.data;
   } catch (error) {
-    console.error('editProduct error:', error);
+    console.error('[editProduct] Failed:', error);
     throw error;
   }
 };
@@ -59,7 +59,7 @@ export const discardProduct = async (data: any): Promise<ApiResponse<any>> => {
     const res = await api.post(`${basePath}/discard`, data);
     return res.data;
   } catch (error) {
-    console.error('discardProduct error:', error);
+    console.error('[discardProduct] Failed:', error);
     throw error;
   }
 };
@@ -74,7 +74,7 @@ export const fetchProductDetail = async (
     const res = await api.get(`${basePath}/${productId}`);
     return res.data;
   } catch (error) {
-    console.error('fetchProductDetail error:', error);
+    console.error('[fetchProductDetail] Failed:', error);
     throw error;
   }
 };
@@ -89,7 +89,7 @@ export const deleteProductImage = async (
     const res = await api.post(`${basePath}/delete-image`, data);
     return res.data;
   } catch (error) {
-    console.error('deleteProductImage error:', error);
+    console.error('[deleteProductImage] Failed:', error);
     throw error;
   }
 };
@@ -102,7 +102,7 @@ export const getProductList = async (data: any): Promise<ApiResponse<any>> => {
     const res = await api.post(`${basePath}/list`, data);
     return res.data;
   } catch (error) {
-    console.error('getProductList error:', error);
+    console.error('[getProductList] Failed:', error);
     throw error;
   }
 };
