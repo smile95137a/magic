@@ -108,11 +108,13 @@ const sections = [
   {
     title: '📍 聯絡我們',
     content: `
-      若您對本條款有任何疑問，歡迎聯繫我們：<br>
-      神乎奇技文創有限公司｜祈願文舍客服<br>
-      Email：<a href="mailto:easonandjenny@gmail.com.tw">easonandjenny@gmail.com.tw</a><br>
-      LINE 官方帳號：@131gson
-    `,
+    若您對本條款有任何疑問，歡迎聯繫我們：<br><br>
+    <strong>神乎奇技文創有限公司｜祈願文舍客服</strong><br>
+    Email：<a href="mailto:easonandjenny@gmail.com.tw">easonandjenny@gmail.com.tw</a><br>
+    LINE 官方帳號：<a href="https://lin.ee/P8IVhyE" target="_blank">點我加入</a><br>
+    Instagram：<a href="https://www.instagram.com/magic20.22?igsh=MTY1OGVmMWh5ZGo4Ng==" target="_blank">@magic20.22</a><br>
+    Facebook：<a href="https://www.facebook.com/profile.php?id=100079259756919&mibextid=ZbWKwL" target="_blank">神乎奇技文創</a>
+  `,
   },
 ];
 </script>

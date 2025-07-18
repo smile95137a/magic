@@ -13,10 +13,17 @@ import OfferingHallStep1 from '@/views/front/OfferingHallStep1.vue';
 import OfferingHallStep2 from '@/views/front/OfferingHallStep2.vue';
 import OfferingHallStep3 from '@/views/front/OfferingHallStep3.vue';
 import OfferingHallStep4 from '@/views/front/OfferingHallStep4.vue';
+import { useAuthFrontStore } from '@/stores/authFrontStore';
+import { useRouter } from 'vue-router';
+const router = useRouter();
 
 const offerStore = useOfferStore();
-
+const authStore = useAuthFrontStore();
 onMounted(() => {
   offerStore.resetOfferProcess();
+  if (!authStore.isLogin) {
+    router.replace({ name: 'Login' });
+    return;
+  }
 });
 </script>

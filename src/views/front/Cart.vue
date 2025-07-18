@@ -18,12 +18,15 @@ import { useDialogStore } from '@/stores/dialogStore';
 import { getErrorMessage } from '@/utils/ErrorUtils';
 import { withLoading } from '@/utils/loadingUtils';
 import { getImageUrl } from '@/utils/ImageUtils';
+import { useAuthFrontStore } from '@/stores/authFrontStore';
+const router = useRouter();
 
 const cart = useCartStore();
+const authStore = useAuthFrontStore();
 const dialogStore = useDialogStore();
 const cartItems = cart.cartItems;
 
-const shippingMethodOptions = ref<{ label: string; value: string }[]>([]);
+const shippingMethodOptions = ref<any[]>([]);
 const invoiceTypeOptions = ref<{ label: string; value: string }[]>([]);
 const payMethodOptions = ref<{ label: string; value: string }[]>([]);
 
@@ -37,9 +40,10 @@ const initOptions = async () => {
 
     if (shippingRes.success) {
       shippingMethodOptions.value = shippingRes.data.map((s: any) => ({
-        label: s.name, // 顯示名稱
-        value: s.code, // 用 code 當 v-model 綁定值
-        fee: s.fee, // 新增：運費
+        id: s.id,
+        label: s.name,
+        value: s.code,
+        fee: s.fee,
       }));
     }
 
@@ -62,19 +66,21 @@ const initOptions = async () => {
 };
 
 onMounted(() => {
+  if (!authStore.isLogin) {
+    router.replace({ name: 'Login' });
+    return;
+  }
+
+  if (cartItems.length === 0) {
+    router.replace({ name: 'StoreProductList' });
+    return;
+  }
+
   initOptions();
 });
 
 // ---- 驗證 schema ----
 const schema = yup.object({
-  buyer: yup.object({
-    name: yup.string().required('姓名為必填'),
-    email: yup.string().email('Email 格式錯誤').required('Email 為必填'),
-    phone: yup.string().required('電話為必填'),
-    city: yup.string().required('縣市為必填'),
-    area: yup.string().required('行政區為必填'),
-    address: yup.string().required('地址為必填'),
-  }),
   recipient: yup.object({
     name: yup.string().required('姓名為必填'),
     email: yup.string().email('Email 格式錯誤').required('Email 為必填'),
@@ -83,7 +89,6 @@ const schema = yup.object({
     area: yup.string().required('行政區為必填'),
     address: yup.string().required('地址為必填'),
   }),
-  sameAsBuyer: yup.boolean(),
   shippingMethod: yup.string().required('請選擇寄送方式'),
   invoiceType: yup.string().required('請選擇發票格式'),
   payment: yup.string().required('請選擇付款方式'),
@@ -114,14 +119,6 @@ const { handleSubmit, defineField, errors, values, setFieldValue, setValues } =
   useForm({
     validationSchema: schema,
     initialValues: {
-      buyer: {
-        name: '王大明',
-        email: 'demo@example.com',
-        phone: '0912345678',
-        city: '台北市',
-        area: '中正區',
-        address: '重慶南路一段1號',
-      },
       recipient: {
         name: '林小華',
         email: 'receiver@example.com',
@@ -130,7 +127,6 @@ const { handleSubmit, defineField, errors, values, setFieldValue, setValues } =
         area: '板橋區',
         address: '文化路二段88號',
       },
-      sameAsBuyer: false,
       shippingMethod: '',
       invoiceType: '',
       invoiceTarget: '',
@@ -142,13 +138,6 @@ const { handleSubmit, defineField, errors, values, setFieldValue, setValues } =
   });
 
 // ---- 拆解欄位綁定（v-model） ----
-const [buyerName] = defineField('buyer.name');
-const [buyerEmail] = defineField('buyer.email');
-const [buyerPhone] = defineField('buyer.phone');
-const [buyerCity] = defineField('buyer.city');
-const [buyerArea] = defineField('buyer.area');
-const [buyerAddress] = defineField('buyer.address');
-
 const [recipientName] = defineField('recipient.name');
 const [recipientEmail] = defineField('recipient.email');
 const [recipientPhone] = defineField('recipient.phone');
@@ -156,23 +145,12 @@ const [recipientCity] = defineField('recipient.city');
 const [recipientArea] = defineField('recipient.area');
 const [recipientAddress] = defineField('recipient.address');
 
-const [sameAsBuyer] = defineField('sameAsBuyer');
 const [shippingMethod] = defineField('shippingMethod');
 const [invoiceType] = defineField('invoiceType');
 const [payment] = defineField('payment');
 const [invoiceTarget] = defineField('invoiceTarget');
 const [carrierId] = defineField('carrierId');
 const [npoban] = defineField('npoban');
-
-// ---- 同購買人資料 → 複製收件人 ----
-watch(
-  () => values.sameAsBuyer,
-  (checked) => {
-    if (checked) {
-      setFieldValue('recipient', { ...values.buyer });
-    }
-  }
-);
 
 // ---- 價格計算 ----
 const productTotal = computed(() =>
@@ -189,12 +167,15 @@ const shippingFee = computed(() => {
 const total = computed(() => productTotal.value + shippingFee.value);
 
 const submitOrder = handleSubmit(async (formData) => {
+  const selectedShipping = shippingMethodOptions.value.find(
+    (opt) => opt.value === formData.shippingMethod
+  );
   const payload = {
     items: cartItems.map((item) => ({
       productId: item.id,
       quantity: item.quantity,
     })),
-    shippingMethodId: formData.shippingMethod,
+    shippingMethodId: selectedShipping.id,
     payMethod: formData.payment,
     invoiceType: formData.invoiceType,
     invoiceTarget: formData.invoiceTarget || '',
@@ -211,15 +192,17 @@ const submitOrder = handleSubmit(async (formData) => {
     npoban: formData.npoban || '',
     remark: '',
 
-    ...(formData.shippingMethod === 'blackcat' && {
+    ...{
       homeDeliveryRecipient: {
         name: formData.recipient.name,
         phone: formData.recipient.phone,
         address: `${formData.recipient.city}${formData.recipient.area}${formData.recipient.address}`,
       },
-    }),
+    },
 
-    ...(['seven', 'family'].includes(formData.shippingMethod) && {
+    ...(['FAMILY', 'HI_LIFE', '7_ELEVEN', 'OK_MART', 'FAMILY_COLD'].includes(
+      formData.shippingMethod
+    ) && {
       storePickupRecipient: {
         storeId: '',
         storeName: '',
@@ -234,7 +217,9 @@ const submitOrder = handleSubmit(async (formData) => {
     const response = await withLoading(() => createOrder(payload));
 
     if (response.success) {
-      console.log('✅ 訂單建立成功', response.data);
+      const orderId = response.data.orderId;
+      cart.clearCart();
+      router.push({ name: 'CheckoutSuccess', params: { id: orderId } });
     } else {
       await dialogStore.openInfoDialog({
         title: '錯誤',
@@ -317,57 +302,8 @@ const handleDecrease = (index: number) => {
             </div>
           </div>
 
-          <h3>購買人資訊</h3>
-          <div class="checkout__block">
-            <div class="checkout__form-grid">
-              <div class="checkout__form-group">
-                <label>姓名</label>
-                <input v-model="buyerName" />
-                <p v-if="errors['buyer.name']">{{ errors['buyer.name'] }}</p>
-              </div>
-              <div class="checkout__form-group">
-                <label>Email</label>
-                <input v-model="buyerEmail" />
-                <p v-if="errors['buyer.email']">{{ errors['buyer.email'] }}</p>
-              </div>
-              <div class="checkout__form-group">
-                <label>電話</label>
-                <input v-model="buyerPhone" />
-                <p v-if="errors['buyer.phone']">{{ errors['buyer.phone'] }}</p>
-              </div>
-              <div class="checkout__form-group">
-                <label>縣市</label>
-                <select v-model="buyerCity">
-                  <option value="台北市">台北市</option>
-                  <option value="新北市">新北市</option>
-                </select>
-                <p v-if="errors['buyer.city']">{{ errors['buyer.city'] }}</p>
-              </div>
-              <div class="checkout__form-group">
-                <label>行政區</label>
-                <select v-model="buyerArea">
-                  <option value="中正區">中正區</option>
-                  <option value="大安區">大安區</option>
-                  <option value="板橋區">板橋區</option>
-                </select>
-                <p v-if="errors['buyer.area']">{{ errors['buyer.area'] }}</p>
-              </div>
-              <div class="checkout__form-group checkout__form-group--full">
-                <label>詳細地址</label>
-                <input v-model="buyerAddress" />
-                <p v-if="errors['buyer.address']">
-                  {{ errors['buyer.address'] }}
-                </p>
-              </div>
-            </div>
-          </div>
-
           <h3>收件人資訊</h3>
           <div class="checkout__block">
-            <label>
-              <input type="checkbox" v-model="sameAsBuyer" />
-              同購買人資料
-            </label>
             <div class="checkout__form-grid">
               <div class="checkout__form-group">
                 <label>姓名</label>

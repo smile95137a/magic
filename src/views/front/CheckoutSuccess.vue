@@ -15,12 +15,12 @@
             <div
               class="checkout-success__product"
               v-for="item in products"
-              :key="item.id"
+              :key="item.productId"
             >
               <div class="checkout-success__image" />
               <div class="checkout-success__product-info">
-                <p>{{ item.name }}</p>
-                <p class="checkout-success__price">${{ item.price }}</p>
+                <p>{{ item.productName }}</p>
+                <p class="checkout-success__price">${{ item.unitPrice }}</p>
               </div>
             </div>
           </div>
@@ -28,22 +28,23 @@
           <!-- 寄送資訊 -->
           <div class="checkout-success__section">
             <h3>寄送資訊</h3>
-            <p>宅配：台北市中正區重慶南路一段1號1樓</p>
-            <p>發票：個人二聯式發票</p>
-            <p class="checkout-success__price">${{ shippingFee }}</p>
+            <p>{{ shippingMethod }}</p>
+            <p>收件人：{{ recipientName }}（{{ recipientPhone }}）</p>
+            <p v-if="recipientAddress">地址：{{ recipientAddress }}</p>
+            <p>發票：{{ invoiceInfo }}</p>
           </div>
 
           <!-- 優惠 -->
-          <div class="checkout-success__section">
+          <div class="checkout-success__section" v-if="discount > 0">
             <h3>優惠</h3>
-            <p>滿$499折$50</p>
+            <p>優惠折抵</p>
             <p class="checkout-success__price">-${{ discount }}</p>
           </div>
 
           <!-- 付款 -->
           <div class="checkout-success__section">
             <h3>付款</h3>
-            <p>信用卡一次付清</p>
+            <p>{{ paymentMethod }}</p>
           </div>
 
           <!-- 總金額 -->
@@ -66,10 +67,66 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import MCard from '@/components/common/MCard.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
+import { getOrderDetail } from '@/services/OrderService';
+import { getErrorMessage } from '@/utils/ErrorUtils';
+import { withLoading } from '@/utils/loadingUtils';
+import { useDialogStore } from '@/stores/dialogStore';
+
+const route = useRoute();
 const router = useRouter();
+const dialogStore = useDialogStore();
+
+const orderId = route.params.id as string;
+
+const products = ref<any[]>([]);
+const shippingMethod = ref('');
+const invoiceInfo = ref('');
+const recipientName = ref('');
+const recipientPhone = ref('');
+const recipientAddress = ref('');
+const discount = ref(0);
+const totalAmount = ref(0);
+const paymentMethod = ref('');
+
+const init = async () => {
+  try {
+    const response = await withLoading(() => getOrderDetail(orderId));
+    if (response.success) {
+      const order = response.data;
+
+      products.value = order.items || [];
+      totalAmount.value = order.totalAmount ?? 0;
+      discount.value = order.discount ?? 0;
+
+      shippingMethod.value = order.shippingMethod || '';
+      invoiceInfo.value =
+        order.invoiceType === 'company'
+          ? '三聯式發票'
+          : order.invoiceType === 'mobile'
+          ? '手機載具'
+          : '個人二聯式發票';
+      paymentMethod.value = '待付款'; // 因為你提供的例子是 paymentStatus: 待付款
+
+      recipientName.value = order.recipientName || '';
+      recipientPhone.value = order.recipientPhone || '';
+      recipientAddress.value = order.recipientAddress || '';
+    } else {
+      await dialogStore.openInfoDialog({
+        title: '錯誤',
+        message: response.message ?? '取得訂單失敗',
+      });
+    }
+  } catch (error) {
+    await dialogStore.openInfoDialog({
+      title: '錯誤',
+      message: getErrorMessage(error),
+    });
+  }
+};
 
 const goHome = () => {
   router.push('/');
@@ -79,23 +136,9 @@ const continueShopping = () => {
   router.push('/store');
 };
 
-const products = [
-  {
-    id: 1,
-    name: '黃水晶&綠水晶【自信健康】- 水晶香氛擴香燈',
-    price: 2288,
-  },
-  {
-    id: 2,
-    name: '白水晶蠟燭【淨化心靈】- 天然手工香氛蠟燭',
-    price: 1380,
-  },
-];
-
-const shippingFee = 150;
-const discount = 50;
-const totalAmount =
-  products.reduce((sum, p) => sum + p.price, 0) + shippingFee - discount;
+onMounted(() => {
+  if (orderId) init();
+});
 </script>
 
 <style scoped lang="scss">

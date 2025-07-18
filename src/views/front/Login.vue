@@ -93,7 +93,6 @@ import { useRouter } from 'vue-router';
 import * as yup from 'yup';
 
 const router = useRouter();
-const loadingStore = useLoadingStore();
 const authStore = useAuthFrontStore();
 const dialogStore = useDialogStore();
 
