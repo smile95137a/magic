@@ -10,7 +10,7 @@
           v-for="(product, index) in paginatedProducts"
           :key="index"
         >
-          <img :src="product.image" class="product-card__image" />
+          <img :src="getImageUrl(product.image)" class="product-card__image" />
           <div class="product-card__info">
             <div class="product-card__title">
               {{ product.title }}
@@ -80,7 +80,7 @@ import {
   getCategoryAvailableList,
   getProductListByCategory,
 } from '@/services/productServices';
-
+import { getImageUrl } from '@/utils/ImageUtils';
 interface Product {
   title: string;
   image: string;

@@ -19,16 +19,22 @@ import { getErrorMessage } from '@/utils/ErrorUtils';
 import { withLoading } from '@/utils/loadingUtils';
 import { getImageUrl } from '@/utils/ImageUtils';
 import { useAuthFrontStore } from '@/stores/authFrontStore';
+import {
+  getAllCityNames,
+  getAreaListByCityName,
+  getZipCodeByCityAndAreaName,
+} from '@/services/taiwanCitiesService';
 const router = useRouter();
 
 const cart = useCartStore();
 const authStore = useAuthFrontStore();
 const dialogStore = useDialogStore();
 const cartItems = cart.cartItems;
-
+const cityOptions = ref<any[]>([]);
+const areaOptions = ref<any[]>([]);
 const shippingMethodOptions = ref<any[]>([]);
-const invoiceTypeOptions = ref<{ label: string; value: string }[]>([]);
-const payMethodOptions = ref<{ label: string; value: string }[]>([]);
+const invoiceTypeOptions = ref<any[]>([]);
+const payMethodOptions = ref<any[]>([]);
 
 const initOptions = async () => {
   try {
@@ -77,6 +83,12 @@ onMounted(() => {
   }
 
   initOptions();
+  const cityNames = getAllCityNames();
+  cityOptions.value = [
+    { value: '', label: '縣市' },
+    ...cityNames.map((city) => ({ value: city, label: city })),
+  ];
+  areaOptions.value = [{ value: '', label: '行政區' }];
 });
 
 // ---- 驗證 schema ----
@@ -120,12 +132,12 @@ const { handleSubmit, defineField, errors, values, setFieldValue, setValues } =
     validationSchema: schema,
     initialValues: {
       recipient: {
-        name: '林小華',
-        email: 'receiver@example.com',
-        phone: '0987654321',
-        city: '新北市',
-        area: '板橋區',
-        address: '文化路二段88號',
+        name: '',
+        email: '',
+        phone: '',
+        city: '',
+        area: '',
+        address: '',
       },
       shippingMethod: '',
       invoiceType: '',
@@ -258,7 +270,30 @@ watch(
     }
   }
 );
+watch(recipientCity, (newCity) => {
+  if (newCity) {
+    setFieldValue('recipient.area', '');
+    const areas = getAreaListByCityName(newCity);
+    areaOptions.value = [
+      { value: '', label: '行政區' },
+      ...areas.map((area) => ({
+        value: area.areaName,
+        label: area.areaName,
+      })),
+    ];
+  } else {
+    areaOptions.value = [{ value: '', label: '行政區' }];
+  }
+});
 
+watch(recipientArea, (newArea) => {
+  if (newArea) {
+    const zipCode = getZipCodeByCityAndAreaName(recipientCity.value, newArea);
+    if (zipCode) {
+    }
+  } else {
+  }
+});
 const handleDecrease = (index: number) => {
   const item = cartItems[index];
   if (item.quantity > 1) {
@@ -329,8 +364,13 @@ const handleDecrease = (index: number) => {
               <div class="checkout__form-group">
                 <label>縣市</label>
                 <select v-model="recipientCity">
-                  <option value="台北市">台北市</option>
-                  <option value="新北市">新北市</option>
+                  <option
+                    v-for="option in cityOptions"
+                    :key="option.value"
+                    :value="option.value"
+                  >
+                    {{ option.label }}
+                  </option>
                 </select>
                 <p v-if="errors['recipient.city']">
                   {{ errors['recipient.city'] }}
@@ -339,9 +379,13 @@ const handleDecrease = (index: number) => {
               <div class="checkout__form-group">
                 <label>行政區</label>
                 <select v-model="recipientArea">
-                  <option value="中正區">中正區</option>
-                  <option value="大安區">大安區</option>
-                  <option value="板橋區">板橋區</option>
+                  <option
+                    v-for="option in areaOptions"
+                    :key="option.value"
+                    :value="option.value"
+                  >
+                    {{ option.label }}
+                  </option>
                 </select>
                 <p v-if="errors['recipient.area']">
                   {{ errors['recipient.area'] }}
