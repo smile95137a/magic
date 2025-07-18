@@ -7,6 +7,7 @@ interface CartItem {
   name: string;
   price: number;
   quantity: number;
+  imageUrl: string; // ✅ 新增圖片欄位
   option?: string;
 }
 
@@ -27,10 +28,32 @@ export const useCartStore = defineStore('cart', () => {
     );
     if (existing) {
       existing.quantity += item.quantity;
-    } else {
+
+      // ✅ 如果加完後為 0 或負數，移除
+      if (existing.quantity <= 0) {
+        cartItems.value = cartItems.value.filter(
+          (i) => !(i.id === item.id && i.option === item.option)
+        );
+      }
+    } else if (item.quantity > 0) {
       cartItems.value.push(item);
     }
     saveState('cartItems', cartItems.value);
+  };
+
+  const updateQuantity = (item: CartItem, delta: number) => {
+    const existing = cartItems.value.find(
+      (i) => i.id === item.id && i.option === item.option
+    );
+    if (existing) {
+      existing.quantity += delta;
+      if (existing.quantity <= 0) {
+        cartItems.value = cartItems.value.filter(
+          (i) => !(i.id === item.id && i.option === item.option)
+        );
+      }
+      saveState('cartItems', cartItems.value);
+    }
   };
 
   const removeItem = (index: number) => {
@@ -48,6 +71,7 @@ export const useCartStore = defineStore('cart', () => {
     totalPrice,
     itemCount,
     addItem,
+    updateQuantity, // ✅ 可直接加減數量用
     removeItem,
     clearCart,
   };

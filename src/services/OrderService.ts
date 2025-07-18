@@ -55,7 +55,20 @@ export const cancelOrder = async (
   }
 };
 
-/** 查詢物流方式 */
+/** 付款完成通知 */
+export const paySuccess = async (
+  payload: any
+): Promise<ApiResponse<boolean>> => {
+  try {
+    const response = await api.post(`${basePath}/pay-success`, payload);
+    return response.data;
+  } catch (error) {
+    console.error('paySuccess error:', error);
+    throw error;
+  }
+};
+
+/** 查詢物流方式列表 */
 export const getShippingMethodList = async (): Promise<ApiResponse<any[]>> => {
   try {
     const response = await api.get(`${basePath}/shipping-method/list`);
@@ -66,7 +79,7 @@ export const getShippingMethodList = async (): Promise<ApiResponse<any[]>> => {
   }
 };
 
-/** 查詢發票類型 */
+/** 查詢發票類型列表 */
 export const getInvoiceTypeList = async (): Promise<ApiResponse<any[]>> => {
   try {
     const response = await api.get(`${basePath}/invoice-type/list`);
@@ -77,15 +90,13 @@ export const getInvoiceTypeList = async (): Promise<ApiResponse<any[]>> => {
   }
 };
 
-/** 付款成功通知 */
-export const paySuccess = async (
-  payload: any
-): Promise<ApiResponse<boolean>> => {
+/** 查詢付款方式列表 */
+export const getPayMethodList = async (): Promise<ApiResponse<any[]>> => {
   try {
-    const response = await api.post(`${basePath}/pay-success`, payload);
+    const response = await api.post(`${basePath}/pay-method/list`);
     return response.data;
   } catch (error) {
-    console.error('paySuccess error:', error);
+    console.error('getPayMethodList error:', error);
     throw error;
   }
 };

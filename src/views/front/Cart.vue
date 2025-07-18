@@ -6,10 +6,64 @@ import * as yup from 'yup';
 import { useCartStore } from '@/stores/cartStore';
 import MCard from '@/components/common/MCard.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
+import NumberFormatter from '@/components/common/NumberFormatter.vue';
+import { ref, onMounted } from 'vue';
+import {
+  getShippingMethodList,
+  getInvoiceTypeList,
+  getPayMethodList,
+  createOrder,
+} from '@/services/OrderService';
+import { useDialogStore } from '@/stores/dialogStore';
+import { getErrorMessage } from '@/utils/ErrorUtils';
+import { withLoading } from '@/utils/loadingUtils';
+import { getImageUrl } from '@/utils/ImageUtils';
 
 const cart = useCartStore();
+const dialogStore = useDialogStore();
 const cartItems = cart.cartItems;
-const router = useRouter();
+
+const shippingMethodOptions = ref<{ label: string; value: string }[]>([]);
+const invoiceTypeOptions = ref<{ label: string; value: string }[]>([]);
+const payMethodOptions = ref<{ label: string; value: string }[]>([]);
+
+const initOptions = async () => {
+  try {
+    const [shippingRes, invoiceRes, payRes] = await Promise.all([
+      getShippingMethodList(),
+      getInvoiceTypeList(),
+      getPayMethodList(),
+    ]);
+
+    if (shippingRes.success) {
+      shippingMethodOptions.value = shippingRes.data.map((s: any) => ({
+        label: s.name, // 顯示名稱
+        value: s.code, // 用 code 當 v-model 綁定值
+        fee: s.fee, // 新增：運費
+      }));
+    }
+
+    if (invoiceRes.success) {
+      invoiceTypeOptions.value = invoiceRes.data.map((i: any) => ({
+        label: i.label, // 顯示名稱
+        value: i.code, // 送出用 code
+      }));
+    }
+
+    if (payRes.success) {
+      payMethodOptions.value = payRes.data.map((p: any) => ({
+        label: p.label, // 顯示名稱
+        value: p.code, // 送出用 code
+      }));
+    }
+  } catch (error) {
+    console.error('初始化選項失敗', error);
+  }
+};
+
+onMounted(() => {
+  initOptions();
+});
 
 // ---- 驗證 schema ----
 const schema = yup.object({
@@ -32,8 +86,27 @@ const schema = yup.object({
   sameAsBuyer: yup.boolean(),
   shippingMethod: yup.string().required('請選擇寄送方式'),
   invoiceType: yup.string().required('請選擇發票格式'),
-  selectedCoupon: yup.string().required(),
   payment: yup.string().required('請選擇付款方式'),
+
+  invoiceTarget: yup
+    .string()
+    .when('invoiceType', (invoiceType: any, schema) => {
+      return invoiceType === 'company'
+        ? schema.required('請填寫統一編號')
+        : schema.optional().nullable();
+    }),
+
+  carrierId: yup.string().when('invoiceType', (invoiceType: any, schema) => {
+    return ['mobile', 'citizen'].includes(invoiceType ?? '')
+      ? schema.required('請輸入載具內容')
+      : schema.optional().nullable();
+  }),
+
+  npoban: yup.string().when('invoiceType', (invoiceType: any, schema) => {
+    return invoiceType === 'donate'
+      ? schema.required('請填寫愛心碼')
+      : schema.optional().nullable();
+  }),
 });
 
 // ---- useForm 統一表單 ----
@@ -58,10 +131,13 @@ const { handleSubmit, defineField, errors, values, setFieldValue, setValues } =
         address: '文化路二段88號',
       },
       sameAsBuyer: false,
-      shippingMethod: '宅配',
-      invoiceType: '二聯式',
-      selectedCoupon: '50',
-      payment: 'card',
+      shippingMethod: '',
+      invoiceType: '',
+      invoiceTarget: '',
+      carrierType: '9',
+      carrierId: '',
+      npoban: '',
+      payment: '',
     },
   });
 
@@ -83,8 +159,10 @@ const [recipientAddress] = defineField('recipient.address');
 const [sameAsBuyer] = defineField('sameAsBuyer');
 const [shippingMethod] = defineField('shippingMethod');
 const [invoiceType] = defineField('invoiceType');
-const [selectedCoupon] = defineField('selectedCoupon');
 const [payment] = defineField('payment');
+const [invoiceTarget] = defineField('invoiceTarget');
+const [carrierId] = defineField('carrierId');
+const [npoban] = defineField('npoban');
 
 // ---- 同購買人資料 → 複製收件人 ----
 watch(
@@ -102,223 +180,331 @@ const productTotal = computed(() =>
 );
 
 const shippingFee = computed(() => {
-  if (values.shippingMethod === '宅配') return 150;
-  if (['7-11', '全家'].includes(values.shippingMethod)) return 60;
-  return 0;
+  const selected: any = shippingMethodOptions.value.find(
+    (opt) => opt.value === shippingMethod.value
+  );
+  return selected ? selected.fee ?? 0 : 0;
 });
 
-const discount = computed(() => (values.selectedCoupon === '50' ? 50 : 0));
-const total = computed(
-  () => productTotal.value + shippingFee.value - discount.value
+const total = computed(() => productTotal.value + shippingFee.value);
+
+const submitOrder = handleSubmit(async (formData) => {
+  const payload = {
+    items: cartItems.map((item) => ({
+      productId: item.id,
+      quantity: item.quantity,
+    })),
+    shippingMethodId: formData.shippingMethod,
+    payMethod: formData.payment,
+    invoiceType: formData.invoiceType,
+    invoiceTarget: formData.invoiceTarget || '',
+    carrierType:
+      {
+        mobile: '1',
+        citizen: '2',
+        member: '3',
+        donate: '9',
+        personal: '9',
+        company: '9',
+      }[formData.invoiceType] ?? '9',
+    carrierId: formData.carrierId || '',
+    npoban: formData.npoban || '',
+    remark: '',
+
+    ...(formData.shippingMethod === 'blackcat' && {
+      homeDeliveryRecipient: {
+        name: formData.recipient.name,
+        phone: formData.recipient.phone,
+        address: `${formData.recipient.city}${formData.recipient.area}${formData.recipient.address}`,
+      },
+    }),
+
+    ...(['seven', 'family'].includes(formData.shippingMethod) && {
+      storePickupRecipient: {
+        storeId: '',
+        storeName: '',
+        storeAddress: '',
+        recipientName: formData.recipient.name,
+        phone: formData.recipient.phone,
+      },
+    }),
+  };
+
+  try {
+    const response = await withLoading(() => createOrder(payload));
+
+    if (response.success) {
+      console.log('✅ 訂單建立成功', response.data);
+    } else {
+      await dialogStore.openInfoDialog({
+        title: '錯誤',
+        message: response.message || '密碼重置失敗，請稍後再試。',
+      });
+    }
+  } catch (error) {
+    await dialogStore.openInfoDialog({
+      title: '錯誤',
+      message: getErrorMessage(error),
+    });
+  }
+});
+
+watch(
+  () => values.invoiceType,
+  (newType) => {
+    switch (newType) {
+      case 'company':
+        setFieldValue('carrierId', '');
+        setFieldValue('npoban', '');
+        break;
+      case 'mobile':
+      case 'citizen':
+        setFieldValue('invoiceTarget', '');
+        setFieldValue('npoban', '');
+        break;
+      case 'donate':
+        setFieldValue('invoiceTarget', '');
+        setFieldValue('carrierId', '');
+        break;
+      default:
+        setFieldValue('invoiceTarget', '');
+        setFieldValue('carrierId', '');
+        setFieldValue('npoban', '');
+    }
+  }
 );
 
-// ---- 送出訂單 ----
-const submitOrder = handleSubmit((formData) => {
-  const payload = {
-    items: cartItems,
-    ...formData,
-    productTotal: productTotal.value,
-    shippingFee: shippingFee.value,
-    discount: discount.value,
-    total: total.value,
-  };
-  console.log('✅ 訂單送出:', payload);
-  router.push({ name: 'CheckoutSuccess' });
-});
+const handleDecrease = (index: number) => {
+  const item = cartItems[index];
+  if (item.quantity > 1) {
+    item.quantity -= 1;
+  } else {
+    cart.removeItem(index);
+  }
+};
 </script>
 <template>
-  <div class="checkout">
-    <SectionBackground variant="divination" />
-    <div class="checkout__container">
-      <MCard customClass="p-48">
-        <h3>商品資訊</h3>
-        <div
-          v-for="(item, index) in cartItems"
-          :key="index"
-          class="checkout__item"
-        >
-          <div class="checkout__item-img" />
-          <div class="checkout__item-info">
-            <p>{{ item.name }}</p>
-            <div class="checkout__item-control">
-              <button @click="item.quantity > 1 && (item.quantity -= 1)">
-                −
-              </button>
-              <span>{{ item.quantity }}</span>
-              <button @click="item.quantity += 1">＋</button>
-              <p class="price">NT${{ item.price * item.quantity }}</p>
+  <form @submit.prevent="submitOrder">
+    <div class="checkout">
+      <SectionBackground variant="divination" />
+      <div class="checkout__container">
+        <MCard customClass="p-48">
+          <h3>商品資訊</h3>
+          <div
+            v-for="(item, index) in cartItems"
+            :key="index"
+            class="checkout__item"
+          >
+            <div class="checkout__item-img">
+              <img :src="getImageUrl(item.imageUrl)" :alt="item.name" />
+            </div>
+
+            <div class="checkout__item-info">
+              <p>{{ item.name }}</p>
+              <div class="checkout__item-control">
+                <button @click="handleDecrease(index)">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <span>{{ item.quantity }}</span>
+                <button @click="item.quantity += 1">
+                  <i class="fas fa-plus"></i>
+                </button>
+                <p class="price">
+                  NT$
+                  <NumberFormatter :number="item.price * item.quantity ?? 0" />
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <h3>購買人資訊</h3>
-        <div class="checkout__block">
-          <div class="checkout__form-grid">
-            <div class="checkout__form-group">
-              <label>姓名</label>
-              <input v-model="buyerName" />
-              <p v-if="errors['buyer.name']">{{ errors['buyer.name'] }}</p>
-            </div>
-            <div class="checkout__form-group">
-              <label>Email</label>
-              <input v-model="buyerEmail" />
-              <p v-if="errors['buyer.email']">{{ errors['buyer.email'] }}</p>
-            </div>
-            <div class="checkout__form-group">
-              <label>電話</label>
-              <input v-model="buyerPhone" />
-              <p v-if="errors['buyer.phone']">{{ errors['buyer.phone'] }}</p>
-            </div>
-            <div class="checkout__form-group">
-              <label>縣市</label>
-              <select v-model="buyerCity">
-                <option value="台北市">台北市</option>
-                <option value="新北市">新北市</option>
-              </select>
-              <p v-if="errors['buyer.city']">{{ errors['buyer.city'] }}</p>
-            </div>
-            <div class="checkout__form-group">
-              <label>行政區</label>
-              <select v-model="buyerArea">
-                <option value="中正區">中正區</option>
-                <option value="大安區">大安區</option>
-                <option value="板橋區">板橋區</option>
-              </select>
-              <p v-if="errors['buyer.area']">{{ errors['buyer.area'] }}</p>
-            </div>
-            <div class="checkout__form-group checkout__form-group--full">
-              <label>詳細地址</label>
-              <input v-model="buyerAddress" />
-              <p v-if="errors['buyer.address']">
-                {{ errors['buyer.address'] }}
-              </p>
+          <h3>購買人資訊</h3>
+          <div class="checkout__block">
+            <div class="checkout__form-grid">
+              <div class="checkout__form-group">
+                <label>姓名</label>
+                <input v-model="buyerName" />
+                <p v-if="errors['buyer.name']">{{ errors['buyer.name'] }}</p>
+              </div>
+              <div class="checkout__form-group">
+                <label>Email</label>
+                <input v-model="buyerEmail" />
+                <p v-if="errors['buyer.email']">{{ errors['buyer.email'] }}</p>
+              </div>
+              <div class="checkout__form-group">
+                <label>電話</label>
+                <input v-model="buyerPhone" />
+                <p v-if="errors['buyer.phone']">{{ errors['buyer.phone'] }}</p>
+              </div>
+              <div class="checkout__form-group">
+                <label>縣市</label>
+                <select v-model="buyerCity">
+                  <option value="台北市">台北市</option>
+                  <option value="新北市">新北市</option>
+                </select>
+                <p v-if="errors['buyer.city']">{{ errors['buyer.city'] }}</p>
+              </div>
+              <div class="checkout__form-group">
+                <label>行政區</label>
+                <select v-model="buyerArea">
+                  <option value="中正區">中正區</option>
+                  <option value="大安區">大安區</option>
+                  <option value="板橋區">板橋區</option>
+                </select>
+                <p v-if="errors['buyer.area']">{{ errors['buyer.area'] }}</p>
+              </div>
+              <div class="checkout__form-group checkout__form-group--full">
+                <label>詳細地址</label>
+                <input v-model="buyerAddress" />
+                <p v-if="errors['buyer.address']">
+                  {{ errors['buyer.address'] }}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <h3>收件人資訊</h3>
-        <div class="checkout__block">
-          <label>
-            <input type="checkbox" v-model="sameAsBuyer" />
-            同購買人資料
-          </label>
-          <div class="checkout__form-grid">
-            <div class="checkout__form-group">
-              <label>姓名</label>
-              <input v-model="recipientName" />
-              <p v-if="errors['recipient.name']">
-                {{ errors['recipient.name'] }}
-              </p>
-            </div>
-            <div class="checkout__form-group">
-              <label>Email</label>
-              <input v-model="recipientEmail" />
-              <p v-if="errors['recipient.email']">
-                {{ errors['recipient.email'] }}
-              </p>
-            </div>
-            <div class="checkout__form-group">
-              <label>電話</label>
-              <input v-model="recipientPhone" />
-              <p v-if="errors['recipient.phone']">
-                {{ errors['recipient.phone'] }}
-              </p>
-            </div>
-            <div class="checkout__form-group">
-              <label>縣市</label>
-              <select v-model="recipientCity">
-                <option value="台北市">台北市</option>
-                <option value="新北市">新北市</option>
-              </select>
-              <p v-if="errors['recipient.city']">
-                {{ errors['recipient.city'] }}
-              </p>
-            </div>
-            <div class="checkout__form-group">
-              <label>行政區</label>
-              <select v-model="recipientArea">
-                <option value="中正區">中正區</option>
-                <option value="大安區">大安區</option>
-                <option value="板橋區">板橋區</option>
-              </select>
-              <p v-if="errors['recipient.area']">
-                {{ errors['recipient.area'] }}
-              </p>
-            </div>
-            <div class="checkout__form-group checkout__form-group--full">
-              <label>詳細地址</label>
-              <input v-model="recipientAddress" />
-              <p v-if="errors['recipient.address']">
-                {{ errors['recipient.address'] }}
-              </p>
+          <h3>收件人資訊</h3>
+          <div class="checkout__block">
+            <label>
+              <input type="checkbox" v-model="sameAsBuyer" />
+              同購買人資料
+            </label>
+            <div class="checkout__form-grid">
+              <div class="checkout__form-group">
+                <label>姓名</label>
+                <input v-model="recipientName" />
+                <p v-if="errors['recipient.name']">
+                  {{ errors['recipient.name'] }}
+                </p>
+              </div>
+              <div class="checkout__form-group">
+                <label>Email</label>
+                <input v-model="recipientEmail" />
+                <p v-if="errors['recipient.email']">
+                  {{ errors['recipient.email'] }}
+                </p>
+              </div>
+              <div class="checkout__form-group">
+                <label>電話</label>
+                <input v-model="recipientPhone" />
+                <p v-if="errors['recipient.phone']">
+                  {{ errors['recipient.phone'] }}
+                </p>
+              </div>
+              <div class="checkout__form-group">
+                <label>縣市</label>
+                <select v-model="recipientCity">
+                  <option value="台北市">台北市</option>
+                  <option value="新北市">新北市</option>
+                </select>
+                <p v-if="errors['recipient.city']">
+                  {{ errors['recipient.city'] }}
+                </p>
+              </div>
+              <div class="checkout__form-group">
+                <label>行政區</label>
+                <select v-model="recipientArea">
+                  <option value="中正區">中正區</option>
+                  <option value="大安區">大安區</option>
+                  <option value="板橋區">板橋區</option>
+                </select>
+                <p v-if="errors['recipient.area']">
+                  {{ errors['recipient.area'] }}
+                </p>
+              </div>
+              <div class="checkout__form-group checkout__form-group--full">
+                <label>詳細地址</label>
+                <input v-model="recipientAddress" />
+                <p v-if="errors['recipient.address']">
+                  {{ errors['recipient.address'] }}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <h3>寄送資訊</h3>
-        <div class="checkout__block">
-          <label>
-            <input type="radio" value="宅配" v-model="shippingMethod" />
-            宅配（$150）
-          </label>
-          <label>
-            <input type="radio" value="7-11" v-model="shippingMethod" />
-            7-11 超商取貨（$60）
-          </label>
-          <label>
-            <input type="radio" value="全家" v-model="shippingMethod" />
-            全家超商取貨（$60）
-          </label>
-          <p v-if="errors.shippingMethod">{{ errors.shippingMethod }}</p>
-        </div>
+          <h3>寄送資訊</h3>
+          <div class="checkout__block">
+            <div v-for="option in shippingMethodOptions" :key="option.value">
+              <label>
+                <input
+                  type="radio"
+                  :value="option.value"
+                  v-model="shippingMethod"
+                />
+                {{ option.label }}
+              </label>
+            </div>
+            <p v-if="errors.shippingMethod">{{ errors.shippingMethod }}</p>
+          </div>
 
-        <h3>發票</h3>
-        <select v-model="invoiceType">
-          <option value="二聯式">發票開立（二聯式）</option>
-          <option value="三聯式">發票開立（三聯式）</option>
-        </select>
-        <p v-if="errors.invoiceType">{{ errors.invoiceType }}</p>
+          <h3>發票</h3>
+          <select v-model="invoiceType">
+            <option value=""></option>
+            <option
+              v-for="option in invoiceTypeOptions"
+              :key="option.value"
+              :value="option.value"
+            >
+              {{ option.label }}
+            </option>
+          </select>
+          <p v-if="errors.invoiceType">{{ errors.invoiceType }}</p>
+          <!-- 統一編號 -->
+          <div v-if="invoiceType === 'company'" class="checkout__form-group">
+            <label>統一編號</label>
+            <input v-model="invoiceTarget" />
+            <p v-if="errors.invoiceTarget">{{ errors.invoiceTarget }}</p>
+          </div>
 
-        <h3>優惠及結帳</h3>
-        <div class="checkout__block">
-          <label>
-            使用優惠：
-            <select v-model="selectedCoupon">
-              <option value="50">滿499折50</option>
-              <option value="0">不使用</option>
-            </select>
-          </label>
-          <p v-if="errors.selectedCoupon">{{ errors.selectedCoupon }}</p>
+          <!-- 手機條碼 / 自然人憑證 -->
+          <div v-if="invoiceType === 'mobile'" class="checkout__form-group">
+            <label>載具內容</label>
+            <input v-model="carrierId" />
+            <p v-if="errors.carrierId">{{ errors.carrierId }}</p>
+          </div>
 
-          <label>
-            <input type="radio" value="card" v-model="payment" />
-            信用卡一次付清
-          </label>
-          <label>
-            <input type="radio" value="store" v-model="payment" />
-            超商取貨付款
-          </label>
-          <p v-if="errors.payment">{{ errors.payment }}</p>
-        </div>
+          <!-- 愛心碼 -->
+          <div v-if="invoiceType === 'donation'" class="checkout__form-group">
+            <label>愛心碼</label>
+            <input v-model="npoban" />
+            <p v-if="errors.npoban">{{ errors.npoban }}</p>
+          </div>
+          <h3>優惠及結帳</h3>
+          <div class="checkout__block">
+            <div v-for="option in payMethodOptions" :key="option.value">
+              <label>
+                <input type="radio" :value="option.value" v-model="payment" />
+                {{ option.label }}
+              </label>
+            </div>
+            <p v-if="errors.payment">{{ errors.payment }}</p>
+          </div>
 
-        <div class="checkout__total">
-          <p>商品：NT${{ productTotal }}</p>
-          <p>運費：NT${{ shippingFee }}</p>
-          <p>折扣：-NT${{ discount }}</p>
-          <p class="total">
-            總金額：<strong>NT${{ total }}</strong>
-          </p>
-        </div>
+          <div class="checkout__total">
+            <p>商品：NT$ <NumberFormatter :number="productTotal ?? 0" /></p>
+            <p>
+              運費：NT$
 
-        <div class="checkout__buttons">
-          <button class="btn btn-outline" @click="$router.back()">
-            回上頁
-          </button>
-          <button class="btn btn-primary" @click="submitOrder">結帳</button>
-        </div>
-      </MCard>
+              <NumberFormatter :number="shippingFee ?? 0" />
+            </p>
+            <p class="total">
+              總金額：<strong
+                >NT$
+
+                <NumberFormatter :number="total ?? 0" />
+              </strong>
+            </p>
+          </div>
+
+          <div class="checkout__buttons">
+            <button class="btn btn-outline" @click="$router.back()">
+              回上頁
+            </button>
+            <button class="btn btn-primary" type="submit">結帳</button>
+          </div>
+        </MCard>
+      </div>
     </div>
-  </div>
+  </form>
 </template>
 
 <style scoped lang="scss">
@@ -354,6 +540,13 @@ const submitOrder = handleSubmit((formData) => {
     background: #ccc;
     border-radius: 12px;
     flex-shrink: 0;
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; // ✅ 保持比例填滿容器
+      border-radius: 12px;
+      display: block;
+    }
   }
 
   &__item-info {

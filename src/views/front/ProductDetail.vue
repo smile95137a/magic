@@ -147,7 +147,9 @@ const addToCart = () => {
     name: product.value.name.trim(),
     price: product.value.specialPrice ?? product.value.originalPrice,
     quantity: 1,
+    imageUrl: product.value.mainImageUrl,
   });
+
   dialogStore.openInfoDialog({
     title: '系統通知',
     message: '已加入購物車！',
