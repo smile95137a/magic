@@ -2,7 +2,7 @@
   <div class="my-blessings">
     <!-- 區塊一：目前供奉中 -->
     <h2 class="my-blessings__title">我的供奉</h2>
-    <table class="my-blessings__table">
+    <table class="my-blessings__table" v-if="myGodInfo?.length">
       <thead>
         <tr>
           <th>目前供奉</th>
@@ -11,17 +11,22 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>月老</td>
-          <td>已供奉4天，剩餘3天</td>
+        <tr v-for="(god, index) in myGodInfo" :key="index">
+          <td>{{ god.godName }}</td>
+          <td>已供奉 {{ god.passDays }} 天，剩餘 {{ god.remainingDays }} 天</td>
           <td>
-            <div>2025/06/03 08:24　金果</div>
-            <div>2025/06/03 07:56　金香</div>
-            <div>2025/06/03 07:08　金牌</div>
+            <div
+              v-for="(item, i) in god.offeringStates"
+              :key="i"
+              class="my-blessings__offering"
+            >
+              {{ item.buyTime }}　{{ item.id }}
+            </div>
           </td>
         </tr>
       </tbody>
     </table>
+    <p v-else class="text-gray">目前無供奉中神明</p>
 
     <!-- 區塊二：查詢供奉紀錄 -->
     <h2 class="my-blessings__title">查詢供奉紀錄</h2>
@@ -36,52 +41,60 @@
       </div>
       <button class="my-blessings__btn" @click="handleSearch">查詢</button>
     </div>
+    <template v-if="currentPageItems.length > 0">
+      <table class="my-blessings__table" v-if="currentPageItems.length > 0">
+        <thead>
+          <tr>
+            <th>日期</th>
+            <th>項目</th>
+            <th>內容</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, index) in currentPageItems" :key="index">
+            <td>{{ item.date }}</td>
+            <td>{{ item.item }}</td>
+            <td>{{ item.content }}</td>
+          </tr>
+        </tbody>
+      </table>
 
-    <table class="my-blessings__table">
-      <thead>
-        <tr>
-          <th>日期</th>
-          <th>項目</th>
-          <th>內容</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(item, index) in currentPageItems" :key="index">
-          <td>{{ item.date }}</td>
-          <td>{{ item.title }}</td>
-          <td>{{ item.content }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="flex justify-center m-t-12">
-      <Pagination
-        :totalPages="totalPages"
-        :renderPaginationNums="renderPaginationNums"
-        :currentPage="currentPage"
-        :nextPage="nextPage"
-        :previousPage="previousPage"
-        :goToPage="goToPage"
-        :pageLimitSize="pageLimitSize"
-        :totalItems="recordList.length"
-        @update:pageLimitSize="pageLimitSize = $event"
-      />
-    </div>
+      <div class="flex justify-center m-t-12">
+        <Pagination
+          :totalPages="totalPages"
+          :renderPaginationNums="renderPaginationNums"
+          :currentPage="currentPage"
+          :nextPage="nextPage"
+          :previousPage="previousPage"
+          :goToPage="goToPage"
+          :pageLimitSize="pageLimitSize"
+          :totalItems="recordList.length"
+          @update:pageLimitSize="pageLimitSize = $event"
+        />
+      </div>
+    </template>
+    <NoData v-else />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import Pagination from '@/components/common/Pagination.vue';
+import NoData from '@/components/common/NoData.vue';
 import { usePagination } from '@/hook/usePagination';
+import { useDialogStore } from '@/stores/dialogStore';
+import { getOfferingRecord, getMyGodInfo } from '@/services/UserService';
+import { getErrorMessage } from '@/utils/ErrorUtils';
+import moment from 'moment';
 
-const startDate = ref('2024-08-04');
-const endDate = ref('2024-08-04');
+const dialogStore = useDialogStore();
 
-// 所有供奉紀錄原始資料
+const startDate = ref(moment().subtract(7, 'days').format('YYYY-MM-DD'));
+const endDate = ref(moment().format('YYYY-MM-DD'));
+
 const recordList = ref<any[]>([]);
+const myGodInfo = ref<any>(null);
 
-// 分頁設定
 const pageLimitSize = ref(10);
 const {
   totalPages,
@@ -93,14 +106,65 @@ const {
   goToPage,
 } = usePagination<any>(recordList, pageLimitSize);
 
-// 查詢動作（模擬）
-const handleSearch = () => {
-  recordList.value = Array.from({ length: 26 }, (_, i) => ({
-    date: '2025/06/03 18:22',
-    title: '項目名稱',
-    content: '內容文字',
-  }));
+// 初始化目前供奉
+const loadMyGodInfo = async () => {
+  try {
+    const res = await getMyGodInfo();
+    if (res.success) {
+      myGodInfo.value = res.data;
+    } else {
+      await dialogStore.openInfoDialog({
+        title: '錯誤',
+        message: res.message || '目前供奉查詢失敗',
+      });
+    }
+  } catch (err) {
+    await dialogStore.openInfoDialog({
+      title: '錯誤',
+      message: getErrorMessage(err),
+    });
+  }
 };
+
+// 查詢供奉紀錄
+const handleSearch = async () => {
+  if (moment(startDate.value).isAfter(endDate.value)) {
+    await dialogStore.openInfoDialog({
+      title: '錯誤',
+      message: '開始日期不可晚於結束日期。',
+    });
+    return;
+  }
+
+  const payload = {
+    startTime: moment(startDate.value).format('YYYY/MM/DD'),
+    endTime: moment(endDate.value).format('YYYY/MM/DD'),
+  };
+
+  try {
+    const res = await getOfferingRecord(payload);
+    if (res.success) {
+      recordList.value = res.data || [];
+    } else {
+      recordList.value = [];
+      await dialogStore.openInfoDialog({
+        title: '錯誤',
+        message: res.message || '查詢失敗',
+      });
+    }
+  } catch (err) {
+    recordList.value = [];
+    await dialogStore.openInfoDialog({
+      title: '錯誤',
+      message: getErrorMessage(err),
+    });
+  }
+};
+
+onMounted(async () => {
+  await loadMyGodInfo();
+  await handleSearch();
+});
 </script>
 
 <style scoped lang="scss">

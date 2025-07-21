@@ -86,6 +86,7 @@ import { login } from '@/services/UserService';
 import { useAuthFrontStore } from '@/stores/authFrontStore';
 import { useDialogStore } from '@/stores/dialogStore';
 import { useLoadingStore } from '@/stores/loadingStore';
+import { getErrorMessage } from '@/utils/ErrorUtils';
 import { withLoading } from '@/utils/loadingUtils';
 import { useForm } from 'vee-validate';
 import { onMounted } from 'vue';
@@ -124,11 +125,18 @@ const onSubmit = handleSubmit(async (values) => {
     if (success) {
       authStore.setToken(data.accessToken);
       router.push('/home');
+    } else {
+      await dialogStore.openInfoDialog({
+        title: '錯誤',
+        message: message || '登入失敗，請稍後再試。',
+      });
     }
   } catch (error) {
-    console.error('登入失敗', error);
+    await dialogStore.openInfoDialog({
+      title: '錯誤',
+      message: getErrorMessage(error),
+    });
   }
-  const res = await login(values);
 });
 
 const forwardRegistration = () => {

@@ -15,7 +15,7 @@
         </tr>
       </thead>
       <tbody>
-        <template v-for="item in masters" :key="item.code">
+        <template v-for="item in currentPageItems" :key="item.code">
           <!-- 主列 -->
           <tr @click="toggleExpand(item.code)" class="admin-list__row">
             <td>{{ item.name }}</td>
@@ -45,24 +45,48 @@
         </template>
       </tbody>
     </table>
+    <div class="flex justify-center m-t-12">
+      <Pagination
+        :totalPages="totalPages"
+        :renderPaginationNums="renderPaginationNums"
+        :currentPage="currentPage"
+        :nextPage="nextPage"
+        :previousPage="previousPage"
+        :goToPage="goToPage"
+        :pageLimitSize="pageLimitSize"
+        :totalItems="list.length"
+        @update:pageLimitSize="pageLimitSize = $event"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import Pagination from '@/components/common/Pagination.vue';
+import { usePagination } from '@/hook/usePagination';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchAllMasters } from '@/services/admin/adminMasterServices';
 import { withLoading } from '@/utils/loadingUtils';
 
 const router = useRouter();
-const masters = ref<any[]>([]);
 const expandedCode = ref<string | null>(null);
-
+const list = ref<any[]>([]);
+const pageLimitSize = ref(10);
+const {
+  totalPages,
+  currentPageItems,
+  renderPaginationNums,
+  currentPage,
+  nextPage,
+  previousPage,
+  goToPage,
+} = usePagination<any>(list, pageLimitSize);
 const load = async () => {
   try {
     const res = await withLoading(() => fetchAllMasters());
     if (res.success && Array.isArray(res.data)) {
-      masters.value = res.data;
+      list.value = res.data;
     }
   } catch (error) {
     console.error('load masters error:', error);

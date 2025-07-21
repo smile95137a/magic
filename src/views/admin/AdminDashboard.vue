@@ -30,17 +30,17 @@
 <script setup lang="ts">
 const menu = [
   { label: '老師管理', path: '/admin/masters' },
-  { label: '老師預約', path: '/admin/master-bookings' },
-  { label: '用戶購燈', path: '/admin/user-lantern-purchases' },
-  { label: '用戶購供品', path: '/admin/user-offering-purchases' },
-  { label: '供品管理', path: '/admin/offerings' },
+  { label: '老師預約報表', path: '/admin/reports/master-reservations' },
   { label: 'Banner 管理', path: '/admin/banners' },
+  { label: '供品管理', path: '/admin/offerings' },
   { label: '商城分類', path: '/admin/mall/categories' },
   { label: '商城商品', path: '/admin/mall/items' },
-  { label: '商城報表', path: '/admin/reports/mall-purchases' },
-  { label: '燈籠設定', path: '/admin/settings/lantern' },
-  { label: '推薦設定', path: '/admin/settings/lantern-recommend' },
-  { label: '使用者管理', path: '/admin/users' },
+  { label: '訂單管理', path: '/admin/orders' },
+  { label: '物流管理', path: '/admin/shipping-method' },
+  { label: '點燈報表', path: '/admin/reports/lantern-purchases' },
+  { label: '供品報表', path: '/admin/reports/offering-purchases' },
+  { label: '點燈設定', path: '/admin/settings/lantern' },
+  { label: '推薦點燈清單', path: '/admin/settings/lantern-recommend' },
 ];
 </script>
 

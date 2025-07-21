@@ -1,145 +1,114 @@
 <template>
-  <!-- <div class="lantern-setting">
-    <MCard>
-      <form class="lantern-setting__form" @submit.prevent="onSubmit">
-        <h2 class="lantern-setting__title">推薦點燈設定</h2>
+  <div class="admin-list">
+    <h1 class="admin-list__title">購買數疊加設定</h1>
 
-        <div class="lantern-setting__section">
-          <label class="lantern-setting__label">推薦燈品（可複選）</label>
-          <select
-            multiple
-            v-model="form.promotionLanterns"
-            class="lantern-setting__select"
-          >
-            <option
-              v-for="option in availableLanterns"
-              :key="option.value"
-              :value="option.value"
-            >
-              {{ option.label }}
-            </option>
-          </select>
-        </div>
+    <div class="light-grid">
+      <div
+        v-for="light in lightImages"
+        :key="light.id"
+        class="light-item"
+        :class="{ 'light-item--active': selectedId === light.id }"
+        @click="selectLight(light.id)"
+      >
+        <img :src="light.image" :alt="light.name" class="light-item__image" />
+        <div class="light-item__label">{{ light.name }}</div>
+      </div>
+    </div>
 
-        <div class="lantern-setting__section">
-          <label class="lantern-setting__label">購買數字疊加</label>
-          <input
-            type="number"
-            v-model.number="form.count"
-            class="lantern-setting__input"
-            min="0"
-          />
-        </div>
-
-        <div class="lantern-setting__actions">
-          <button type="submit" class="lantern-setting__btn">儲存設定</button>
-        </div>
-      </form>
-    </MCard>
-  </div> -->
+    <form class="admin-list__form" @submit.prevent="handleSubmit">
+      <label v-if="selectedLightName"
+        >設定「{{ selectedLightName }}」的增加值</label
+      >
+      <input
+        type="number"
+        v-model.number="count"
+        class="admin-list__input"
+        required
+      />
+      <button type="submit" class="admin-list__button">儲存</button>
+    </form>
+  </div>
 </template>
 
 <script setup lang="ts">
-// import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
+import { withLoading } from '@/utils/loadingUtils';
+import {
+  fetchPurchaseLanternCount,
+  updatePurchaseLanternCount,
+} from '@/services/admin/adminSystemConfigService';
+import lightImages from '@/data/lightImages';
 
-// import { withLoading } from '@/utils/loadingUtils';
-// import {
-//   fetchPromotionLanternList,
-//   fetchPurchaseLanternCount,
-//   updatePromotionLanternList,
-//   updatePurchaseLanternCount,
-// } from '@/services/admin/systemConfigService';
+// 🔸選中的燈 ID 與疊加值
+const selectedId = ref<number | null>(null);
+const count = ref(0);
 
-// const availableLanterns = ref<{ label: string; value: string }[]>([
-//   { label: '平安燈', value: 'peace' },
-//   { label: '光明燈', value: 'light' },
-//   { label: '財神燈', value: 'wealth' },
-//   { label: '文昌燈', value: 'wisdom' },
-//   { label: '姻緣燈', value: 'love' },
-// ]);
+// 🔸從 lightImages 取出名稱
+const selectedLightName = computed(() => {
+  const light = lightImages.find((l) => l.id === selectedId.value);
+  return light?.name || '';
+});
 
-// const form = ref({
-//   promotionLanterns: [] as string[],
-//   count: 0,
-// });
+const selectLight = (id: number) => {
+  selectedId.value = id;
+  load(); // 重新查該燈的增加值
+};
 
-// const loadConfig = async () => {
-//   try {
-//     const [promotionRes, countRes] = await Promise.all([
-//       fetchPromotionLanternList(),
-//       fetchPurchaseLanternCount(),
-//     ]);
-//     if (promotionRes.success) {
-//       form.value.promotionLanterns = promotionRes.data;
-//     }
-//     if (countRes.success) {
-//       form.value.count = countRes.data;
-//     }
-//   } catch (err) {}
-// };
+const load = async () => {
+  if (!selectedId.value) return;
+  const res = await withLoading(() => fetchPurchaseLanternCount());
+  if (res.success) {
+    count.value = res.data;
+  }
+};
 
-// const onSubmit = withLoading(async () => {
-//   try {
-//     const [res1, res2] = await Promise.all([
-//       updatePromotionLanternList(form.value.promotionLanterns),
-//       updatePurchaseLanternCount({ count: form.value.count }),
-//     ]);
-//     if (res1.success && res2.success) {
-//     } else {
-//     }
-//   } catch (err) {}
-// });
+const handleSubmit = async () => {
+  if (!selectedId.value) {
+    alert('請先選擇一個燈種');
+    return;
+  }
+  const res = await withLoading(() =>
+    updatePurchaseLanternCount({ count: count.value })
+  );
+  if (res.success) {
+    alert('儲存成功');
+  }
+};
 
-// onMounted(loadConfig);
+onMounted(() => {
+  selectedId.value = lightImages[0].id;
+  load();
+});
 </script>
 
-<style scoped lang="scss">
-.lantern-setting {
-  &__form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  &__title {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 1rem;
-  }
-
-  &__section {
-    display: flex;
-    flex-direction: column;
-  }
-
-  &__label {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
-
-  &__select {
-    height: 120px;
-    padding: 0.5rem;
-    font-size: 16px;
-  }
-
-  &__input {
-    padding: 0.5rem;
-    font-size: 16px;
-    width: 200px;
-  }
-
-  &__actions {
-    margin-top: 1rem;
-  }
-
-  &__btn {
-    padding: 0.75rem 1.5rem;
-    font-size: 16px;
-    background-color: #eb6c4d;
-    color: white;
-    border: none;
-    border-radius: 4px;
-  }
+<style scoped>
+.light-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.light-item {
+  border: 2px solid #ddd;
+  padding: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 8px;
+}
+.light-item:hover {
+  border-color: #999;
+}
+.light-item--active {
+  border-color: #eb6c4d;
+  background: #fff5f2;
+}
+.light-item__image {
+  height: 60px;
+  object-fit: contain;
+}
+.light-item__label {
+  margin-top: 0.5rem;
+  font-size: 14px;
 }
 </style>

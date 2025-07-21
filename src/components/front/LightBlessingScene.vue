@@ -1,5 +1,5 @@
 <template>
-  <section class="light-blessing">
+  <section class="light-blessing" v-if="lightList.length > 0">
     <SectionBackground variant="light" />
     <div class="light-blessing__container">
       <Title color="dark" text="推薦點燈" />

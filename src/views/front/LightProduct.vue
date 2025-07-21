@@ -50,7 +50,11 @@ import { getLanternList } from '@/services/lanternServices';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import LightBlessingTabs from '@/components/front/LightBlessingTabs.vue';
 import MCard from '@/components/common/MCard.vue';
+import { useAuthFrontStore } from '@/stores/authFrontStore';
+import { useRouter } from 'vue-router';
+const router = useRouter();
 const blessingStore = useBlessingStore();
+const authStore = useAuthFrontStore();
 const { step, selectedLamp, quantity, contactInfos } =
   storeToRefs(blessingStore);
 
@@ -88,6 +92,10 @@ const selectLamp = (lamp: any) => {
 onMounted(() => {
   blessingStore.resetBlessing();
   fetchLamps();
+  if (!authStore.isLogin) {
+    router.replace({ name: 'Login' });
+    return;
+  }
 });
 </script>
 

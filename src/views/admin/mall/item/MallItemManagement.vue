@@ -19,7 +19,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in products" :key="item.id">
+        <tr v-for="item in currentPageItems" :key="item.id">
           <td>
             <img
               v-if="item.mainImageUrl"
@@ -40,10 +40,25 @@
         </tr>
       </tbody>
     </table>
+    <div class="flex justify-center m-t-12">
+      <Pagination
+        :totalPages="totalPages"
+        :renderPaginationNums="renderPaginationNums"
+        :currentPage="currentPage"
+        :nextPage="nextPage"
+        :previousPage="previousPage"
+        :goToPage="goToPage"
+        :pageLimitSize="pageLimitSize"
+        :totalItems="list.length"
+        @update:pageLimitSize="pageLimitSize = $event"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import Pagination from '@/components/common/Pagination.vue';
+import { usePagination } from '@/hook/usePagination';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { getProductList } from '@/services/admin/adminProductServices';
@@ -51,12 +66,23 @@ import { withLoading } from '@/utils/loadingUtils';
 import { getImageUrl } from '@/utils/ImageUtils';
 
 const router = useRouter();
-const products = ref<any[]>([]);
+
+const list = ref<any[]>([]);
+const pageLimitSize = ref(10);
+const {
+  totalPages,
+  currentPageItems,
+  renderPaginationNums,
+  currentPage,
+  nextPage,
+  previousPage,
+  goToPage,
+} = usePagination<any>(list, pageLimitSize);
 
 const load = async () => {
   const res = await withLoading(() => getProductList({}));
   if (res.success && Array.isArray(res.data)) {
-    products.value = res.data;
+    list.value = res.data;
   }
 };
 

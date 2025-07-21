@@ -7,15 +7,11 @@ import adminOfferingRoutes from './modules/adminOfferingRoutes';
 import adminMasterRoutes from './modules/adminMasterRoutes';
 import adminBannerRoutes from './modules/adminBannerRoutes';
 import adminMallRoutes from './modules/adminMallRoutes';
-import adminUserRoutes from './modules/adminUserRoutes';
 
-import UserLanternPurchase from '@/views/admin/user/UserLanternPurchase.vue';
-import UserOfferingPurchase from '@/views/admin/user/UserOfferingPurchase.vue';
-import MallReport from '@/views/admin/report/MallPurchaseReport.vue';
-import LanternSetting from '@/views/admin/setting/LanternSetting.vue';
-import LanternForm from '@/views/admin/setting/LanternForm.vue';
-import LanternRecommend from '@/views/admin/setting/LanternRecommend.vue';
-import LanternRecommendForm from '@/views/admin/setting/LanternRecommendForm.vue';
+import adminOrderRoutes from './modules/adminOrderRoutes';
+import adminShippingMethodRoutes from './modules/adminShippingRoutes';
+import adminReportRoutes from './modules/adminReportRoutes';
+import adminSettingRoutes from './modules/adminSettingRoutes';
 
 export const adminRoutes: Array<RouteRecordRaw> = [
   {
@@ -32,64 +28,10 @@ export const adminRoutes: Array<RouteRecordRaw> = [
       adminMasterRoutes,
       adminBannerRoutes,
       adminMallRoutes,
-      adminUserRoutes,
-      {
-        path: 'user-lantern-purchases',
-        component: UserLanternPurchase,
-        meta: { requiresAuth: true, layout: 'admin' },
-      },
-      {
-        path: 'user-offering-purchases',
-        component: UserOfferingPurchase,
-        meta: { requiresAuth: true, layout: 'admin' },
-      },
-      {
-        path: 'reports/mall-purchases',
-        component: MallReport,
-        meta: { requiresAuth: true, layout: 'admin' },
-      },
-      {
-        path: 'settings',
-        meta: { requiresAuth: true, layout: 'admin' },
-        children: [
-          {
-            path: 'lantern',
-            name: 'LanternSetting',
-            component: LanternSetting,
-            meta: { requiresAuth: true, layout: 'admin' },
-          },
-          {
-            path: 'lantern/add',
-            name: 'LanternAdd',
-            component: LanternForm,
-            meta: { requiresAuth: true, layout: 'admin' },
-          },
-          {
-            path: 'lantern/edit/:id',
-            name: 'LanternEdit',
-            component: LanternForm,
-            meta: { requiresAuth: true, layout: 'admin' },
-          },
-          {
-            path: 'lantern-recommend',
-            name: 'LanternRecommend',
-            component: LanternRecommend,
-            meta: { requiresAuth: true, layout: 'admin' },
-          },
-          {
-            path: 'lantern-recommend/add',
-            name: 'LanternRecommendAdd',
-            component: LanternRecommendForm,
-            meta: { requiresAuth: true, layout: 'admin' },
-          },
-          {
-            path: 'lantern-recommend/edit/:id',
-            name: 'LanternRecommendEdit',
-            component: LanternRecommendForm,
-            meta: { requiresAuth: true, layout: 'admin' },
-          },
-        ],
-      },
+      adminOrderRoutes,
+      adminShippingMethodRoutes,
+      adminReportRoutes,
+      adminSettingRoutes,
       {
         path: ':pathMatch(.*)*',
         name: 'AdminNotFound',

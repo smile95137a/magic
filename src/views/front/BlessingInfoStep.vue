@@ -37,8 +37,11 @@ import moment from 'moment';
 import { purchaseLantern } from '@/services/lanternServices';
 import { useBlessingStore } from '@/stores/blessingStore';
 import { storeToRefs } from 'pinia';
+import { useDialogStore } from '@/stores/dialogStore';
+import { getErrorMessage } from '@/utils/ErrorUtils';
 
 const store = useBlessingStore();
+const dialogStore = useDialogStore();
 const { contactInfos, selectedLamp } = storeToRefs(store);
 
 const finalSubmit = async () => {
@@ -51,14 +54,28 @@ const finalSubmit = async () => {
           ? moment(info.birthday).format('YYYY/MM/DD')
           : '',
       })),
+      month: 12,
     };
 
-    await purchaseLantern(payload);
-    alert('祈福資料已送出！');
-    store.resetBlessing();
+    const response = await purchaseLantern(payload);
+
+    if (response.success) {
+      await dialogStore.openInfoDialog({
+        title: '成功',
+        message: '祈福資料已送出！',
+      });
+      store.resetBlessing();
+    } else {
+      await dialogStore.openInfoDialog({
+        title: '錯誤',
+        message: response.message || '祈福送出失敗，請稍後再試。',
+      });
+    }
   } catch (error) {
-    console.error('送出失敗:', error);
-    alert('送出失敗，請稍後再試');
+    await dialogStore.openInfoDialog({
+      title: '錯誤',
+      message: getErrorMessage(error),
+    });
   }
 };
 </script>

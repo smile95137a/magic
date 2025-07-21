@@ -1,5 +1,5 @@
 <template>
-  <section class="top-light-blessing">
+  <section class="top-light-blessing" v-if="lightList.length > 0">
     <SectionBackground variant="light" />
     <div class="top-light-blessing__container">
       <Title color="dark" text="人氣燈王" />

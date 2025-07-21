@@ -91,9 +91,13 @@ import Pagination from '@/components/common/Pagination.vue';
 import NoData from '@/components/common/NoData.vue';
 import { usePagination } from '@/hook/usePagination';
 import { getOrderList } from '@/services/OrderService';
+import { useDialogStore } from '@/stores/dialogStore';
+import { getErrorMessage } from '@/utils/ErrorUtils';
 
-const startDate = ref('2024-08-04');
-const endDate = ref('2024-08-04');
+const dialogStore = useDialogStore();
+
+const startDate = ref(moment().subtract(7, 'days').format('YYYY-MM-DD'));
+const endDate = ref(moment().format('YYYY-MM-DD'));
 
 const list = ref<any[]>([]);
 const pageLimitSize = ref(10);
@@ -112,6 +116,14 @@ const showDialog = ref(false);
 const selectedItem = ref<any>({});
 
 const handleSearch = async () => {
+  if (moment(startDate.value).isAfter(endDate.value)) {
+    await dialogStore.openInfoDialog({
+      title: '錯誤',
+      message: '開始日期不可晚於結束日期。',
+    });
+    return;
+  }
+
   const payload = {
     startTime: moment(startDate.value).format('YYYY/MM/DD'),
     endTime: moment(endDate.value).format('YYYY/MM/DD'),
@@ -120,14 +132,19 @@ const handleSearch = async () => {
   try {
     const res = await getOrderList(payload);
     if (res.success) {
-      list.value = res.data ?? [];
+      list.value = res.data || [];
     } else {
-      console.warn('查詢失敗:', res.message);
       list.value = [];
+      await dialogStore.openInfoDialog({
+        title: '查詢失敗',
+        message: res.message || '查詢失敗，請稍後再試。',
+      });
     }
-  } catch (error) {
-    console.error('查詢錯誤:', error);
-    list.value = [];
+  } catch (error: any) {
+    await dialogStore.openInfoDialog({
+      title: '錯誤',
+      message: getErrorMessage(error),
+    });
   }
 };
 

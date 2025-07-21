@@ -1,61 +1,118 @@
 <template>
   <div class="admin-list">
-    <h1 class="admin-list__title">推薦燈品管理</h1>
-    <button class="admin-list__add-btn" @click="goToAdd">新增推薦燈品</button>
+    <h1 class="admin-list__title">推薦點燈清單設定</h1>
 
-    <table class="admin-list__table" v-if="lanterns.length">
-      <thead>
-        <tr>
-          <th>燈品名稱</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="lanternId in lanterns" :key="lanternId">
-          <td>{{ getLanternLabel(lanternId) }}</td>
-          <td>
-            <button @click="goToEdit" class="admin-list__edit-btn">編輯</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <form class="admin-list__form" @submit.prevent="handleSubmit">
+      <div class="lantern-list">
+        <div
+          v-for="lantern in lamps"
+          :key="lantern.id"
+          class="lantern-item"
+          :class="{ 'lantern-item--selected': selectedIds.has(lantern.id) }"
+          @click="toggleSelect(lantern.id)"
+        >
+          <img
+            :src="imageMap[lantern.iconName]"
+            :alt="lantern.name"
+            class="lantern-item__img"
+          />
+          <p class="lantern-item__name">{{ lantern.name }}</p>
+        </div>
+      </div>
 
-    <p v-else>尚未設定推薦燈品</p>
+      <button type="submit" class="admin-list__button">儲存</button>
+    </form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { fetchPromotionLanternList } from '@/services/admin/systemConfigService';
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import lightImages from '@/data/lightImages';
+import { withLoading } from '@/utils/loadingUtils';
+import {
+  fetchPromotionLanternList,
+  updatePromotionLanternList,
+} from '@/services/admin/adminSystemConfigService';
+import { getLanternList } from '@/services/lanternServices';
 
-const router = useRouter();
-const lanterns = ref<string[]>([]);
+const lamps = ref<any[]>([]);
+const selectedIds = ref<Set<string>>(new Set());
 
-// 固定選項（如有 API 可改為動態載入）
-const lanternOptions = [
-  { label: '平安燈', value: 'peace' },
-  { label: '光明燈', value: 'light' },
-  { label: '財神燈', value: 'wealth' },
-  { label: '文昌燈', value: 'wisdom' },
-  { label: '姻緣燈', value: 'love' },
-];
+const imageMap = Object.fromEntries(
+  lightImages.map((item) => [item.key, item.image])
+);
 
-const getLanternLabel = (value: string) =>
-  lanternOptions.find((opt) => opt.value === value)?.label || value;
-
-const loadData = async () => {
-  try {
-    const res = await fetchPromotionLanternList();
-    if (res.success) lanterns.value = res.data;
-  } catch {}
+const toggleSelect = (id: string) => {
+  if (selectedIds.value.has(id)) {
+    selectedIds.value.delete(id);
+  } else {
+    selectedIds.value.add(id);
+  }
 };
 
-const goToAdd = () => router.push('/admin/settings/lantern-recommend/add');
-// 編輯直接導去 add 頁（單一畫面）
-const goToEdit = () => router.push('/admin/lantern-recommend/add');
+const fetchLamps = async () => {
+  try {
+    const res = await getLanternList();
+    if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+      lamps.value = res.data;
+    } else {
+      lamps.value = lightImages;
+    }
+  } catch (err) {
+    lamps.value = lightImages;
+  }
+};
 
-onMounted(() => {
-  loadData();
-});
+const load = async () => {
+  await fetchLamps();
+
+  const res = await withLoading(fetchPromotionLanternList);
+  if (res.success && Array.isArray(res.data)) {
+    selectedIds.value = new Set(res.data);
+  }
+};
+
+const handleSubmit = async () => {
+  const ids = Array.from(selectedIds.value);
+  const res = await withLoading(() => updatePromotionLanternList(ids));
+  if (res.success) {
+    alert('儲存成功');
+  }
+};
+
+onMounted(load);
 </script>
+
+<style scoped>
+.lantern-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.lantern-item {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
+  cursor: pointer;
+  width: 100px;
+  transition: border-color 0.2s;
+}
+.lantern-item:hover {
+  border-color: #ccc;
+}
+.lantern-item--selected {
+  border-color: #eb6c4d;
+  background-color: #fff3ed;
+}
+.lantern-item__img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  margin-bottom: 6px;
+}
+.lantern-item__name {
+  font-size: 14px;
+}
+</style>

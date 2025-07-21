@@ -1,5 +1,5 @@
 <template>
-  <section class="light-scene">
+  <section class="light-scene" v-if="lightList.length > 0">
     <SectionBackground variant="red" />
     <div class="light-scene__container">
       <Title color="white" text="最新燈場" />

@@ -1,1 +1,4 @@
 sh depoly.sh
+
+VITE_BASE_API_URL=http://localhost:8080
+GENERATE_SOURCEMAP=false
