@@ -8,14 +8,20 @@
 
       <div class="god-selector__main">
         <div class="god-selector__circle">
+          <img :src="godBg" alt="背景插圖" class="god-selector__bg" />
           <img
             :src="selectedGodImage?.default"
             alt="主神"
             class="god-selector__main-god"
           />
-        </div>
-        <div class="god-selector__subtitle" @click="handleThrowGod">
-          擲筊請神
+          <div class="god-selector__fixed-button">
+            <StartButton
+              label="擲筊請神"
+              styleType="red"
+              :useBwaSheng="true"
+              @click="handleThrowGod"
+            />
+          </div>
         </div>
       </div>
 
@@ -45,13 +51,14 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useOfferStore } from '@/stores/offerStore';
+import godBg from '@/assets/image/god-bg-r.png';
 import godImages from '@/data/godImages';
 import Rank from '@/components/front/Rank.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import Title from '@/components/common/Title.vue';
 import { getGodInfo } from '@/services/GodService';
 import { withLoading } from '@/utils/loadingUtils';
-
+import StartButton from '@/components/front/StartButton.vue';
 const offerStore = useOfferStore();
 const selectedGod = computed(() => offerStore.selectedGod);
 
@@ -100,6 +107,7 @@ const handleThrowGod = async () => {
 .god-selector {
   width: 100%;
   position: relative;
+
   &__container {
     max-width: 1200px;
     margin: 0 auto;
@@ -120,19 +128,54 @@ const handleThrowGod = async () => {
   }
 
   &__circle {
-    background: #d94d3b;
+    position: relative;
     border-radius: 50%;
-    width: 200px;
-    height: 200px;
+    width: 400px;
+    height: 400px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto;
+
+    @media (max-width: 768px) {
+      width: 280px;
+      height: 280px;
+    }
+  }
+
+  &__bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    z-index: 0;
   }
 
   &__main-god {
-    width: 120px;
+    width: 160px;
     height: auto;
+    position: relative;
+    left: -30px;
+    z-index: 1;
+
+    @media (max-width: 768px) {
+      left: 0;
+    }
+  }
+
+  &__fixed-button {
+    position: absolute;
+    right: -200px;
+    bottom: 0;
+    z-index: 1000;
+    cursor: pointer;
+
+    @media (max-width: 768px) {
+      position: static;
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: center;
+    }
   }
 
   &__subtitle {
@@ -140,6 +183,15 @@ const handleThrowGod = async () => {
     margin-top: 1rem;
     font-size: 1.1rem;
     font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+
+    &-img {
+      width: 24px;
+      height: auto;
+      margin-right: 8px;
+    }
   }
 
   &__list {
@@ -202,6 +254,16 @@ const handleThrowGod = async () => {
         z-index: 1;
       }
     }
+
+    @media (max-width: 768px) {
+      flex-wrap: wrap;
+      justify-content: center;
+
+      .god-selector__item {
+        width: 160px;
+        margin-bottom: 1rem;
+      }
+    }
   }
 
   &__description {
@@ -214,18 +276,6 @@ const handleThrowGod = async () => {
     border-radius: 1rem;
     border: 1px solid #e0c4b4;
     margin-top: 2rem;
-  }
-
-  @media (max-width: 768px) {
-    &__list {
-      flex-wrap: wrap;
-      justify-content: center;
-
-      .god-selector__item {
-        width: 160px;
-        margin-bottom: 1rem;
-      }
-    }
   }
 }
 </style>

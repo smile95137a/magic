@@ -9,13 +9,14 @@
     <div class="invoke-success__content">
       <!-- 左欄：祈求者 -->
       <div class="invoke-success__column invoke-success__column--left">
-        <p class="invoke-success__text">信男 王小明</p>
+        <p class="invoke-success__text">信眾 {{ userName }}</p>
         <p class="invoke-success__text">求{{ godName }}賜福</p>
       </div>
 
       <!-- 中欄：神明圖像 -->
       <div class="invoke-success__column invoke-success__column--center">
         <div class="invoke-success__circle">
+          <img :src="godBg" alt="背景" class="invoke-success__bg" />
           <img :src="godImage" :alt="godName" class="invoke-success__god" />
           <div class="invoke-success__god-name">{{ godName }}</div>
         </div>
@@ -31,12 +32,29 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import Title from '@/components/common/Title.vue';
-
-defineProps<{
-  godImage: string; // 神明圖片 URL
-  godName: string; // 神明名稱（例如：月老）
+import { getProfile } from '@/services/UserService';
+import { withLoading } from '@/utils/loadingUtils';
+import godBg from '@/assets/image/god-bg-r.png';
+const props = defineProps<{
+  godImage: string;
+  godName: string;
 }>();
+
+const userName = ref('');
+
+// 取得會員暱稱
+onMounted(async () => {
+  try {
+    const res = await withLoading(() => getProfile());
+    if (res?.success) {
+      userName.value = res.data?.nickName ?? '未知使用者';
+    }
+  } catch (e) {
+    console.error('使用者資料載入失敗', e);
+  }
+});
 </script>
 
 <style scoped lang="scss">
@@ -55,6 +73,7 @@ defineProps<{
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
   }
 
   &__column {
@@ -63,52 +82,100 @@ defineProps<{
     justify-content: center;
     min-height: 260px;
 
-    &--left {
+    &--left,
+    &--center,
+    &--right {
       flex: 0 0 33%;
+    }
+
+    &--left {
       align-items: flex-start;
     }
 
     &--center {
-      flex: 0 0 34%;
       align-items: center;
       position: relative;
+      margin: 1rem 0;
     }
 
     &--right {
-      flex: 0 0 33%;
       align-items: flex-end;
+    }
+
+    @media (max-width: 768px) {
+      &--left,
+      &--center,
+      &--right {
+        flex: 0 0 100%;
+        align-items: center;
+        text-align: center;
+      }
+
+      &--left {
+        margin-bottom: 1.5rem;
+      }
+
+      &--right {
+        margin-top: 1.5rem;
+      }
     }
   }
 
   &__text {
     font-size: 20px;
     line-height: 1.6;
+    color: white;
   }
 
   &__circle {
-    background-color: #f55b3a;
-    width: 260px;
-    height: 260px;
+    width: 360px;
+    height: 360px;
     border-radius: 50%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    position: relative;
     z-index: 1;
+    margin: 0 auto;
+  }
+
+  &__bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    z-index: 0;
   }
 
   &__god {
-    width: 120px;
+    width: 160px;
+    height: auto;
     margin-bottom: 0.5rem;
+    z-index: 1;
+  }
+
+  @media (max-width: 768px) {
+    &__circle {
+      width: 260px;
+      height: 260px;
+    }
+
+    &__god {
+      width: 120px;
+    }
   }
 
   &__god-name {
     font-size: 18px;
     font-weight: bold;
+    color: white;
   }
 
   &__result-count {
     font-size: 20px;
+    color: white;
+
     span {
       font-size: 32px;
       font-weight: bold;
@@ -120,6 +187,7 @@ defineProps<{
     font-size: 28px;
     font-weight: bold;
     margin-top: 0.25rem;
+    color: #ffd966;
   }
 }
 </style>

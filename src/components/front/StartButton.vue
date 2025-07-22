@@ -25,12 +25,13 @@ import { computed } from 'vue';
 import cloudR from '@/assets/image/c-r.png';
 import cloudY from '@/assets/image/c-y.png';
 import cloudDivination from '@/assets/image/bwa-sheng.png';
-
+import bwaSheng from '@/assets/image/bwa-sheng.png';
 const props = defineProps<{
   label?: string;
   styleType?: 'red' | 'yellow';
   disabled?: boolean;
   isDivination?: boolean;
+  useBwaSheng?: boolean; // ✅ 新增
 }>();
 
 const emit = defineEmits(['click']);
@@ -41,6 +42,7 @@ const handleClick = () => {
 };
 
 const resolvedCloudIcon = computed(() => {
+  if (props.useBwaSheng) return bwaSheng;
   if (props.isDivination) return cloudDivination;
   return props.styleType === 'red' ? cloudR : cloudY;
 });
