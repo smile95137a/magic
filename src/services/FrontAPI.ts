@@ -29,6 +29,10 @@ api.interceptors.response.use(
       removeAllState();
       window.location.href = '/login';
     }
+    if (error.response && error.response.status === 403) {
+      removeAllState();
+      window.location.href = '/login';
+    }
     return Promise.reject(error);
   }
 );

@@ -49,8 +49,11 @@ import { extendGodPeriod } from '@/services/GodService';
 import { useOfferStore } from '@/stores/offerStore';
 import { withLoading } from '@/utils/loadingUtils';
 import { useRouter } from 'vue-router';
+import { useDialogStore } from '@/stores/dialogStore';
+import { getErrorMessage } from '@/utils/ErrorUtils';
 
 const offerStore = useOfferStore();
+const dialogStore = useDialogStore();
 const router = useRouter();
 
 const options = [
@@ -73,10 +76,16 @@ const onExtendClick = async (option: { days: number; price: number }) => {
       offerStore.setGodInvoked(true);
       offerStore.goToStep(1);
     } else {
-      alert(res.message || '供奉失敗，請稍後再試');
+      await dialogStore.openInfoDialog({
+        title: '錯誤',
+        message: res.message || '密碼重置失敗，請稍後再試。',
+      });
     }
   } catch (error) {
-    alert('供奉過程發生錯誤，請稍後再試');
+    await dialogStore.openInfoDialog({
+      title: '錯誤',
+      message: getErrorMessage(error),
+    });
   }
 };
 </script>

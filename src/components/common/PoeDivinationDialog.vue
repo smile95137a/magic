@@ -86,7 +86,8 @@ const throwBwa = () => {
 
     if (results.value.length === maxTries) {
       setTimeout(() => {
-        handleClose(true);
+        const allSheng = results.value.every((r) => r === 'SHENG');
+        handleClose(allSheng);
       }, 1000);
     }
   }, 300);

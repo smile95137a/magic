@@ -33,7 +33,7 @@
           <img class="offering__fruit-bowl" :src="fruitBowl" alt="fruit bowl" />
           <div v-if="offerings[index]" class="offering__fruit-image">
             <img
-              :src="offerings[index]"
+              :src="offerings[index].imageBase64"
               alt="offering"
               class="offering__fruit-img"
             />
@@ -124,12 +124,14 @@ import SectionBackground from '@/components/common/SectionBackground.vue';
 import tample from '@/assets/image/img-tample.png';
 import fruitBowl from '@/assets/image/img-plate.png';
 import { useDialogStore } from '@/stores/dialogStore';
+import { getErrorMessage } from '@/utils/ErrorUtils';
 
 const offerStore = useOfferStore();
 const dialogStore = useDialogStore();
+
 const currentTab = ref<'offer' | 'extend'>('offer');
 const gods = ref<any[]>([]);
-const offerings = ref<(string | null)[]>([null, null, null]); // 每個位置代表一個供品區塊
+const offerings = ref<any[]>([null, null, null]);
 
 const extendOptions = [
   { days: 7, price: 20 },
@@ -161,6 +163,10 @@ const selectGod = async (god: any) => {
       if (data) {
         offerStore.setSelectedGod(data);
         offerStore.setGodInvoked(true);
+        const godOfferings = data.offerings || [];
+        for (let i = 0; i < 3; i++) {
+          offerings.value[i] = godOfferings[i] || null;
+        }
       } else {
         offerStore.setSelectedGod(god);
         offerStore.goToStep(2);
@@ -184,7 +190,7 @@ const openOfferingDialog = async (index: number) => {
   }
 
   try {
-    const res = await dialogStore.openPoeOfferingDialog(); // 使用者選擇的供品物件
+    const res = await dialogStore.openPoeOfferingDialog();
 
     if (res) {
       const payload = {
@@ -194,14 +200,19 @@ const openOfferingDialog = async (index: number) => {
       const result = await presentOffering(payload);
 
       if (result.success) {
-        offerings.value[index] = res.imageBase64;
+        offerings.value[index] = { imageBase64: res.imageBase64 };
       } else {
-        alert('供奉失敗，請稍後再試');
+        await dialogStore.openInfoDialog({
+          title: '錯誤',
+          message: result.message || '密碼重置失敗，請稍後再試。',
+        });
       }
     }
   } catch (error) {
-    console.error('供奉供品失敗', error);
-    alert('供奉失敗，請稍後再試');
+    await dialogStore.openInfoDialog({
+      title: '錯誤',
+      message: getErrorMessage(error),
+    });
   }
 };
 </script>

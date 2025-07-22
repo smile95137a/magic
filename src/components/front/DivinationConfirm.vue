@@ -47,6 +47,10 @@ const startDivination = async () => {
   if (result) {
     nextStep();
   } else {
+    await dialogStore.openInfoDialog({
+      title: '請示未果',
+      message: '此次未得聖筊，請誠心再次請示帝君。',
+    });
   }
 };
 </script>

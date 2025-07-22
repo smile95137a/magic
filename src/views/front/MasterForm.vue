@@ -71,7 +71,59 @@ const topics = computed(() => {
   return store.selectedMaster?.serviceItem?.map((item) => item.title) || [];
 });
 
+const isValidEmail = (email: string) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+const isValidPhone = (phone: string) => /^09\d{8}$/.test(phone); // 台灣 10 碼手機格式
+
+const validateForm = async (): Promise<boolean> => {
+  if (!store.selectedTopic) {
+    await dialog.openInfoDialog({
+      title: '格式錯誤',
+      message: '請選擇親算項目',
+    });
+    return false;
+  }
+
+  if (!store.name?.trim()) {
+    await dialog.openInfoDialog({
+      title: '格式錯誤',
+      message: '請輸入姓名',
+    });
+    return false;
+  }
+
+  if (!store.phone?.trim() || !isValidPhone(store.phone)) {
+    await dialog.openInfoDialog({
+      title: '格式錯誤',
+      message: '請輸入正確的電話號碼（例如：0912345678）',
+    });
+    return false;
+  }
+
+  if (!store.email?.trim() || !isValidEmail(store.email)) {
+    await dialog.openInfoDialog({
+      title: '格式錯誤',
+      message: '請輸入正確的 Email 格式，例如：example@example.com',
+    });
+    return false;
+  }
+
+  if (!store.lineId?.trim()) {
+    await dialog.openInfoDialog({
+      title: '格式錯誤',
+      message: '請輸入 LINE ID',
+    });
+    return false;
+  }
+
+  return true;
+};
+
 const submitForm = async () => {
+  const isValid = await validateForm();
+  if (!isValid) return;
+
   const payload = {
     serviceItem: store.selectedTopic,
     masterCode: store.selectedMaster.code,
@@ -92,9 +144,10 @@ const submitForm = async () => {
 
     if (!confirmed) return;
 
-    const { success, data, message } = await withLoading(() =>
+    const { success, data } = await withLoading(() =>
       reserveMasterService(payload)
     );
+
     if (success) {
       store.productCode = data;
       await dialog.openInfoDialog({

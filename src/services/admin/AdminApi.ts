@@ -27,7 +27,7 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
     if (error.response && error.response.status === 401) {
       removeAllState();
-      window.location.href = '/login';
+      window.location.href = '/admin/login';
     }
     if (error.response && error.response.status === 403) {
       removeAllState();
