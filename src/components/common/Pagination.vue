@@ -50,32 +50,33 @@
         <i class="fas fa-angles-right"></i>
       </button>
     </div>
-
-    <label for="pagination__page-size" class="pagination__info"
-      >共計 {{ totalItems }} 筆資訊，目前顯示: {{ displayStart }}~{{
-        displayEnd
-      }}
-      筆</label
-    >
-    <select
-      id="pagination__page-size"
-      class="pagination__page-size"
-      :value="pageLimitSize"
-      @change="
-        $emit(
-          'update:pageLimitSize',
-          Number(($event.target as HTMLSelectElement).value)
-        )
-      "
-    >
-      <option
-        v-for="size in [10, 20, 30, 40, 50, 100, 150, 200]"
-        :key="size"
-        :value="size"
+    <template v-if="showPageInfo">
+      <label for="pagination__page-size" class="pagination__info"
+        >共計 {{ totalItems }} 筆資訊，目前顯示: {{ displayStart }}~{{
+          displayEnd
+        }}
+        筆</label
       >
-        每頁顯示{{ size }}筆
-      </option>
-    </select>
+      <select
+        id="pagination__page-size"
+        class="pagination__page-size"
+        :value="pageLimitSize"
+        @change="
+          $emit(
+            'update:pageLimitSize',
+            Number(($event.target as HTMLSelectElement).value)
+          )
+        "
+      >
+        <option
+          v-for="size in [10, 20, 30, 40, 50, 100, 150, 200]"
+          :key="size"
+          :value="size"
+        >
+          每頁顯示{{ size }}筆
+        </option>
+      </select>
+    </template>
   </div>
 </template>
 
@@ -91,7 +92,9 @@ const props = defineProps<{
   goToPage: (page: number) => void; // 修正為明確的函數類型
   pageLimitSize: number;
   totalItems: number; // 新增總數據數量
+  showPageInfo?: boolean;
 }>();
+const showPageInfo = computed(() => props.showPageInfo !== false);
 
 const displayStart = computed(
   () => ~~((props.currentPage - 1) * props.pageLimitSize + 1)

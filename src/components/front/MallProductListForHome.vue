@@ -3,70 +3,47 @@
     <SectionBackground variant="light" />
     <div class="mall-product-list__container">
       <Title text="開運商店" color="red" />
-
-      <div class="mall-product-list__grid">
-        <div
-          class="product-card"
-          v-for="(product, index) in paginatedProducts"
-          :key="index"
-        >
-          <img :src="getImageUrl(product.image)" class="product-card__image" />
-          <div class="product-card__info">
-            <div class="product-card__title">
-              {{ product.title }}
-            </div>
-            <div class="product-card__price">
-              <span class="product-card__price--current">
-                NT${{ product.price }}
-              </span>
-              <span class="product-card__price--original">
-                NT${{ product.originalPrice }}
-              </span>
+      <div class="mall-product-list__main">
+        <div class="mall-product-list__grid">
+          <div
+            class="product-card"
+            v-for="(product, index) in currentPageItems"
+            :key="index"
+            @click="goToProduct(product.id)"
+          >
+            <img
+              :src="getImageUrl(product.image)"
+              class="product-card__image"
+            />
+            <div class="product-card__info">
+              <div class="product-card__title">
+                {{ product.title }}
+              </div>
+              <div class="product-card__price">
+                <span class="product-card__price--current">
+                  NT${{ product.price }}
+                </span>
+                <span class="product-card__price--original">
+                  NT${{ product.originalPrice }}
+                </span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="mall-product-list__pagination" v-if="totalPages > 1">
-        <button
-          class="pagination__btn"
-          :disabled="currentPage === 1"
-          @click="goToPage(1)"
-        >
-          &lt;&lt;
-        </button>
-        <button
-          class="pagination__btn"
-          :disabled="currentPage === 1"
-          @click="goToPage(currentPage - 1)"
-        >
-          &lt;
-        </button>
-
-        <button
-          class="pagination__dot"
-          v-for="page in totalPages"
-          :key="page"
-          :class="{ 'is-active': page === currentPage }"
-          @click="goToPage(page)"
-        >
-          {{ page }}
-        </button>
-
-        <button
-          class="pagination__btn"
-          :disabled="currentPage === totalPages"
-          @click="goToPage(currentPage + 1)"
-        >
-          &gt;
-        </button>
-        <button
-          class="pagination__btn"
-          :disabled="currentPage === totalPages"
-          @click="goToPage(totalPages)"
-        >
-          &gt;&gt;
-        </button>
+        <div class="flex justify-center m-t-12">
+          <Pagination
+            :totalPages="totalPages"
+            :renderPaginationNums="renderPaginationNums"
+            :currentPage="currentPage"
+            :nextPage="nextPage"
+            :previousPage="previousPage"
+            :goToPage="goToPage"
+            :pageLimitSize="pageLimitSize"
+            :totalItems="list.length"
+            @update:pageLimitSize="pageLimitSize = $event"
+            :show-page-info="false"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -75,55 +52,48 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
+import Pagination from '@/components/common/Pagination.vue';
+import { usePagination } from '@/hook/usePagination';
 import Title from '@/components/common/Title.vue';
 import {
   getCategoryAvailableList,
   getProductListByCategory,
 } from '@/services/productServices';
 import { getImageUrl } from '@/utils/ImageUtils';
-interface Product {
-  title: string;
-  image: string;
-  price: number;
-  originalPrice: number;
-}
+import { useRouter } from 'vue-router';
+const router = useRouter();
 
-const products = ref<Product[]>([]);
-const currentPage = ref(1);
-const pageSize = 8;
+const list = ref<any[]>([]);
+const pageLimitSize = ref(8);
 
-const totalPages = computed(() => Math.ceil(products.value.length / pageSize));
-
-const paginatedProducts = computed(() =>
-  products.value.slice(
-    (currentPage.value - 1) * pageSize,
-    currentPage.value * pageSize
-  )
-);
-
-const goToPage = (page: number) => {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page;
-  }
-};
+const {
+  totalPages,
+  currentPageItems,
+  renderPaginationNums,
+  currentPage,
+  nextPage,
+  previousPage,
+  goToPage,
+} = usePagination<any>(list, pageLimitSize);
 
 const fetchAllProducts = async () => {
   try {
     const { success, data: categoryList } = await getCategoryAvailableList();
     if (!success) return;
 
-    const result: Product[] = [];
+    const productPromises = categoryList.map((category) =>
+      getProductListByCategory({ categoryId: category.id })
+    );
 
-    for (const category of categoryList) {
-      const { success: ps, data: productList } = await getProductListByCategory(
-        {
-          categoryId: category.id,
-        }
-      );
+    const productResponses = await Promise.all(productPromises);
 
-      if (ps) {
+    const result = [];
+
+    productResponses.forEach(({ success, data: productList }) => {
+      if (success) {
         result.push(
           ...productList.map((p) => ({
+            id: p.id,
             title: p.name.trim(),
             image: p.mainImageUrl || '',
             price: p.specialPrice,
@@ -131,12 +101,16 @@ const fetchAllProducts = async () => {
           }))
         );
       }
-    }
+    });
 
-    products.value = result;
+    list.value = result;
   } catch (error) {
     console.error('載入商品失敗:', error);
   }
+};
+
+const goToProduct = (id: number) => {
+  router.push(`/store/${id}`);
 };
 
 onMounted(() => {
@@ -155,13 +129,18 @@ onMounted(() => {
     padding: 4rem 2rem;
   }
 
+  &__main {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
   &__grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
-    background: #fff;
-    padding: 2rem;
-    border-radius: 1rem;
 
     @media (max-width: 1024px) {
       grid-template-columns: repeat(2, 1fr);

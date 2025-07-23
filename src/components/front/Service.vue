@@ -15,7 +15,11 @@
             <img alt="插圖" :src="divinationIntro" class="service__main-img" />
           </div>
           <div class="service__button-wrap">
-            <StartButton styleType="yellow" label="前往求籤問事" />
+            <StartButton
+              styleType="yellow"
+              label="前往求籤問事"
+              @click="goToDivination"
+            />
           </div>
         </div>
 
@@ -39,7 +43,11 @@
             </div>
           </div>
           <div class="service__button-wrap">
-            <StartButton styleType="yellow" label="前往請神供奉" />
+            <StartButton
+              styleType="yellow"
+              label="前往請神供奉"
+              @click="goToOffering"
+            />
           </div>
         </div>
       </div>
@@ -53,6 +61,17 @@ import godImages from '@/data/godImages';
 import Title from '@/components/common/Title.vue';
 import StartButton from '@/components/front/StartButton.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+const goToDivination = () => {
+  router.push('/divination');
+};
+
+const goToOffering = () => {
+  router.push('/godOffering');
+};
 </script>
 
 <style scoped lang="scss">
