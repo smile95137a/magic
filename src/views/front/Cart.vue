@@ -44,18 +44,26 @@ const initOptions = async () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   if (!authStore.isLogin) {
+    await dialogStore.openInfoDialog({
+      title: '錯誤',
+      message: '請先登入後再結帳。',
+    });
     router.replace({ name: 'Login' });
     return;
   }
 
   if (cartItems.length === 0) {
+    await dialogStore.openInfoDialog({
+      title: '錯誤',
+      message: '購物車為空，請先選購商品。',
+    });
     router.replace({ name: 'StoreProductList' });
     return;
   }
 
-  initOptions();
+  await initOptions();
 });
 
 const schema = yup.object({
