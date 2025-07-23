@@ -84,6 +84,7 @@ import SectionBackground from '@/components/common/SectionBackground.vue';
 import Header from '@/components/front/Header.vue';
 import { login } from '@/services/UserService';
 import { useAuthFrontStore } from '@/stores/authFrontStore';
+import { useCartStore } from '@/stores/cartStore';
 import { useDialogStore } from '@/stores/dialogStore';
 import { useLoadingStore } from '@/stores/loadingStore';
 import { getErrorMessage } from '@/utils/ErrorUtils';
@@ -96,6 +97,7 @@ import * as yup from 'yup';
 const router = useRouter();
 const authStore = useAuthFrontStore();
 const dialogStore = useDialogStore();
+const cartStore = useCartStore();
 
 onMounted(() => {
   if (authStore.isLogin) {
@@ -123,6 +125,7 @@ const onSubmit = handleSubmit(async (values) => {
   try {
     const { success, data, message } = await withLoading(() => login(values));
     if (success) {
+      cartStore.clearCart();
       authStore.setToken(data.accessToken);
       router.push('/home');
     } else {

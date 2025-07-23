@@ -59,7 +59,7 @@ const loadMore = () => {
 .mall-list {
   &__title {
     border-bottom: 2px solid #a53b25;
-    margin-bottom: 8px;
+    margin: 32px 0;
 
     &-text {
       width: 100%;

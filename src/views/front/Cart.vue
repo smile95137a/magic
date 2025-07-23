@@ -7,42 +7,29 @@ import { useCartStore } from '@/stores/cartStore';
 import MCard from '@/components/common/MCard.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import NumberFormatter from '@/components/common/NumberFormatter.vue';
+import CartRecipient from '@/components/front/Cart/CartRecipient.vue';
+import CartInvoice from '@/components/front/Cart/CartInvoice.vue';
+import CartShipping from '@/components/front/Cart/CartShipping.vue';
+import CartPayment from '@/components/front/Cart/CartPayment.vue';
 import { ref, onMounted } from 'vue';
-import {
-  getShippingMethodList,
-  getInvoiceTypeList,
-  getPayMethodList,
-  createOrder,
-} from '@/services/OrderService';
+import { createOrder, getShippingMethodList } from '@/services/OrderService';
 import { useDialogStore } from '@/stores/dialogStore';
 import { getErrorMessage } from '@/utils/ErrorUtils';
 import { withLoading } from '@/utils/loadingUtils';
 import { getImageUrl } from '@/utils/ImageUtils';
 import { useAuthFrontStore } from '@/stores/authFrontStore';
-import {
-  getAllCityNames,
-  getAreaListByCityName,
-  getZipCodeByCityAndAreaName,
-} from '@/services/taiwanCitiesService';
+
 const router = useRouter();
 
 const cart = useCartStore();
 const authStore = useAuthFrontStore();
 const dialogStore = useDialogStore();
 const cartItems = cart.cartItems;
-const cityOptions = ref<any[]>([]);
-const areaOptions = ref<any[]>([]);
 const shippingMethodOptions = ref<any[]>([]);
-const invoiceTypeOptions = ref<any[]>([]);
-const payMethodOptions = ref<any[]>([]);
 
 const initOptions = async () => {
   try {
-    const [shippingRes, invoiceRes, payRes] = await Promise.all([
-      getShippingMethodList(),
-      getInvoiceTypeList(),
-      getPayMethodList(),
-    ]);
+    const [shippingRes] = await Promise.all([getShippingMethodList()]);
 
     if (shippingRes.success) {
       shippingMethodOptions.value = shippingRes.data.map((s: any) => ({
@@ -50,20 +37,6 @@ const initOptions = async () => {
         label: s.name,
         value: s.code,
         fee: s.fee,
-      }));
-    }
-
-    if (invoiceRes.success) {
-      invoiceTypeOptions.value = invoiceRes.data.map((i: any) => ({
-        label: i.label, // 顯示名稱
-        value: i.code, // 送出用 code
-      }));
-    }
-
-    if (payRes.success) {
-      payMethodOptions.value = payRes.data.map((p: any) => ({
-        label: p.label, // 顯示名稱
-        value: p.code, // 送出用 code
       }));
     }
   } catch (error) {
@@ -83,15 +56,8 @@ onMounted(() => {
   }
 
   initOptions();
-  const cityNames = getAllCityNames();
-  cityOptions.value = [
-    { value: '', label: '縣市' },
-    ...cityNames.map((city) => ({ value: city, label: city })),
-  ];
-  areaOptions.value = [{ value: '', label: '行政區' }];
 });
 
-// ---- 驗證 schema ----
 const schema = yup.object({
   recipient: yup.object({
     name: yup.string().required('姓名為必填'),
@@ -149,20 +115,7 @@ const { handleSubmit, defineField, errors, values, setFieldValue, setValues } =
     },
   });
 
-// ---- 拆解欄位綁定（v-model） ----
-const [recipientName] = defineField('recipient.name');
-const [recipientEmail] = defineField('recipient.email');
-const [recipientPhone] = defineField('recipient.phone');
-const [recipientCity] = defineField('recipient.city');
-const [recipientArea] = defineField('recipient.area');
-const [recipientAddress] = defineField('recipient.address');
-
 const [shippingMethod] = defineField('shippingMethod');
-const [invoiceType] = defineField('invoiceType');
-const [payment] = defineField('payment');
-const [invoiceTarget] = defineField('invoiceTarget');
-const [carrierId] = defineField('carrierId');
-const [npoban] = defineField('npoban');
 
 // ---- 價格計算 ----
 const productTotal = computed(() =>
@@ -226,16 +179,18 @@ const submitOrder = handleSubmit(async (formData) => {
   };
 
   try {
-    const response = await withLoading(() => createOrder(payload));
+    const { success, data, message } = await withLoading(() =>
+      createOrder(payload)
+    );
 
-    if (response.success) {
-      const orderId = response.data.orderId;
+    if (success) {
+      const orderId = data.orderId;
       cart.clearCart();
       router.push({ name: 'CheckoutSuccess', params: { id: orderId } });
     } else {
       await dialogStore.openInfoDialog({
         title: '錯誤',
-        message: response.message || '密碼重置失敗，請稍後再試。',
+        message: message || '密碼重置失敗，請稍後再試。',
       });
     }
   } catch (error) {
@@ -246,54 +201,6 @@ const submitOrder = handleSubmit(async (formData) => {
   }
 });
 
-watch(
-  () => values.invoiceType,
-  (newType) => {
-    switch (newType) {
-      case 'company':
-        setFieldValue('carrierId', '');
-        setFieldValue('npoban', '');
-        break;
-      case 'mobile':
-      case 'citizen':
-        setFieldValue('invoiceTarget', '');
-        setFieldValue('npoban', '');
-        break;
-      case 'donate':
-        setFieldValue('invoiceTarget', '');
-        setFieldValue('carrierId', '');
-        break;
-      default:
-        setFieldValue('invoiceTarget', '');
-        setFieldValue('carrierId', '');
-        setFieldValue('npoban', '');
-    }
-  }
-);
-watch(recipientCity, (newCity) => {
-  if (newCity) {
-    setFieldValue('recipient.area', '');
-    const areas = getAreaListByCityName(newCity);
-    areaOptions.value = [
-      { value: '', label: '行政區' },
-      ...areas.map((area) => ({
-        value: area.areaName,
-        label: area.areaName,
-      })),
-    ];
-  } else {
-    areaOptions.value = [{ value: '', label: '行政區' }];
-  }
-});
-
-watch(recipientArea, (newArea) => {
-  if (newArea) {
-    const zipCode = getZipCodeByCityAndAreaName(recipientCity.value, newArea);
-    if (zipCode) {
-    }
-  } else {
-  }
-});
 const handleDecrease = (index: number) => {
   const item = cartItems[index];
   if (item.quantity > 1) {
@@ -337,128 +244,20 @@ const handleDecrease = (index: number) => {
             </div>
           </div>
 
-          <h3>收件人資訊</h3>
-          <div class="checkout__block">
-            <div class="checkout__form-grid">
-              <div class="checkout__form-group">
-                <label>姓名</label>
-                <input v-model="recipientName" />
-                <p v-if="errors['recipient.name']">
-                  {{ errors['recipient.name'] }}
-                </p>
-              </div>
-              <div class="checkout__form-group">
-                <label>Email</label>
-                <input v-model="recipientEmail" />
-                <p v-if="errors['recipient.email']">
-                  {{ errors['recipient.email'] }}
-                </p>
-              </div>
-              <div class="checkout__form-group">
-                <label>電話</label>
-                <input v-model="recipientPhone" />
-                <p v-if="errors['recipient.phone']">
-                  {{ errors['recipient.phone'] }}
-                </p>
-              </div>
-              <div class="checkout__form-group">
-                <label>縣市</label>
-                <select v-model="recipientCity">
-                  <option
-                    v-for="option in cityOptions"
-                    :key="option.value"
-                    :value="option.value"
-                  >
-                    {{ option.label }}
-                  </option>
-                </select>
-                <p v-if="errors['recipient.city']">
-                  {{ errors['recipient.city'] }}
-                </p>
-              </div>
-              <div class="checkout__form-group">
-                <label>行政區</label>
-                <select v-model="recipientArea">
-                  <option
-                    v-for="option in areaOptions"
-                    :key="option.value"
-                    :value="option.value"
-                  >
-                    {{ option.label }}
-                  </option>
-                </select>
-                <p v-if="errors['recipient.area']">
-                  {{ errors['recipient.area'] }}
-                </p>
-              </div>
-              <div class="checkout__form-group checkout__form-group--full">
-                <label>詳細地址</label>
-                <input v-model="recipientAddress" />
-                <p v-if="errors['recipient.address']">
-                  {{ errors['recipient.address'] }}
-                </p>
-              </div>
+          <div class="flex flex-column gap-y-24">
+            <div>
+              <CartRecipient />
+            </div>
+            <div>
+              <CartShipping />
+            </div>
+            <div>
+              <CartInvoice />
+            </div>
+            <div>
+              <CartPayment />
             </div>
           </div>
-
-          <h3>寄送資訊</h3>
-          <div class="checkout__block">
-            <div v-for="option in shippingMethodOptions" :key="option.value">
-              <label>
-                <input
-                  type="radio"
-                  :value="option.value"
-                  v-model="shippingMethod"
-                />
-                {{ option.label }}
-              </label>
-            </div>
-            <p v-if="errors.shippingMethod">{{ errors.shippingMethod }}</p>
-          </div>
-
-          <h3>發票</h3>
-          <select v-model="invoiceType">
-            <option value=""></option>
-            <option
-              v-for="option in invoiceTypeOptions"
-              :key="option.value"
-              :value="option.value"
-            >
-              {{ option.label }}
-            </option>
-          </select>
-          <p v-if="errors.invoiceType">{{ errors.invoiceType }}</p>
-          <!-- 統一編號 -->
-          <div v-if="invoiceType === 'company'" class="checkout__form-group">
-            <label>統一編號</label>
-            <input v-model="invoiceTarget" />
-            <p v-if="errors.invoiceTarget">{{ errors.invoiceTarget }}</p>
-          </div>
-
-          <!-- 手機條碼 / 自然人憑證 -->
-          <div v-if="invoiceType === 'mobile'" class="checkout__form-group">
-            <label>載具內容</label>
-            <input v-model="carrierId" />
-            <p v-if="errors.carrierId">{{ errors.carrierId }}</p>
-          </div>
-
-          <!-- 愛心碼 -->
-          <div v-if="invoiceType === 'donation'" class="checkout__form-group">
-            <label>愛心碼</label>
-            <input v-model="npoban" />
-            <p v-if="errors.npoban">{{ errors.npoban }}</p>
-          </div>
-          <h3>優惠及結帳</h3>
-          <div class="checkout__block">
-            <div v-for="option in payMethodOptions" :key="option.value">
-              <label>
-                <input type="radio" :value="option.value" v-model="payment" />
-                {{ option.label }}
-              </label>
-            </div>
-            <p v-if="errors.payment">{{ errors.payment }}</p>
-          </div>
-
           <div class="checkout__total">
             <p>商品：NT$ <NumberFormatter :number="productTotal ?? 0" /></p>
             <p>
@@ -486,193 +285,3 @@ const handleDecrease = (index: number) => {
     </div>
   </form>
 </template>
-
-<style scoped lang="scss">
-.checkout {
-  width: 100%;
-  position: relative;
-
-  &__container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 4rem 2rem;
-  }
-
-  &__block {
-    background: #fde3de;
-    border-radius: 16px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-  }
-
-  &__item {
-    display: flex;
-    align-items: center;
-    background: #fde3de;
-    border-radius: 16px;
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  &__item-img {
-    width: 100px;
-    height: 100px;
-    background: #ccc;
-    border-radius: 12px;
-    flex-shrink: 0;
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover; // ✅ 保持比例填滿容器
-      border-radius: 12px;
-      display: block;
-    }
-  }
-
-  &__item-info {
-    margin-left: 1rem;
-    flex: 1;
-
-    p {
-      font-weight: bold;
-      margin-bottom: 0.5rem;
-    }
-  }
-
-  &__item-control {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-
-    button {
-      border: none;
-      background: none;
-      font-size: 1.5rem;
-      color: #a93e26;
-      cursor: pointer;
-    }
-
-    span {
-      font-size: 1.1rem;
-      min-width: 1.5rem;
-      text-align: center;
-    }
-
-    .price {
-      margin-left: auto;
-      font-weight: bold;
-      font-size: 1.25rem;
-      color: #f14a0e;
-    }
-  }
-
-  &__form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.25rem 2rem;
-    margin-top: 1rem;
-  }
-
-  &__form-group {
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: bold;
-    }
-
-    input,
-    select {
-      width: 100%;
-      padding: 0.5rem;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-    }
-  }
-
-  &__form-group--full {
-    grid-column: 1 / -1;
-  }
-
-  &__total {
-    text-align: right;
-    font-size: 1rem;
-    line-height: 1.8;
-
-    p {
-      margin: 0.2rem 0;
-    }
-
-    .total {
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: #d22;
-      margin-top: 0.75rem;
-    }
-  }
-
-  &__buttons {
-    margin-top: 2rem;
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-
-    .btn {
-      padding: 0.75rem 2.5rem;
-      font-size: 1rem;
-      border-radius: 999px;
-      cursor: pointer;
-      transition: 0.2s ease;
-    }
-
-    .btn-outline {
-      border: 1.5px solid #a93e26;
-      background: #fff;
-      color: #a93e26;
-
-      &:hover {
-        background: #fbe9e7;
-      }
-    }
-
-    .btn-primary {
-      background: #f14a0e;
-      color: #fff;
-      border: none;
-
-      &:hover {
-        background: #d33a00;
-      }
-    }
-  }
-
-  @media (max-width: 600px) {
-    &__form-grid {
-      grid-template-columns: 1fr !important;
-    }
-
-    &__form-group--full {
-      grid-column: 1 / 2 !important;
-    }
-
-    &__buttons {
-      flex-direction: column;
-      align-items: center;
-
-      .btn {
-        width: 100%;
-        max-width: 300px;
-      }
-    }
-
-    &__item {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    &__item-img {
-      margin-bottom: 1rem;
-    }
-  }
-}
-</style>

@@ -9,7 +9,7 @@
         <div class="offering__main">
           <img class="offering__main-img" :src="tample" alt="" />
           <div class="offering__sign">
-            {{ offerStore.selectedGod?.name || '請神中' }}
+            {{ offerStore.selectedGod?.name || '' }}
           </div>
 
           <div v-if="offerStore.isGodInvoked" class="offering__god-image">
