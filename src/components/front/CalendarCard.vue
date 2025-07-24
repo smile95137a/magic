@@ -1,33 +1,36 @@
 <template>
-  <div class="calendar-card">
+  <div class="calendar-card" v-if="calendarData">
     <!-- 上：紅底 header -->
     <div class="calendar-card__header">
-      <!-- 日期：貼齊 header 底部一半 -->
       <div class="calendar-card__date">
-        <div class="calendar-card__month">{{ month }}</div>
-        <div class="calendar-card__day">{{ day }}</div>
-        <div class="calendar-card__weekday">{{ weekday }}</div>
+        <div class="calendar-card__month">{{ calendarData.month }}</div>
+        <div class="calendar-card__day">{{ calendarData.day }}</div>
+        <div class="calendar-card__weekday">{{ calendarData.weekday }}</div>
       </div>
 
-      <!-- 農曆與生肖 -->
       <div class="calendar-card__right">
         <div class="calendar-card__lunar">
-          <div class="calendar-card__lunar-year">{{ lunarYear }}</div>
-          <div class="calendar-card__lunar-date">{{ lunarDate }}</div>
+          <div class="calendar-card__lunar-year">
+            {{ calendarData.lunarYear }}
+          </div>
+          <div class="calendar-card__lunar-date">
+            {{ calendarData.lunarDate }}
+          </div>
         </div>
-        <div class="calendar-card__zodiac-circle">{{ zodiac }}</div>
+        <div class="calendar-card__zodiac-circle">
+          {{ calendarData.zodiac }}
+        </div>
       </div>
     </div>
 
     <!-- 下：白底宜忌 -->
     <div class="calendar-card__body">
-      <!-- 固定右上角的連結 -->
       <a href="#" class="calendar-card__link">
         查看其他日期 <i class="fas fa-arrow-right"></i>
       </a>
 
       <div
-        v-for="(item, index) in info"
+        v-for="(item, index) in calendarData.info"
         :key="index"
         class="calendar-card__info-item"
       >
@@ -41,6 +44,11 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import moment from 'moment';
+import { queryChineseCalendar } from '@/services/calendarService';
+import { executeApi } from '@/utils/executeApiUtils';
+
 interface CalendarInfo {
   type: string;
   text: string;
@@ -57,12 +65,69 @@ interface CalendarData {
   info: CalendarInfo[];
 }
 
-const props = defineProps<{
-  calendarData: CalendarData;
-}>();
+const calendarData = ref<CalendarData | null>(null);
 
-const { month, day, weekday, lunarYear, lunarDate, zodiac, info } =
-  props.calendarData;
+const formatCalendarData = (raw: any): CalendarData => {
+  const weekdayMap: Record<string, string> = {
+    Sunday: '星期日',
+    Monday: '星期一',
+    Tuesday: '星期二',
+    Wednesday: '星期三',
+    Thursday: '星期四',
+    Friday: '星期五',
+    Saturday: '星期六',
+  };
+
+  const zodiacMap = [
+    '鼠',
+    '牛',
+    '虎',
+    '兔',
+    '龍',
+    '蛇',
+    '馬',
+    '羊',
+    '猴',
+    '雞',
+    '狗',
+    '豬',
+  ];
+  const zodiacIndex = (raw.lunar_year - 4) % 12;
+  const zodiac = zodiacMap[zodiacIndex];
+
+  const date = moment(`${raw.date_year}-${raw.date_month}-${raw.date_day}`);
+  const weekday = weekdayMap[date.format('dddd')];
+
+  return {
+    month: `${raw.date_month}月`,
+    day: String(raw.date_day),
+    weekday,
+    lunarYear: `${raw.lunar_year} ${zodiac}年`,
+    lunarDate: `農曆${raw.lunar_month}月${raw.lunar_day}日`,
+    zodiac,
+    info: [
+      { type: '沖', text: raw.chong_sha || '', color: 'green' },
+      { type: '宜', text: raw.yi || '', color: 'purple' },
+      { type: '忌', text: raw.ji || '', color: 'gray' },
+    ],
+  };
+};
+
+onMounted(async () => {
+  const today = moment();
+  await executeApi({
+    fn: () =>
+      queryChineseCalendar({
+        year: today.year(),
+        month: today.month() + 1,
+        day: today.date(),
+      }),
+    errorTitle: '載入農民曆失敗',
+    onSuccess: (data) => {
+      calendarData.value = formatCalendarData(data[0]);
+    },
+  });
+});
 </script>
 
 <style scoped lang="scss">

@@ -87,7 +87,9 @@ import { useAuthFrontStore } from '@/stores/authFrontStore';
 import { useCartStore } from '@/stores/cartStore';
 import { useDialogStore } from '@/stores/dialogStore';
 import { useLoadingStore } from '@/stores/loadingStore';
+import { getLoginUrl } from '@/utils/AuthUtils';
 import { getErrorMessage } from '@/utils/ErrorUtils';
+import { executeApi } from '@/utils/executeApiUtils';
 import { withLoading } from '@/utils/loadingUtils';
 import { useForm } from 'vee-validate';
 import { onMounted } from 'vue';
@@ -98,12 +100,6 @@ const router = useRouter();
 const authStore = useAuthFrontStore();
 const dialogStore = useDialogStore();
 const cartStore = useCartStore();
-
-onMounted(() => {
-  if (authStore.isLogin) {
-    router.push('/home');
-  }
-});
 
 const schema = yup.object({
   username: yup.string().required('電子信箱為必填'),
@@ -122,35 +118,35 @@ const [username] = defineField('username');
 const [password] = defineField('password');
 
 const onSubmit = handleSubmit(async (values) => {
-  try {
-    const { success, data, message } = await withLoading(() => login(values));
-    if (success) {
+  await executeApi({
+    fn: () => login(values),
+    errorTitle: '登入失敗',
+    errorMessage: '請稍後再試',
+    onSuccess: (data) => {
       cartStore.clearCart();
       authStore.setToken(data.accessToken);
       router.push('/home');
-    } else {
-      await dialogStore.openInfoDialog({
-        title: '錯誤',
-        message: message || '登入失敗，請稍後再試。',
-      });
-    }
-  } catch (error) {
-    await dialogStore.openInfoDialog({
-      title: '錯誤',
-      message: getErrorMessage(error),
-    });
-  }
+    },
+  });
 });
 
 const forwardRegistration = () => {
   router.push('/register');
 };
 
-const handleOauthLogin = (provider: string) => {};
+const handleOauthLogin = (provider: string) => {
+  location.href = getLoginUrl(provider);
+};
 
 const handleForgotPassword = async () => {
   await dialogStore.openRestPwdDialog();
 };
+
+onMounted(() => {
+  if (authStore.isLogin) {
+    router.push('/home');
+  }
+});
 </script>
 
 <style scoped>

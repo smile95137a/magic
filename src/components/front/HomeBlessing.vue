@@ -29,25 +29,8 @@
 
         <!-- 右側 日曆卡 + 次圖 Swiper -->
         <div class="home-blessing__calendar">
-          <CalendarCard
-            :calendarData="{
-              month: '四月',
-              day: '12',
-              weekday: '星期六',
-              lunarYear: '2025 乙巳年',
-              lunarDate: '三月十五',
-              zodiac: '蛇',
-              info: [
-                {
-                  type: '沖',
-                  text: '屬蛇(乙巳，1歲)、屬蛇(乙巳，61歲)',
-                  color: 'green',
-                },
-                { type: '宜', text: '塞穴、掃舍', color: 'purple' },
-                { type: '忌', text: '受死', color: 'gray' },
-              ],
-            }"
-          />
+          <CalendarCard />
+
           <div class="home-blessing__sub-banner">
             <template v-if="bannerBList.length">
               <Swiper
@@ -88,47 +71,33 @@ import 'swiper/scss';
 import 'swiper/scss/navigation';
 import 'swiper/scss/autoplay';
 import { Swiper, SwiperSlide } from 'swiper/vue';
-
 import CalendarCard from '@/components/front/CalendarCard.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import type { BannerVO } from '@/vite-env';
 import { getAvailableBannerByType } from '@/services/BannerServices';
+import { executeApi } from '@/utils/executeApiUtils';
 
 const bannerAList = ref<BannerVO[]>([]);
 const bannerBList = ref<BannerVO[]>([]);
 
-const calendarData = {
-  month: '四月',
-  day: '12',
-  weekday: '星期六',
-  lunarYear: '2025 乙巳年',
-  lunarDate: '三月十五',
-  zodiac: '蛇',
-  info: [
-    {
-      type: '沖',
-      text: '屬蛇(乙巳，1歲)、屬蛇(乙巳，61歲)',
-      color: 'green',
-    },
-    { type: '宜', text: '塞穴、掃舍', color: 'purple' },
-    { type: '忌', text: '受死', color: 'gray' },
-  ],
-};
-
 onMounted(async () => {
-  try {
-    const resA = await getAvailableBannerByType('A');
-    if (resA.success) {
-      bannerAList.value = resA.data.filter((b: BannerVO) => b.imgBase64);
-    }
+  // 載入 Banner A
+  await executeApi({
+    fn: () => getAvailableBannerByType('A'),
+    errorTitle: '載入 Banner A 失敗',
+    onSuccess: (data) => {
+      bannerAList.value = data.filter((b: BannerVO) => b.imgBase64);
+    },
+  });
 
-    const resB = await getAvailableBannerByType('B');
-    if (resB.success) {
-      bannerBList.value = resB.data.filter((b: BannerVO) => b.imgBase64);
-    }
-  } catch (error) {
-    console.error('載入 banner 錯誤:', error);
-  }
+  // 載入 Banner B
+  await executeApi({
+    fn: () => getAvailableBannerByType('B'),
+    errorTitle: '載入 Banner B 失敗',
+    onSuccess: (data) => {
+      bannerBList.value = data.filter((b: BannerVO) => b.imgBase64);
+    },
+  });
 });
 </script>
 

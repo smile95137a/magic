@@ -24,7 +24,7 @@ import Privacy from '@/views/front/Privacy.vue';
 import Policy from '@/views/front/Policy.vue';
 import PaymentCB from '@/views/front/PaymentCB.vue';
 import MyLight from '@/views/front/MyLight.vue';
-
+import OAuth2Redirect from '@/views/front/OAuth2Redirect.vue';
 import CheckoutSuccess from '@/views/front/CheckoutSuccess.vue';
 export const frontRoutes: Array<RouteRecordRaw> = [
   {
@@ -89,7 +89,10 @@ export const frontRoutes: Array<RouteRecordRaw> = [
         component: PaymentCB,
       },
       { path: 'myLight', component: MyLight, name: 'MyLight' },
-
+      {
+        path: '/oauth2/redirect',
+        component: OAuth2Redirect,
+      },
       {
         path: ':pathMatch(.*)*',
         name: 'NotFound',
