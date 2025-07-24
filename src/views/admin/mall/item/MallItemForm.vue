@@ -91,7 +91,13 @@
       <!-- 商品內容 -->
       <div class="form__group">
         <label class="form__label">商品內容</label>
-        <textarea v-model="detailHtml" class="form__input" rows="5" />
+        <ckeditor
+          :editor="editor"
+          v-model="detailHtml"
+          :config="editorConfig"
+          class="custom-editor"
+        >
+        </ckeditor>
       </div>
 
       <!-- 是否啟用 -->
@@ -130,15 +136,17 @@ import {
 import { withLoading } from '@/utils/loadingUtils';
 import { fetchCategoryList } from '@/services/admin/adminCategoryServices';
 import { getImageUrl } from '@/utils/ImageUtils';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { Ckeditor } from '@ckeditor/ckeditor5-vue';
 
 const route = useRoute();
 const router = useRouter();
 const id = route.params.id as string | undefined;
 const isEdit = !!id;
+
 const productId = ref<number>();
 const categoryOptions = ref<any[]>([]);
 const mainImageUrl = ref('');
-
 const schema = object({
   name: string().required('商品名稱為必填'),
   categoryId: string().required('分類為必選'),
@@ -269,6 +277,82 @@ watch(mainImage, (val) => {
 
   mainImageUrl.value = val;
 });
+
+//
+const editor = ClassicEditor;
+
+// 自定義 CKEditor 配置，啟用圖片大小調整功能
+const editorConfig = {
+  toolbar: [
+    'heading',
+    '|',
+    'bold',
+    'italic',
+    'link',
+    'bulletedList',
+    'numberedList',
+    'blockQuote',
+    'imageUpload',
+    '|',
+    'imageResize',
+  ],
+  language: 'zh-tw',
+  image: {
+    toolbar: ['imageStyle:full', 'imageStyle:side', 'imageResize'],
+    resizeOptions: [
+      { name: 'resizeImage:original', label: '原始大小', value: null },
+      { name: 'resizeImage:50', label: '50%', value: '50' },
+      { name: 'resizeImage:75', label: '75%', value: '75' },
+    ],
+    resizeUnit: '%',
+  },
+  extraPlugins: [CustomUploadAdapterPlugin],
+};
+
+function CustomUploadAdapterPlugin(editor: any) {
+  editor.plugins.get('FileRepository').createUploadAdapter = (loader: any) => {
+    return new MyCustomUploadAdapter(loader);
+  };
+}
+
+class MyCustomUploadAdapter {
+  loader: any;
+
+  constructor(loader: any) {
+    this.loader = loader;
+  }
+
+  upload() {
+    return this.loader.file.then(async (file: File) => {
+      try {
+        const res = await withLoading(() =>
+          uploadProductImage({
+            file,
+            productId: productId.value,
+            type: 'description',
+          })
+        );
+
+        if (res.success && res.data?.url) {
+          const url = getImageUrl(res.data.url);
+          return {
+            default: url,
+          };
+        } else {
+          console.error('圖片上傳失敗', res);
+          throw new Error('圖片上傳失敗，請稍後再試');
+        }
+      } catch (err) {
+        console.error('圖片上傳錯誤', err);
+        throw err;
+      }
+    });
+  }
+
+  abort() {
+    console.log('圖片上傳被中止');
+  }
+}
 </script>
 
 <style scoped lang="scss">

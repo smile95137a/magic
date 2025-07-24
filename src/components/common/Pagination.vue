@@ -83,18 +83,22 @@
 <script setup lang="ts">
 import { defineProps, computed } from 'vue';
 
-const props = defineProps<{
-  totalPages: number;
-  renderPaginationNums: number[]; // 修正為數組
-  currentPage: number;
-  nextPage: () => void; // 修正為明確的函數類型
-  previousPage: () => void; // 修正為明確的函數類型
-  goToPage: (page: number) => void; // 修正為明確的函數類型
-  pageLimitSize: number;
-  totalItems: number; // 新增總數據數量
-  showPageInfo?: boolean;
-}>();
-const showPageInfo = computed(() => props.showPageInfo !== false);
+const props = withDefaults(
+  defineProps<{
+    totalPages: number;
+    renderPaginationNums: number[];
+    currentPage: number;
+    nextPage: () => void;
+    previousPage: () => void;
+    goToPage: (page: number) => void;
+    pageLimitSize: number;
+    totalItems: number;
+    showPageInfo?: boolean;
+  }>(),
+  {
+    showPageInfo: true,
+  }
+);
 
 const displayStart = computed(
   () => ~~((props.currentPage - 1) * props.pageLimitSize + 1)

@@ -22,6 +22,7 @@ import ProductDetail from '@/views/front/ProductDetail.vue';
 import Cart from '@/views/front/Cart.vue';
 import Privacy from '@/views/front/Privacy.vue';
 import Policy from '@/views/front/Policy.vue';
+import PaymentCB from '@/views/front/PaymentCB.vue';
 
 import CheckoutSuccess from '@/views/front/CheckoutSuccess.vue';
 export const frontRoutes: Array<RouteRecordRaw> = [
@@ -82,7 +83,10 @@ export const frontRoutes: Array<RouteRecordRaw> = [
       },
       { path: 'privacy', component: Privacy, name: 'Privacy' },
       { path: 'policy', component: Policy, name: 'Policy' },
-
+      {
+        path: '/PaymentCB',
+        component: PaymentCB,
+      },
       {
         path: ':pathMatch(.*)*',
         name: 'NotFound',

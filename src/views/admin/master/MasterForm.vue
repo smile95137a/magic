@@ -50,6 +50,7 @@
       </div>
 
       <!-- 老師服務項目 -->
+      <!-- 老師服務項目 -->
       <div class="form__group">
         <label class="form__label">老師服務項目</label>
         <div
@@ -57,30 +58,45 @@
           :key="index"
           class="form__group--nested"
         >
-          <input
-            v-model="item.title"
-            class="form__input"
-            placeholder="項目標題"
-          />
-          <textarea
-            v-model="item.content"
-            class="form__input"
-            placeholder="項目內容"
-          />
-          <input
-            v-model="item.price"
-            type="number"
-            class="form__input"
-            placeholder="項目價錢"
-          />
-          <button
-            type="button"
-            class="form__button form__button--delete"
-            @click="removeServiceItem(index)"
-          >
-            刪除
-          </button>
+          <div class="form__field">
+            <label class="form__label">項目標題</label>
+            <input
+              v-model="item.title"
+              class="form__input"
+              placeholder="例如：流年運勢解析"
+            />
+          </div>
+
+          <div class="form__field">
+            <label class="form__label">項目內容</label>
+            <textarea
+              v-model="item.content"
+              class="form__input"
+              placeholder="請輸入服務內容"
+            ></textarea>
+          </div>
+
+          <div class="form__field">
+            <label class="form__label">項目價格</label>
+            <input
+              v-model="item.price"
+              type="number"
+              class="form__input"
+              placeholder="請輸入價格（例如：2000）"
+            />
+          </div>
+
+          <div class="form__actions--inline">
+            <button
+              type="button"
+              class="form__button form__button--delete"
+              @click="removeServiceItem(index)"
+            >
+              刪除此項目
+            </button>
+          </div>
         </div>
+
         <button
           type="button"
           class="form__button form__button--secondary"
@@ -265,19 +281,49 @@ onMounted(() => {
     text-align: center;
   }
 
-  .form__preview-img {
-    max-width: 100%;
-    margin-top: 8px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
+  .form__group {
+    margin-bottom: 24px;
+
+    &--nested {
+      margin-bottom: 16px;
+      background: #f9f9f9;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
   }
 
-  .form__group--nested {
+  .form__label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #333;
+  }
+
+  .form__input {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+
+    &:focus {
+      border-color: #888;
+      outline: none;
+    }
+  }
+
+  .form__error {
+    color: #d93025;
+    font-size: 14px;
+    margin-top: 4px;
+    display: block;
+  }
+
+  .form__field {
     margin-bottom: 12px;
-    background: #f9f9f9;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
   }
 
   .form__actions {
@@ -285,6 +331,54 @@ onMounted(() => {
     justify-content: flex-end;
     gap: 12px;
     margin-top: 24px;
+  }
+
+  .form__actions--inline {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+
+  .form__button {
+    padding: 8px 16px;
+    border: none;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+
+    &--primary {
+      background-color: #eb6c4d;
+      color: #fff;
+
+      &:hover {
+        background-color: #d85c3c;
+      }
+    }
+
+    &--secondary {
+      background-color: #f0f0f0;
+      color: #333;
+
+      &:hover {
+        background-color: #e0e0e0;
+      }
+    }
+
+    &--delete {
+      background-color: #fdd;
+      color: #b00;
+
+      &:hover {
+        background-color: #fbb;
+      }
+    }
+  }
+
+  .form__preview-img {
+    max-width: 100%;
+    margin-top: 8px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
   }
 }
 </style>

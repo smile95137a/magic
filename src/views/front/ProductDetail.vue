@@ -262,6 +262,8 @@ const goToCart = () => router.push('/cart');
     justify-content: center;
     margin-top: 2rem;
     border-bottom: 2px solid #ccc;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 
     .tab {
       padding: 0.75rem 2rem;
@@ -337,6 +339,41 @@ const goToCart = () => router.push('/cart');
   }
 }
 
+/* =============================
+   RWD Responsive Design
+============================= */
+
+@media (max-width: 1024px) {
+  .product-detail {
+    &__container {
+      padding: 3rem 1.5rem;
+    }
+
+    &__main {
+      gap: 1.5rem;
+    }
+
+    &__image {
+      height: 340px;
+    }
+
+    &__tabs .tab {
+      padding: 0.5rem 1.25rem;
+      font-size: 0.95rem;
+    }
+
+    &__tab-content {
+      font-size: 0.9rem;
+    }
+  }
+
+  .btn {
+    min-width: 140px;
+    font-size: 0.95rem;
+    padding: 0.6rem 1.25rem;
+  }
+}
+
 @media (max-width: 768px) {
   .product-detail {
     &__main {
@@ -348,12 +385,83 @@ const goToCart = () => router.push('/cart');
     }
 
     &__image {
-      height: 300px;
+      height: 260px;
     }
 
     &__thumbnails {
       justify-content: center;
     }
+
+    &__title {
+      font-size: 1.25rem;
+      text-align: center;
+    }
+
+    &__subtitle {
+      text-align: center;
+    }
+
+    &__price {
+      text-align: center;
+      font-size: 1.25rem;
+
+      .original {
+        font-size: 0.9rem;
+        margin-left: 0.5rem;
+      }
+    }
+
+    &__info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    &__tabs {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    &__tab-content {
+      padding: 1rem 0;
+    }
+  }
+
+  .btn {
+    width: 100%;
+    min-width: unset;
+    margin: 0.5rem 0 0;
+
+    & + .btn {
+      margin-left: 0;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .product-detail {
+    &__container {
+      padding: 2rem 1rem;
+    }
+
+    &__image {
+      height: 220px;
+    }
+
+    &__thumbnails .thumbnail {
+      width: 52px;
+      height: 52px;
+    }
+
+    &__tabs .tab {
+      font-size: 0.85rem;
+      padding: 0.5rem 1rem;
+    }
+  }
+
+  .btn {
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
   }
 }
 </style>

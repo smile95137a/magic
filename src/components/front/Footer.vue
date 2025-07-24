@@ -1,11 +1,12 @@
 <template>
-  <footer class="footer">
+  <footer class="footer" role="contentinfo" aria-label="網站頁尾">
     <div class="footer__container">
       <div class="footer__logo-section">
         <img
           src="@/assets/image/magic_joe.png"
           alt="祈願文舍 Logo"
           class="footer__logo"
+          loading="lazy"
         />
         <p class="footer__slogan">精誠所至｜金石為開</p>
       </div>
@@ -14,27 +15,49 @@
         <div class="footer__column">
           <h4 class="footer__title">關於我們</h4>
           <ul class="footer__list">
-            <li class="footer__item"><a href="#">公司介紹</a></li>
-            <li class="footer__item"><a href="#">人才招募</a></li>
-            <li class="footer__item"><a href="#">網站導覽</a></li>
+            <li class="footer__item">
+              <RouterLink to="/about">公司介紹</RouterLink>
+            </li>
+            <li class="footer__item">
+              <RouterLink to="/careers">人才招募</RouterLink>
+            </li>
+            <li class="footer__item">
+              <RouterLink to="/sitemap">網站導覽</RouterLink>
+            </li>
           </ul>
         </div>
         <div class="footer__column">
           <h4 class="footer__title">熱門服務</h4>
           <ul class="footer__list">
-            <li class="footer__item"><a href="#">求籤問事</a></li>
-            <li class="footer__item"><a href="#">請神供奉</a></li>
-            <li class="footer__item"><a href="#">點燈祈福</a></li>
-            <li class="footer__item"><a href="#">老師競算</a></li>
-            <li class="footer__item"><a href="#">開運商店</a></li>
+            <li class="footer__item">
+              <RouterLink to="/divination">求籤問事</RouterLink>
+            </li>
+            <li class="footer__item">
+              <RouterLink to="/godOffering">請神供奉</RouterLink>
+            </li>
+            <li class="footer__item">
+              <RouterLink to="/blessing">點燈祈福</RouterLink>
+            </li>
+            <li class="footer__item">
+              <RouterLink to="/master">老師親算</RouterLink>
+            </li>
+            <li class="footer__item">
+              <RouterLink to="/store">開運商店</RouterLink>
+            </li>
           </ul>
         </div>
         <div class="footer__column">
           <h4 class="footer__title">客戶服務</h4>
           <ul class="footer__list">
-            <li class="footer__item"><a href="#">會員中心</a></li>
-            <li class="footer__item"><a href="#">客服中心</a></li>
-            <li class="footer__item"><a href="#">客服信箱</a></li>
+            <li class="footer__item">
+              <RouterLink to="/member-center">會員中心</RouterLink>
+            </li>
+            <li class="footer__item">
+              <RouterLink to="/support">客服中心</RouterLink>
+            </li>
+            <li class="footer__item">
+              <RouterLink to="/contact">客服信箱</RouterLink>
+            </li>
           </ul>
         </div>
       </div>
@@ -44,17 +67,14 @@
       <p class="footer__copyright">© 2025. ABC All rights reserved.</p>
       <div class="footer__policies">
         <RouterLink to="/policy">服務條款</RouterLink>
-        ｜<RouterLink to="/privacy">隱私權政策</RouterLink> ｜<a href="#"
-          >防詐騙提醒</a
+        ｜<RouterLink to="/privacy">隱私權政策</RouterLink> ｜<RouterLink
+          to="/fraud-alert"
+          >防詐騙提醒</RouterLink
         >
       </div>
     </div>
   </footer>
 </template>
-
-<script setup lang="ts">
-// 無特殊邏輯，目前空白即可
-</script>
 
 <style lang="scss" scoped>
 .footer {

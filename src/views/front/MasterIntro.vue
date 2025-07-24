@@ -151,6 +151,7 @@ const goToReservation = (masterItem: any) => {
     font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.2s;
+    margin-left: auto; // 將按鈕推到右側
 
     i {
       font-size: 0.95rem;
@@ -158,6 +159,21 @@ const goToReservation = (masterItem: any) => {
 
     &:hover {
       background-color: #2c150a;
+    }
+
+    @media (min-width: 1025px) {
+      position: relative;
+      right: 360px;
+    }
+
+    @media (max-width: 1024px) and (min-width: 769px) {
+      position: relative;
+      right: 280px;
+    }
+
+    @media (max-width: 768px) {
+      margin-left: 0;
+      position: static;
     }
   }
 
@@ -182,13 +198,19 @@ const goToReservation = (masterItem: any) => {
     align-items: flex-start;
     justify-content: center;
   }
-
   &__image {
     width: 296px;
     height: 444px;
     border-radius: 12px;
     object-fit: cover;
     margin-top: -80px;
+
+    @media (max-width: 768px) {
+      width: 100%;
+      height: auto;
+      max-width: 240px;
+      margin-top: 0;
+    }
   }
 
   &__desc {

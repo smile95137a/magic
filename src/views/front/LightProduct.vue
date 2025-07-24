@@ -34,7 +34,9 @@
         <template v-if="step === 1">
           <LightSelectionStep />
         </template>
-        <BlessingInfoStep v-if="step === 2" />
+        <template v-if="step === 2">
+          <BlessingInfoStep />
+        </template>
       </MCard>
     </div>
   </div>

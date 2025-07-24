@@ -23,7 +23,9 @@
     "vue": "^3.4.21",
     "vue-router": "^4.3.2",
     "yup": "^1.4.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "@ckeditor/ckeditor5-build-classic": "^43.1.1",
+    "@ckeditor/ckeditor5-vue": "^7.2.0"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^6.5.2",
