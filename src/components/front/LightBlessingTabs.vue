@@ -21,6 +21,7 @@ function handleTabClick(tab: 'product' | 'my') {
 function navigateToRoute(tab: 'product' | 'my') {
   const routeMap = {
     product: '/lightProduct',
+    my: '/myLight',
   };
   router.push(routeMap[tab]);
 }
