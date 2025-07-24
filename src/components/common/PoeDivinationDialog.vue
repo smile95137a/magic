@@ -64,8 +64,11 @@ const dialogStore = useDialogStore();
 const isOpen = computed(() => dialogStore.isPoeDivinationDialogOpen);
 const customClass = computed(() => dialogStore.customClass);
 
-const handleClose = (result: any) => {
-  dialogStore.closePoeDivinationDialog(result);
+const handleClose = (resultFromAction?: any) => {
+  const allSheng =
+    results.value.length === maxTries &&
+    results.value.every((r) => r === 'SHENG');
+  dialogStore.closePoeDivinationDialog(resultFromAction ?? allSheng);
 };
 
 const results = ref<string[]>([]);

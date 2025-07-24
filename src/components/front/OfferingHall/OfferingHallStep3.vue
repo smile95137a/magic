@@ -99,9 +99,11 @@ import { useOfferStore } from '@/stores/offerStore';
 import godImages from '@/data/godImages';
 import { withLoading } from '@/utils/loadingUtils';
 import { godDescend } from '@/services/GodService';
+import { useDialogStore } from '@/stores/dialogStore';
 
 const MAX_TRIES = 3;
 const offerStore = useOfferStore();
+const dialogStore = useDialogStore();
 const selectedGod = computed(() => offerStore.selectedGod);
 
 const selectedGodImage = computed(() =>
@@ -117,7 +119,7 @@ const throwBwa = () => {
   if (isThrowing.value || totalTries.value <= 0) return;
 
   isThrowing.value = true;
-  setTimeout(() => {
+  setTimeout(async () => {
     const result = getRandomResult();
     currentResult.value = result;
 
@@ -137,7 +139,14 @@ const throwBwa = () => {
         }, 300);
       }
     }
-
+    if (totalTries.value === 0 && shengCount.value < 3) {
+      await dialogStore.openInfoDialog({
+        title: '請神失敗',
+        message: '您未擲出三個聖筊，請重新嘗試或返回上一頁。',
+        confirmText: '我知道了',
+      });
+      offerStore.resetOfferProcess();
+    }
     isThrowing.value = false;
   }, 300);
 };

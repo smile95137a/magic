@@ -135,6 +135,16 @@ const submitForm = async () => {
   };
 
   try {
+    const res = await dialog.openPaymentMethodDialog();
+    console.log(res);
+
+    if (!res?.code) {
+      await dialog.openInfoDialog({
+        title: '尚未選擇付款方式',
+        message: '請選擇付款方式後再送出',
+      });
+      return;
+    }
     const confirmed = await dialog.openConfirmDialog({
       title: '確認送出',
       message: '是否確認送出預約申請？',
