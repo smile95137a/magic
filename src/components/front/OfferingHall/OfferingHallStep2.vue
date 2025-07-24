@@ -59,6 +59,9 @@ import Title from '@/components/common/Title.vue';
 import { getGodInfo } from '@/services/GodService';
 import { withLoading } from '@/utils/loadingUtils';
 import StartButton from '@/components/front/StartButton.vue';
+import { useDialogStore } from '@/stores/dialogStore';
+import { getErrorMessage } from '@/utils/ErrorUtils';
+const dialogStore = useDialogStore();
 const offerStore = useOfferStore();
 const selectedGod = computed(() => offerStore.selectedGod);
 
@@ -87,8 +90,11 @@ const handleThrowGod = async () => {
 
     if (success) {
       if (data) {
-        offerStore.setSelectedGod(data);
-        offerStore.setGodInvoked(true);
+        await dialogStore.openInfoDialog({
+          title: '請神成功',
+          message: `${god.label} 已應允降臨，請繼續進行祈福流程。`,
+        });
+        offerStore.resetOfferProcess();
         offerStore.goToStep(1);
       } else {
         offerStore.setGodInvoked(false);
@@ -98,7 +104,10 @@ const handleThrowGod = async () => {
       console.warn('API 成功回傳但 success 為 false');
     }
   } catch (error) {
-    console.error('擲筊請神失敗', error);
+    await dialogStore.openInfoDialog({
+      title: '錯誤',
+      message: getErrorMessage(error),
+    });
   }
 };
 </script>
