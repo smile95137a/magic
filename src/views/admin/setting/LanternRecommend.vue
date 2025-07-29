@@ -34,6 +34,7 @@ import {
   updatePromotionLanternList,
 } from '@/services/admin/adminSystemConfigService';
 import { getLanternList } from '@/services/lanternServices';
+import { executeApi } from '@/utils/executeApiUtils';
 
 const lamps = ref<any[]>([]);
 const selectedIds = ref<Set<string>>(new Set());
@@ -74,10 +75,14 @@ const load = async () => {
 
 const handleSubmit = async () => {
   const ids = Array.from(selectedIds.value);
-  const res = await withLoading(() => updatePromotionLanternList(ids));
-  if (res.success) {
-    alert('儲存成功');
-  }
+
+  await executeApi({
+    fn: () => updatePromotionLanternList(ids),
+    successTitle: '系統通知',
+    successMessage: '儲存成功',
+    errorTitle: '儲存失敗',
+    errorMessage: '請稍後再試。',
+  });
 };
 
 onMounted(load);

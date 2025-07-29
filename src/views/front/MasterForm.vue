@@ -21,7 +21,11 @@
 
           <div class="master-form__field-row">
             <label class="master-form__label">費用</label>
-            <span class="master-form__price">NT$2,000</span>
+            <span class="master-form__price"
+              >NT
+
+              <NumberFormatter :number="selectedPrice" />
+            </span>
           </div>
 
           <div class="master-form__info-block">
@@ -63,12 +67,19 @@ import Title from '@/components/common/Title.vue';
 import { reserveMasterService } from '@/services/masterServices';
 import { useDialogStore } from '@/stores/dialogStore';
 import { withLoading } from '@/utils/loadingUtils';
-
+import NumberFormatter from '@/components/common/NumberFormatter.vue';
+import { submitPaymentForm } from '@/utils/paymentUtils';
 const store = useMasterOrderStore();
 const dialog = useDialogStore();
 
 const topics = computed(() => {
   return store.selectedMaster?.serviceItem?.map((item) => item.title) || [];
+});
+const selectedPrice = computed(() => {
+  const match = store.selectedMaster?.serviceItem?.find(
+    (item) => item.title === store.selectedTopic
+  );
+  return match?.price || 0;
 });
 
 const isValidEmail = (email: string) =>
@@ -136,7 +147,6 @@ const submitForm = async () => {
 
   try {
     const res = await dialog.openPaymentMethodDialog();
-    console.log(res);
 
     if (!res?.code) {
       await dialog.openInfoDialog({
@@ -164,7 +174,20 @@ const submitForm = async () => {
         title: '預約成功',
         message: '已成功送出您的預約申請，稍後將有專人與您聯繫！',
       });
-      store.nextStep();
+      // if (res?.code === 'credit_card') {
+      //   const generateShortOrderNo = (orderId: string) => {
+      //     return parseInt(orderId.slice(0, 16), 16).toString(36).toUpperCase();
+      //   };
+
+      //   const shortOrderNo = generateShortOrderNo(data.orderId);
+      //   submitPaymentForm({
+      //     sendType: '0',
+      //     orderNumber: shortOrderNo,
+      //     totalAmount: data.totalAmount,
+      //     buyerMemo: '開運商城 - 信用卡付款',
+      //     returnUrl: `${window.location.origin}/PaymentCB`,
+      //   });
+      // }
     } else {
       await dialog.openInfoDialog({
         title: '預約失敗',

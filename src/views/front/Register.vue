@@ -11,6 +11,7 @@ import { register } from '@/services/UserService';
 import { useDialogStore } from '@/stores/dialogStore';
 import { useLoadingStore } from '@/stores/loadingStore';
 import { getErrorMessage } from '@/utils/ErrorUtils';
+import { executeApi } from '@/utils/executeApiUtils';
 import { withLoading } from '@/utils/loadingUtils';
 import { useForm } from 'vee-validate';
 import { onMounted, ref, watch } from 'vue';
@@ -20,7 +21,6 @@ import * as yup from 'yup';
 const cityOptions = ref<{ value: string; label: string }[]>([]);
 const areaOptions = ref<{ value: string; label: string }[]>([]);
 const router = useRouter();
-const dialogStore = useDialogStore();
 const schema = yup.object({
   email: yup.string().required('Email 是必填項').email('Email 格式不正確'),
   phone: yup.string().required('手機是必填項'),
@@ -72,30 +72,16 @@ const [lineId, lineIdProps] = defineField('lineId');
 const [agreeTerms, agreeTermsProps] = defineField('agreeTerms');
 
 const onSubmit = handleSubmit(async (values) => {
-  const payload = {
-    ...values,
-  };
-
-  try {
-    const { success } = await withLoading(() => register(payload));
-    if (success) {
-      await dialogStore.openInfoDialog({
-        title: '系統通知',
-        message: '註冊成功，歡迎加入祈願文舍！',
-      });
+  await executeApi({
+    fn: () => register(values),
+    successTitle: '系統通知',
+    successMessage: '註冊成功，歡迎加入祈願文舍！',
+    errorTitle: '註冊失敗',
+    errorMessage: '請稍後再試。',
+    onSuccess: () => {
       router.push('/home');
-    } else {
-      dialogStore.openInfoDialog({
-        title: '錯誤',
-        message: '註冊失敗，請稍後再試。',
-      });
-    }
-  } catch (error: any) {
-    dialogStore.openInfoDialog({
-      title: '錯誤',
-      message: getErrorMessage(error),
-    });
-  }
+    },
+  });
 });
 
 onMounted(() => {

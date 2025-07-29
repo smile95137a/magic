@@ -10,16 +10,17 @@
       <div class="lamp-box__info">
         <div class="lamp-box__title">{{ store.selectedLamp?.name }}</div>
         <p class="lamp-box__desc">
-          安奉 {{ store.selectedLamp?.name }}，順利無災
+          安奉 {{ store.selectedLamp?.name }}，{{
+            store.selectedLamp?.subtitle
+          }}
         </p>
       </div>
       <div class="lamp-box__stat">
         <p>
           目前有
           <span class="lamp-box__highlight">22753</span> 盞
-          {{ store.selectedLamp?.name }}
         </p>
-        <p>肖：蛇、虎、猴、豬 沖煞必點</p>
+        <p>{{ store.selectedLamp?.labelRight }}</p>
       </div>
     </div>
 

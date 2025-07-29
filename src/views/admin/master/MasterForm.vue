@@ -154,6 +154,7 @@ import {
   fetchAllMasters,
   fetchMasterByCode,
 } from '@/services/admin/adminMasterServices';
+import { executeApi } from '@/utils/executeApiUtils';
 
 const router = useRouter();
 const route = useRoute();
@@ -220,12 +221,19 @@ const onSubmit = handleSubmit(async (formValues) => {
     ...formValues,
     id: isEdit ? id : undefined,
   };
-  if (isEdit) {
-    await modifyMaster(payload);
-  } else {
-    await addMaster(payload);
-  }
-  goBack();
+
+  await executeApi({
+    fn: () => (isEdit ? modifyMaster(payload) : addMaster(payload)),
+    successTitle: '系統通知',
+    successMessage: isEdit ? '老師資料已成功修改！' : '老師資料已成功新增！',
+    errorTitle: '錯誤',
+    errorMessage: isEdit
+      ? '老師資料修改失敗，請稍後再試。'
+      : '老師資料新增失敗，請稍後再試。',
+    onSuccess: () => {
+      goBack();
+    },
+  });
 });
 
 const loadData = async () => {

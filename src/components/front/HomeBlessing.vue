@@ -7,14 +7,30 @@
         <div class="home-blessing__banner">
           <template v-if="bannerAList.length">
             <Swiper
-              :modules="[Navigation]"
+              :modules="[Navigation, Autoplay]"
               :slides-per-view="1"
               :loop="true"
+              :autoplay="{ delay: 3000, disableOnInteraction: false } as any"
+              :navigation="true as any"
               class="home-blessing__swiper"
             >
               <SwiperSlide v-for="(banner, index) in bannerAList" :key="index">
+                <a
+                  v-if="banner.url"
+                  :href="banner.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="home-blessing__banner-link"
+                >
+                  <img
+                    v-if="banner.imgBase64"
+                    :src="banner.imgBase64"
+                    class="home-blessing__banner-image"
+                    :alt="`主 Banner ${index + 1}`"
+                  />
+                </a>
                 <img
-                  v-if="banner.imgBase64"
+                  v-else-if="banner.imgBase64"
                   :src="banner.imgBase64"
                   class="home-blessing__banner-image"
                   :alt="`主 Banner ${index + 1}`"
@@ -73,31 +89,40 @@ import 'swiper/scss/autoplay';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import CalendarCard from '@/components/front/CalendarCard.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
-import type { BannerVO } from '@/vite-env';
 import { getAvailableBannerByType } from '@/services/BannerServices';
 import { executeApi } from '@/utils/executeApiUtils';
 
-const bannerAList = ref<BannerVO[]>([]);
-const bannerBList = ref<BannerVO[]>([]);
+const bannerAList = ref<any[]>([]);
+const bannerBList = ref<any[]>([]);
+
+const swiperOptions = {
+  modules: [Navigation, Autoplay],
+  slidesPerView: 1,
+  loop: true,
+  navigation: true,
+  autoplay: {
+    delay: 3000,
+    disableOnInteraction: false,
+  },
+};
 
 onMounted(async () => {
-  // 載入 Banner A
-  await executeApi({
-    fn: () => getAvailableBannerByType('A'),
-    errorTitle: '載入 Banner A 失敗',
-    onSuccess: (data) => {
-      bannerAList.value = data.filter((b: BannerVO) => b.imgBase64);
-    },
-  });
+  const loadBanner = async (
+    type: string,
+    target: typeof bannerAList,
+    errorTitle: string
+  ) => {
+    await executeApi({
+      fn: () => getAvailableBannerByType(type),
+      errorTitle,
+      onSuccess: (data) => {
+        target.value = data.filter((b) => b.imgBase64);
+      },
+    });
+  };
 
-  // 載入 Banner B
-  await executeApi({
-    fn: () => getAvailableBannerByType('B'),
-    errorTitle: '載入 Banner B 失敗',
-    onSuccess: (data) => {
-      bannerBList.value = data.filter((b: BannerVO) => b.imgBase64);
-    },
-  });
+  await loadBanner('A', bannerAList, '載入 Banner A 失敗');
+  await loadBanner('B', bannerBList, '載入 Banner B 失敗');
 });
 </script>
 
@@ -241,6 +266,5 @@ onMounted(async () => {
 :deep(.swiper-button-prev),
 :deep(.swiper-button-next) {
   color: #eee;
-  background-color: rgba(0, 0, 0, 0.6);
 }
 </style>

@@ -66,6 +66,7 @@ import {
   modifyOffering,
 } from '@/services/admin/adminOfferingServices';
 import type { OfferingVO } from '@/vite-env';
+import { executeApi } from '@/utils/executeApiUtils';
 
 const route = useRoute();
 const router = useRouter();
@@ -116,13 +117,18 @@ const onSubmit = handleSubmit(async (formValues) => {
     id: isEdit ? id : undefined,
   };
 
-  if (isEdit) {
-    await modifyOffering(payload);
-  } else {
-    await addOffering(payload);
-  }
-
-  goBack();
+  await executeApi({
+    fn: () => (isEdit ? modifyOffering(payload) : addOffering(payload)),
+    successTitle: '系統通知',
+    successMessage: isEdit ? '供品已成功修改！' : '供品已成功新增！',
+    errorTitle: '錯誤',
+    errorMessage: isEdit
+      ? '供品修改失敗，請稍後再試。'
+      : '供品新增失敗，請稍後再試。',
+    onSuccess: () => {
+      goBack();
+    },
+  });
 });
 
 onMounted(async () => {

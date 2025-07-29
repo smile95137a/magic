@@ -24,7 +24,6 @@ import {
   getCategoryAvailableList,
   getProductListByCategory,
 } from '@/services/productServices';
-import { ProductCategoryVO, ProductVO } from '@/vite-env';
 
 const categories = ref<any[]>([]);
 

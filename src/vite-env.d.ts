@@ -10,11 +10,6 @@ interface SelectOption {
   label: string;
 }
 
-interface BannerVO {
-  imgBase64: string;
-  sort: number;
-}
-
 interface UserRegisterRequest {
   email: string;
   password: string;

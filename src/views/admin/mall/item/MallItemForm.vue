@@ -279,7 +279,7 @@ watch(mainImage, (val) => {
 });
 
 //
-const editor = ClassicEditor;
+const editor = ClassicEditor as any;
 
 // 自定義 CKEditor 配置，啟用圖片大小調整功能
 const editorConfig = {
@@ -304,7 +304,7 @@ const editorConfig = {
       { name: 'resizeImage:50', label: '50%', value: '50' },
       { name: 'resizeImage:75', label: '75%', value: '75' },
     ],
-    resizeUnit: '%',
+    resizeUnit: '%' as '%' | 'px',
   },
   extraPlugins: [CustomUploadAdapterPlugin],
 };

@@ -17,11 +17,7 @@
             :class="{ 'payment__item--selected': selected === method.code }"
             @click="togglePayment(method.code)"
           >
-            <img
-              :src="paymentImg"
-              :alt="method.name"
-              class="payment__item-img"
-            />
+            <i :class="getIconClass(method.code)" class="payment__item-icon" />
             <p class="payment__item-name">{{ method.name }}</p>
           </div>
         </div>
@@ -52,14 +48,28 @@ import Dialog from './Dialog.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import { useDialogStore } from '@/stores/dialogStore';
 import { getPayMethodList } from '@/services/OrderService';
-import paymentImg from '@/assets/image/payment.png';
+const getIconClass = (code: string) => {
+  const iconMap: Record<string, string> = {
+    CREDIT: 'fas fa-credit-card',
+    WALLET: 'fas fa-wallet',
+    MOBILE: 'fas fa-mobile-alt',
+    LINEPAY: 'fab fa-line',
+    APPLEPAY: 'fab fa-apple',
+    GOOGLEPAY: 'fab fa-google-pay',
+  };
+  return iconMap[code] || 'fas fa-credit-card';
+};
 
 const dialogStore = useDialogStore();
 const isOpen = computed(() => dialogStore.isPaymentMethodDialogOpen);
 const customClass = computed(() => dialogStore.customClass);
 
 const selected = ref<string | null>(null);
-const paymentOptions = ref<any[]>([]);
+
+const paymentOptions = ref([
+  { code: 'CREDIT', name: '信用卡', icon: 'fas fa-credit-card' },
+  { code: 'ATM', name: 'ATM 轉帳', icon: 'fas fa-university' },
+]);
 
 const togglePayment = (code: string) => {
   selected.value = selected.value === code ? null : code;
@@ -96,7 +106,7 @@ const initOptions = async () => {
   }
 };
 
-onMounted(initOptions);
+// onMounted(initOptions);
 </script>
 
 <style scoped lang="scss">

@@ -56,6 +56,7 @@ import { useDialogStore } from '@/stores/dialogStore';
 import { sendResetPasswordMail } from '@/services/UserService';
 import { getErrorMessage } from '@/utils/ErrorUtils';
 import { withLoading } from '@/utils/loadingUtils';
+import { executeApi } from '@/utils/executeApiUtils';
 
 const dialogStore = useDialogStore();
 
@@ -76,25 +77,16 @@ const { handleSubmit, errors, defineField } = useForm({
 const [email, emailProps] = defineField('email');
 
 const onSubmit = handleSubmit(async (values) => {
-  try {
-    await withLoading(() =>
-      sendResetPasswordMail({
-        email: values.email,
-      })
-    );
-
-    dialogStore.closeRestPwdDialog(true);
-
-    await dialogStore.openInfoDialog({
-      title: '成功通知',
-      message: '已寄出重設密碼信，請前往信箱確認。',
-    });
-  } catch (error: any) {
-    await dialogStore.openInfoDialog({
-      title: '錯誤',
-      message: getErrorMessage(error),
-    });
-  }
+  await executeApi({
+    fn: () => sendResetPasswordMail({ email: values.email }),
+    successTitle: '成功通知',
+    successMessage: '已寄出重設密碼信，請前往信箱確認。',
+    errorTitle: '錯誤',
+    errorMessage: '寄送失敗，請稍後再試。',
+    onSuccess: () => {
+      dialogStore.closeRestPwdDialog(true);
+    },
+  });
 });
 
 const handleClose = (result: boolean) => {

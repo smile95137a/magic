@@ -39,44 +39,32 @@ import { useBlessingStore } from '@/stores/blessingStore';
 import { storeToRefs } from 'pinia';
 import { useDialogStore } from '@/stores/dialogStore';
 import { getErrorMessage } from '@/utils/ErrorUtils';
+import { executeApi } from '@/utils/executeApiUtils';
 
 const store = useBlessingStore();
 const dialogStore = useDialogStore();
 const { contactInfos, selectedLamp } = storeToRefs(store);
 
 const finalSubmit = async () => {
-  try {
-    const payload = {
-      lanternCode: selectedLamp.value?.iconName || '',
-      list: contactInfos.value.map((info) => ({
-        ...info,
-        birthday: info.birthday
-          ? moment(info.birthday).format('YYYY/MM/DD')
-          : '',
-      })),
-      month: 12,
-    };
+  const payload = {
+    lanternCode: selectedLamp.value?.iconName || '',
+    list: contactInfos.value.map((info) => ({
+      ...info,
+      birthday: info.birthday ? moment(info.birthday).format('YYYY/MM/DD') : '',
+    })),
+    month: 12,
+  };
 
-    const response = await purchaseLantern(payload);
-
-    if (response.success) {
-      await dialogStore.openInfoDialog({
-        title: '成功',
-        message: '祈福資料已送出！',
-      });
+  await executeApi({
+    fn: () => purchaseLantern(payload),
+    successTitle: '成功',
+    successMessage: '祈福資料已送出！',
+    errorTitle: '錯誤',
+    errorMessage: '祈福送出失敗，請稍後再試。',
+    onSuccess: () => {
       store.resetBlessing();
-    } else {
-      await dialogStore.openInfoDialog({
-        title: '錯誤',
-        message: response.message || '祈福送出失敗，請稍後再試。',
-      });
-    }
-  } catch (error) {
-    await dialogStore.openInfoDialog({
-      title: '錯誤',
-      message: getErrorMessage(error),
-    });
-  }
+    },
+  });
 };
 </script>
 

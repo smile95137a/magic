@@ -17,7 +17,13 @@
               v-for="item in products"
               :key="item.productId"
             >
-              <div class="checkout-success__image" />
+              <div class="checkout-success__image">
+                <img
+                  v-if="item.productUrl"
+                  :src="getImageUrl(item.productUrl)"
+                  :alt="item.productName"
+                />
+              </div>
               <div class="checkout-success__product-info">
                 <p>{{ item.productName }}</p>
                 <p class="checkout-success__price">${{ item.unitPrice }}</p>
@@ -75,7 +81,8 @@ import { getOrderDetail } from '@/services/OrderService';
 import { getErrorMessage } from '@/utils/ErrorUtils';
 import { withLoading } from '@/utils/loadingUtils';
 import { useDialogStore } from '@/stores/dialogStore';
-
+import { executeApi } from '@/utils/executeApiUtils';
+import { getImageUrl } from '@/utils/ImageUtils';
 const route = useRoute();
 const router = useRouter();
 const dialogStore = useDialogStore();
@@ -93,11 +100,11 @@ const totalAmount = ref(0);
 const paymentMethod = ref('');
 
 const init = async () => {
-  try {
-    const response = await withLoading(() => getOrderDetail(orderId));
-    if (response.success) {
-      const order = response.data;
-
+  await executeApi({
+    fn: () => getOrderDetail(orderId),
+    errorTitle: '錯誤',
+    errorMessage: '取得訂單失敗，請稍後再試。',
+    onSuccess: (order) => {
       products.value = order.items || [];
       totalAmount.value = order.totalAmount ?? 0;
       discount.value = order.discount ?? 0;
@@ -109,23 +116,20 @@ const init = async () => {
           : order.invoiceType === 'mobile'
           ? '手機載具'
           : '個人二聯式發票';
-      paymentMethod.value = '待付款'; // 因為你提供的例子是 paymentStatus: 待付款
+
+      paymentMethod.value = '待付款';
 
       recipientName.value = order.recipientName || '';
       recipientPhone.value = order.recipientPhone || '';
       recipientAddress.value = order.recipientAddress || '';
-    } else {
+    },
+    onFail: async (data) => {
       await dialogStore.openInfoDialog({
         title: '錯誤',
-        message: response.message ?? '取得訂單失敗',
+        message: data?.message ?? '取得訂單失敗',
       });
-    }
-  } catch (error) {
-    await dialogStore.openInfoDialog({
-      title: '錯誤',
-      message: getErrorMessage(error),
-    });
-  }
+    },
+  });
 };
 
 const goHome = () => {
@@ -185,9 +189,15 @@ onMounted(() => {
   &__image {
     width: 60px;
     height: 60px;
-    background: #ccc;
     border-radius: 8px;
     flex-shrink: 0;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
   }
 
   &__product-info {

@@ -5,18 +5,11 @@
     </h1>
 
     <form @submit.prevent="onSubmit" class="form">
-      <!-- 標題 -->
-      <div class="form__group">
-        <label class="form__label">標題</label>
-        <input v-model="title" class="form__input" />
-        <span class="form__error" v-if="errors.title">{{ errors.title }}</span>
-      </div>
-
       <!-- 連結 -->
       <div class="form__group">
         <label class="form__label">連結</label>
-        <input v-model="link" class="form__input" />
-        <span class="form__error" v-if="errors.link">{{ errors.link }}</span>
+        <input v-model="url" class="form__input" />
+        <span class="form__error" v-if="errors.url">{{ errors.url }}</span>
       </div>
 
       <!-- 排序 -->
@@ -101,6 +94,7 @@ import {
   modifyBanner,
 } from '@/services/admin/adminBannerServices';
 import moment from 'moment';
+import { executeApi } from '@/utils/executeApiUtils';
 
 const router = useRouter();
 const route = useRoute();
@@ -108,42 +102,39 @@ const id = route.params.id as string | undefined;
 const isEdit = !!id;
 
 const schema = object({
-  title: string().required('標題為必填'),
-  link: string().nullable(),
-  sort: number().required('排序為必填').min(0, '排序不可小於 0'),
-  imageBase64: string().required('請上傳圖片'),
   filename: string().required('請上傳圖片'),
+  sort: number().required('排序為必填').min(0, '排序不可小於 0'),
   type: string().oneOf(['A', 'B']).required('類型為必填'),
   availableFrom: string().required('上架日期為必填'),
   availableUntil: string().required('下架日期為必填'),
+  url: string().url('請輸入有效的連結').nullable(),
   description: string().nullable(),
+  imageBase64: string().required('請上傳圖片'),
 });
 
 const { handleSubmit, errors, defineField, setValues, values } = useForm({
   validationSchema: schema,
   initialValues: {
-    title: '',
-    link: '',
-    sort: 0,
-    imageBase64: '',
     filename: '',
+    sort: 1,
     type: 'A',
     availableFrom: '',
     availableUntil: '',
+    url: '',
     description: '',
+    imageBase64: '',
   },
 });
 
 // defineField - 綁定每個欄位
-const [title] = defineField('title');
-const [link] = defineField('link');
-const [sort] = defineField('sort');
-const [imageBase64] = defineField('imageBase64');
 const [filename] = defineField('filename');
+const [sort] = defineField('sort');
 const [type] = defineField('type');
 const [availableFrom] = defineField('availableFrom');
 const [availableUntil] = defineField('availableUntil');
+const [url] = defineField('url');
 const [description] = defineField('description');
+const [imageBase64] = defineField('imageBase64');
 
 const goBack = () => router.push('/admin/banners');
 
@@ -167,12 +158,18 @@ const onSubmit = handleSubmit(async (formValues) => {
     id: isEdit ? id : undefined,
   };
 
-  if (isEdit) {
-    await modifyBanner(payload);
-  } else {
-    await addBanner(payload);
-  }
-  goBack();
+  await executeApi({
+    fn: () => (isEdit ? modifyBanner(payload) : addBanner(payload)),
+    successTitle: '系統通知',
+    successMessage: isEdit ? '橫幅已成功修改！' : '橫幅已成功新增！',
+    errorTitle: '錯誤',
+    errorMessage: isEdit
+      ? '橫幅修改失敗，請稍後再試。'
+      : '橫幅新增失敗，請稍後再試。',
+    onSuccess: () => {
+      goBack();
+    },
+  });
 });
 
 const loadData = async () => {
@@ -181,11 +178,10 @@ const loadData = async () => {
   if (res.success) {
     const data = res.data;
     setValues({
-      title: data.title || '',
-      link: data.link || '',
+      url: data.url || '',
       sort: data.sort,
       imageBase64: data.imageBase64,
-      filename: data.filename ?? 'banner.jpg', // 加入 filename，否則驗證會卡住
+      filename: data.filename ?? 'banner.jpg',
       type: data.type,
       availableFrom: moment(data.availableFrom).format('YYYY-MM-DD'),
       availableUntil: moment(data.availableUntil).format('YYYY-MM-DD'),

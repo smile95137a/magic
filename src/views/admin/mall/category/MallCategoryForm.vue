@@ -47,6 +47,7 @@ import {
   fetchCategoryById,
   modifyCategory,
 } from '@/services/admin/adminCategoryServices';
+import { executeApi } from '@/utils/executeApiUtils';
 
 const route = useRoute();
 const router = useRouter();
@@ -73,12 +74,19 @@ const [status] = defineField('status');
 const goBack = () => router.push('/admin/mall/categories');
 
 const onSubmit = handleSubmit(async (formValues) => {
-  if (isEdit) {
-    await modifyCategory({ id, ...formValues });
-  } else {
-    await addCategory(formValues);
-  }
-  goBack();
+  await executeApi({
+    fn: () =>
+      isEdit ? modifyCategory({ id, ...formValues }) : addCategory(formValues),
+    successTitle: '系統通知',
+    successMessage: isEdit ? '分類已成功修改！' : '分類已成功新增！',
+    errorTitle: '錯誤',
+    errorMessage: isEdit
+      ? '分類修改失敗，請稍後再試。'
+      : '分類新增失敗，請稍後再試。',
+    onSuccess: () => {
+      goBack();
+    },
+  });
 });
 
 onMounted(async () => {

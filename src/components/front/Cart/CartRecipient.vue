@@ -38,8 +38,11 @@ const initProfile = async () => {
   const { success, data } = await withLoading(() => getProfile());
 
   if (success && data) {
+    console.log(data.email);
+
     await setFieldValue('recipient.name', data.nickName || '');
     await setFieldValue('recipient.phone', data.phone || '');
+    await setFieldValue('recipient.email', data.email || '');
     await setFieldValue('recipient.address', data.address || '');
     await setFieldValue('recipient.city', data.city || '');
     await setFieldValue('recipient.area', data.area || '');

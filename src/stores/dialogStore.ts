@@ -5,6 +5,7 @@ import { usePoeDivinationDialog } from '@/hook/poeDivinationDialog';
 import { usePoeOfferingDialog } from '@/hook/poeOfferingDialog';
 import { useRestPwdDialog } from '@/hook/restPwdDialog';
 import { usePaymentMethodDialog } from '@/hook/paymentMethodDialog';
+import { useStockAdjustDialog } from '@/hook/stockAdjustDialog';
 
 export const useDialogStore = defineStore('dialog', () => {
   const confirmDialog = useConfirmDialog();
@@ -13,7 +14,7 @@ export const useDialogStore = defineStore('dialog', () => {
   const poeOfferingDialog = usePoeOfferingDialog();
   const restPwdDialog = useRestPwdDialog();
   const paymentMethodDialog = usePaymentMethodDialog();
-
+  const stockAdjustDialog = useStockAdjustDialog();
   return {
     ...confirmDialog,
     ...infoDialog,
@@ -21,5 +22,6 @@ export const useDialogStore = defineStore('dialog', () => {
     ...poeOfferingDialog,
     ...restPwdDialog,
     ...paymentMethodDialog,
+    ...stockAdjustDialog,
   };
 });

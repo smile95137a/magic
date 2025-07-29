@@ -36,6 +36,7 @@
           <td>{{ item.status ? '啟用' : '停用' }}</td>
           <td>
             <button @click="goToEdit(item.id)">編輯</button>
+            <button @click="goToAdjustStock(item.id)">庫存調整</button>
           </td>
         </tr>
       </tbody>
@@ -64,8 +65,10 @@ import { useRouter } from 'vue-router';
 import { getProductList } from '@/services/admin/adminProductServices';
 import { withLoading } from '@/utils/loadingUtils';
 import { getImageUrl } from '@/utils/ImageUtils';
+import { useDialogStore } from '@/stores/dialogStore';
 
 const router = useRouter();
+const dialogStore = useDialogStore();
 
 const list = ref<any[]>([]);
 const pageLimitSize = ref(10);
@@ -88,7 +91,12 @@ const load = async () => {
 
 const goToAdd = () => router.push('/admin/mall/items/add');
 const goToEdit = (id: number) => router.push(`/admin/mall/items/edit/${id}`);
-
+const goToAdjustStock = async (productId: number) => {
+  const result = await dialogStore.openStockAdjustDialog(productId);
+  if (result === true) {
+    load(); // 更新商品列表
+  }
+};
 onMounted(load);
 </script>
 <style scoped lang="scss">

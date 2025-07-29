@@ -24,6 +24,10 @@ export const adminRoutes: Array<RouteRecordRaw> = [
     component: AdminDashboard,
     meta: { requiresAuth: true, layout: 'admin' },
     children: [
+      {
+        path: '',
+        redirect: '/admin/offerings',
+      },
       adminOfferingRoutes,
       adminMasterRoutes,
       adminBannerRoutes,

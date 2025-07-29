@@ -8,6 +8,7 @@
   <PoeDivinationDialog v-if="dialogStore.isPoeDivinationDialogOpen" />
   <PoeOfferingDialog v-if="dialogStore.isPoeOfferingDialogOpen" />
   <RestPwdDialog v-if="dialogStore.isRestPwdDialogOpen" />
+  <StockAdjustDialog v-if="dialogStore.isStockAdjustDialogOpen" />
   <LoadingMask v-if="loadingStore.isLoading" />
 </template>
 
@@ -18,6 +19,7 @@ import PoeDivinationDialog from '@/components/common/PoeDivinationDialog.vue';
 import PoeOfferingDialog from '@/components/common/PoeOfferingDialog.vue';
 import RestPwdDialog from '@/components/common/RestPwdDialog.vue';
 import PaymentMethodDialog from '@/components/common/PaymentMethodDialog.vue';
+import StockAdjustDialog from '@/components/admin/StockAdjustDialog.vue';
 
 import LoadingMask from '@/components/common/LoadingMask.vue';
 import { useDialogStore } from './stores/dialogStore';

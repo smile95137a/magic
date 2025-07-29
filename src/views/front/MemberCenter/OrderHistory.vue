@@ -32,12 +32,15 @@
           <tbody>
             <tr v-for="(item, index) in currentPageItems" :key="index">
               <td>{{ item.date }}</td>
+              <td>{{ item.orderId }}</td>
+              <td style="white-space: pre-line">{{ item.content }}</td>
               <td>
-                <div>{{ item.orderId }}</div>
-                <div>{{ item.orderId }}</div>
+                {{ item.status }}
+                <br />
+                <span style="font-size: 0.85em; color: #888"
+                  >({{ item.paymentStatus }})</span
+                >
               </td>
-              <td>{{ item.content }}</td>
-              <td>{{ item.status }}</td>
               <td>
                 <button class="order-history__link" @click="openDialog(item)">
                   明細
@@ -70,10 +73,13 @@
     <div class="order-history__dialog-mask" v-if="showDialog">
       <div class="order-history__dialog">
         <h3 class="order-history__dialog-title">訂單明細</h3>
-        <p><strong>訂單編號：</strong>{{ selectedItem.orderId }}</p>
+        <p><strong>訂單編號：</strong>{{ selectedItem.raw.id }}</p>
         <p><strong>下單時間：</strong>{{ selectedItem.date }}</p>
-        <p><strong>內容：</strong>{{ selectedItem.content }}</p>
-        <p><strong>狀態：</strong>{{ selectedItem.status }}</p>
+        <p><strong>金額：</strong>NT${{ selectedItem.raw.totalAmount }}</p>
+        <p><strong>付款狀態：</strong>{{ selectedItem.raw.paymentStatus }}</p>
+        <p><strong>物流方式：</strong>{{ selectedItem.raw.shippingMethod }}</p>
+        <p><strong>訂單狀態：</strong>{{ selectedItem.raw.status }}</p>
+
         <div class="order-history__dialog-actions">
           <button class="order-history__btn" @click="showDialog = false">
             關閉
@@ -93,6 +99,7 @@ import { usePagination } from '@/hook/usePagination';
 import { getOrderList } from '@/services/OrderService';
 import { useDialogStore } from '@/stores/dialogStore';
 import { getErrorMessage } from '@/utils/ErrorUtils';
+import { executeApi } from '@/utils/executeApiUtils';
 
 const dialogStore = useDialogStore();
 
@@ -129,23 +136,24 @@ const handleSearch = async () => {
     endTime: moment(endDate.value).format('YYYY/MM/DD'),
   };
 
-  try {
-    const res = await getOrderList(payload);
-    if (res.success) {
-      list.value = res.data || [];
-    } else {
+  await executeApi({
+    fn: () => getOrderList(payload),
+    errorTitle: '查詢失敗',
+    errorMessage: '查詢失敗，請稍後再試。',
+    onSuccess: (data) => {
+      list.value = (data || []).map((item: any) => ({
+        orderId: item.id,
+        date: moment(item.createTime).format('YYYY/MM/DD HH:mm:ss'),
+        content: `金額：NT$${item.totalAmount}\n物流：${item.shippingMethod}`,
+        status: item.status,
+        paymentStatus: item.paymentStatus,
+        raw: item,
+      }));
+    },
+    onFail: async (data) => {
       list.value = [];
-      await dialogStore.openInfoDialog({
-        title: '查詢失敗',
-        message: res.message || '查詢失敗，請稍後再試。',
-      });
-    }
-  } catch (error: any) {
-    await dialogStore.openInfoDialog({
-      title: '錯誤',
-      message: getErrorMessage(error),
-    });
-  }
+    },
+  });
 };
 
 const openDialog = (item: any) => {

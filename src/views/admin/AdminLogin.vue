@@ -58,7 +58,7 @@ const onSubmit = handleSubmit(async (values) => {
     if (success) {
       authStore.setToken(data.accessToken);
       // authStore.setUser(data.user);
-      router.push('/admin/dashboard');
+      router.push('/admin');
     }
   } catch (error) {
     console.error('登入失敗', error);

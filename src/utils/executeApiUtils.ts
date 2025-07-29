@@ -9,8 +9,9 @@ interface ExecuteApiOptions<T> {
   errorTitle?: string;
   errorMessage?: string;
   onSuccess?: (res: T) => void | Promise<void>;
-  onFail?: (res: T | undefined) => void | Promise<void>;
+  onFail?: (res: T) => void | Promise<void>;
   showCatchDialog?: boolean;
+  showFailDialog?: boolean;
 }
 
 export async function executeApi<T = any>({
@@ -22,6 +23,7 @@ export async function executeApi<T = any>({
   onSuccess,
   onFail,
   showCatchDialog = false,
+  showFailDialog = false,
 }: ExecuteApiOptions<T>): Promise<T | null> {
   const dialogStore = useDialogStore();
 
@@ -32,11 +34,13 @@ export async function executeApi<T = any>({
       if (onSuccess) await onSuccess(data!);
       return data ?? null;
     } else {
-      await dialogStore.openInfoDialog({
-        title: errorTitle,
-        message: message || errorMessage,
-      });
-
+      if (showFailDialog) {
+        await dialogStore.openInfoDialog({
+          title: errorTitle,
+          message: message || errorMessage,
+        });
+      }
+      console.log(message || errorMessage);
       if (onFail) await onFail(data);
       return null;
     }

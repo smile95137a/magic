@@ -61,6 +61,7 @@ import moment from 'moment';
 import NoData from '@/components/common/NoData.vue';
 import { useDialogStore } from '@/stores/dialogStore';
 import { getErrorMessage } from '@/utils/ErrorUtils';
+import { executeApi } from '@/utils/executeApiUtils';
 
 const dialogStore = useDialogStore();
 
@@ -94,24 +95,21 @@ const handleSearch = async () => {
     endTime: moment(endDate.value).format('YYYY/MM/DD'),
   };
 
-  try {
-    const res = await getPurchaseRecord(payload);
-
-    if (res.success) {
-      list.value = res.data || [];
-    } else {
+  await executeApi({
+    fn: () => getPurchaseRecord(payload),
+    errorTitle: '錯誤',
+    errorMessage: '查詢失敗，請稍後再試。',
+    onSuccess: (data) => {
+      list.value = data || [];
+    },
+    onFail: async (data) => {
       list.value = [];
       await dialogStore.openInfoDialog({
         title: '查詢失敗',
-        message: res.message || '查詢失敗，請稍後再試。',
+        message: data?.message || '查詢失敗，請稍後再試。',
       });
-    }
-  } catch (error: any) {
-    await dialogStore.openInfoDialog({
-      title: '錯誤',
-      message: getErrorMessage(error),
-    });
-  }
+    },
+  });
 };
 </script>
 

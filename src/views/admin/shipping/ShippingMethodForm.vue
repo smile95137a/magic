@@ -73,6 +73,7 @@ import {
   saveShippingMethod,
   fetchShippingMethodList,
 } from '@/services/admin/adminOrderServices';
+import { executeApi } from '@/utils/executeApiUtils';
 
 const route = useRoute();
 const router = useRouter();
@@ -113,16 +114,23 @@ const goBack = () => {
 };
 
 const onSubmit = handleSubmit(async (values) => {
-  try {
-    const payload = {
-      ...values,
-      id: isEdit ? route.params.id : undefined,
-    };
-    await saveShippingMethod(payload);
-    goBack();
-  } catch (err) {
-    console.error('儲存失敗', err);
-  }
+  const payload = {
+    ...values,
+    id: isEdit ? route.params.id : undefined,
+  };
+
+  await executeApi({
+    fn: () => saveShippingMethod(payload),
+    successTitle: '系統通知',
+    successMessage: isEdit ? '物流方式已修改成功！' : '物流方式已新增成功！',
+    errorTitle: '錯誤',
+    errorMessage: isEdit
+      ? '物流方式修改失敗，請稍後再試。'
+      : '物流方式新增失敗，請稍後再試。',
+    onSuccess: () => {
+      goBack();
+    },
+  });
 });
 
 onMounted(async () => {

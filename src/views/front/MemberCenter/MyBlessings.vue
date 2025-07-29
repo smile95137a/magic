@@ -86,6 +86,7 @@ import { useDialogStore } from '@/stores/dialogStore';
 import { getOfferingRecord, getMyGodInfo } from '@/services/UserService';
 import { getErrorMessage } from '@/utils/ErrorUtils';
 import moment from 'moment';
+import { executeApi } from '@/utils/executeApiUtils';
 
 const dialogStore = useDialogStore();
 
@@ -141,24 +142,14 @@ const handleSearch = async () => {
     endTime: moment(endDate.value).format('YYYY/MM/DD'),
   };
 
-  try {
-    const res = await getOfferingRecord(payload);
-    if (res.success) {
-      recordList.value = res.data || [];
-    } else {
-      recordList.value = [];
-      await dialogStore.openInfoDialog({
-        title: '錯誤',
-        message: res.message || '查詢失敗',
-      });
-    }
-  } catch (err) {
-    recordList.value = [];
-    await dialogStore.openInfoDialog({
-      title: '錯誤',
-      message: getErrorMessage(err),
-    });
-  }
+  await executeApi({
+    fn: () => getOfferingRecord(payload),
+    errorTitle: '錯誤',
+    errorMessage: '查詢失敗，請稍後再試。',
+    onSuccess: (data) => {
+      recordList.value = data || [];
+    },
+  });
 };
 
 onMounted(async () => {

@@ -86,12 +86,13 @@
             <option value="">請選擇發票類型</option>
             <option value="donation">捐贈發票</option>
             <option value="mobile">手機載具</option>
-            <option value="personal">個人電子發票</option>
+            <option value="citizen">個人電子發票</option>
             <option value="company">統一編號</option>
           </select>
 
           <span class="error-text">{{ invoiceErrors.invoiceType }}</span>
         </div>
+        <div class="member-profile__field" v-if="invoiceType === ''"></div>
         <!-- 捐贈發票：愛心碼 -->
         <div class="member-profile__field" v-if="invoiceType === 'donation'">
           <label>愛心碼 *</label>
@@ -112,11 +113,11 @@
           <input v-model="taxId" v-bind="taxIdProps" />
           <span class="error-text">{{ invoiceErrors.taxId }}</span>
         </div>
-
-        <div class="member-profile__field">
-          <label>接收發票信箱 *</label>
-          <input v-model="invoiceEmail" v-bind="invoiceEmailProps" />
-          <span class="error-text">{{ invoiceErrors.invoiceEmail }}</span>
+        <div class="member-profile__field" v-if="invoiceType === 'personal'">
+          <label>說明</label>
+          <p style="padding: 0.5rem; font-size: 0.9rem; color: #555">
+            個人電子發票將自動對帳，無需輸入載具或統編。
+          </p>
         </div>
       </div>
       <div class="member-profile__actions">
@@ -136,10 +137,7 @@ import {
   getAreaListByCityName,
   getZipCodeByCityAndAreaName,
 } from '@/services/taiwanCitiesService';
-import { useDialogStore } from '@/stores/dialogStore';
-import { withLoading } from '@/utils/loadingUtils';
-import { getErrorMessage } from '@/utils/ErrorUtils';
-const dialogStore = useDialogStore();
+import { executeApi } from '@/utils/executeApiUtils';
 const cityOptions = ref<any[]>([]);
 const areaOptions = ref<any[]>([]);
 
@@ -155,7 +153,6 @@ const profileSchema = yup.object({
 
 const invoiceSchema = yup.object({
   invoiceType: yup.string().required('請選擇發票類型'),
-  invoiceEmail: yup.string().required('Email 為必填').email('格式不正確'),
   donationCode: yup.string().when('invoiceType', {
     is: 'donation',
     then: (schema) => schema.required('請輸入愛心碼'),
@@ -218,7 +215,6 @@ const {
 });
 
 const [invoiceType, invoiceTypeProps] = defineInvoiceField('invoiceType');
-const [invoiceEmail, invoiceEmailProps] = defineInvoiceField('invoiceEmail');
 const [donationCode, donationCodeProps] = defineInvoiceField('donationCode');
 const [mobileCarrier, mobileCarrierProps] = defineInvoiceField('mobileCarrier');
 const [taxId, taxIdProps] = defineInvoiceField('taxId');
@@ -237,20 +233,18 @@ watch(city, (newCity) => {
     : [{ value: '', label: '行政區' }];
 });
 
-// --- 行政區切換（若需處理 ZipCode）
 watch(area, (newArea) => {
   if (newArea) {
     const zipCode = getZipCodeByCityAndAreaName(city.value, newArea);
     if (zipCode) {
-      // 可加入顯示用 zipCode.value = ...
     }
   }
 });
 
-// --- 初始載入會員資料
 const initProfile = async () => {
   const res = await getProfile();
   if (res.success && res.data) {
+    // 會員欄位初始化
     await setProfileFieldValue('nickName', res.data.nickName || '');
     await setProfileFieldValue('lineId', res.data.lineId || '');
     await setProfileFieldValue('addressName', res.data.addressName || '');
@@ -260,11 +254,27 @@ const initProfile = async () => {
     await setProfileFieldValue('area', res.data.area || '');
     await setProfileFieldValue('address', res.data.address || '');
 
-    await setInvoiceFieldValue('invoiceType', res.data.invoiceType || '');
-    await setInvoiceFieldValue('invoiceEmail', res.data.invoiceEmail || '');
-    await setInvoiceFieldValue('donationCode', res.data.donationCode || '');
-    await setInvoiceFieldValue('mobileCarrier', res.data.mobileCarrier || '');
-    await setInvoiceFieldValue('taxId', res.data.taxId || '');
+    // 發票欄位初始化
+    const invoiceType = res.data.invoice?.type || '';
+    const invoiceValue = res.data.invoice?.value || '';
+
+    await setInvoiceFieldValue('invoiceType', invoiceType);
+
+    // 根據發票類型放入正確欄位
+    switch (invoiceType) {
+      case 'donation':
+        await setInvoiceFieldValue('donationCode', invoiceValue);
+        break;
+      case 'mobile':
+        await setInvoiceFieldValue('mobileCarrier', invoiceValue);
+        break;
+      case 'company':
+        await setInvoiceFieldValue('taxId', invoiceValue);
+        break;
+      default:
+        // 個人電子發票（citizen）不需額外設定
+        break;
+    }
   }
 };
 
@@ -277,35 +287,50 @@ onMounted(() => {
   initProfile();
 });
 
-// --- 表單送出方法
 const submitProfile = handleProfileSubmit(async (values) => {
-  const payload = {
-    ...values,
-  };
-
-  try {
-    const { success } = await withLoading(() => modifyUser(payload));
-    if (success) {
-      await dialogStore.openInfoDialog({
-        title: '系統通知',
-        message: '會員資料已成功修改！',
-      });
-    } else {
-      await dialogStore.openInfoDialog({
-        title: '錯誤',
-        message: '會員資料修改失敗，請稍後再試。',
-      });
-    }
-  } catch (error: any) {
-    await dialogStore.openInfoDialog({
-      title: '系統錯誤',
-      message: getErrorMessage(error),
-    });
-  }
+  await executeApi({
+    fn: () => modifyUser(values),
+    successTitle: '系統通知',
+    successMessage: '會員資料已成功修改！',
+    errorTitle: '錯誤',
+    errorMessage: '會員資料修改失敗，請稍後再試。',
+  });
 });
 
-const submitInvoice = handleInvoiceSubmit((values) => {
-  console.log('發票資料送出:', values);
+const submitInvoice = handleInvoiceSubmit(async (invoiceValues) => {
+  // 取得 invoice 資訊
+  const invoiceMap = {
+    donation: { type: 'donation', value: invoiceValues.donationCode },
+    mobile: { type: 'mobile', value: invoiceValues.mobileCarrier },
+    company: { type: 'company', value: invoiceValues.taxId },
+    personal: { type: 'citizen', value: '' },
+  };
+
+  const invoice = invoiceMap[invoiceValues.invoiceType];
+
+  // 取得目前的會員資料欄位值
+  const userValues = {
+    nickName: nickName.value,
+    lineId: lineId.value,
+    addressName: addressName.value,
+    phone: phone.value,
+    city: city.value,
+    area: area.value,
+    address: address.value,
+  };
+
+  const payload = {
+    ...userValues,
+    invoice,
+  };
+
+  await executeApi({
+    fn: () => modifyUser(payload),
+    successTitle: '系統通知',
+    successMessage: '會員與發票資料已成功修改！',
+    errorTitle: '錯誤',
+    errorMessage: '資料修改失敗，請稍後再試。',
+  });
 });
 </script>
 
@@ -383,5 +408,3 @@ const submitInvoice = handleInvoiceSubmit((values) => {
   }
 }
 </style>
-發票類型 有這些 捐贈發票（需填寫愛心碼） 手機載具（需填寫手機載具號碼）
-個人電子發票（無需額外欄位） 統一編號（需填寫統一編號）
