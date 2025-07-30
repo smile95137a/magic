@@ -31,7 +31,11 @@
           @click="openOfferingDialog(index)"
         >
           <img class="offering__fruit-bowl" :src="fruitBowl" alt="fruit bowl" />
-          <div v-if="offerings[index]" class="offering__fruit-image">
+          <div
+            v-if="offerings[index]"
+            class="offering__fruit-image"
+            @click.stop="handleOfferingClick(index)"
+          >
             <img
               :src="offerings[index].imageBase64"
               alt="offering"
@@ -181,7 +185,17 @@ const selectGod = async (god: any) => {
     console.error('取得神明資訊失敗', error);
   }
 };
-const openOfferingDialog = async (index: number) => {
+
+const handleOfferingClick = (index: number) => {
+  const prevOfferingId = offerings.value[index]?.id || null;
+
+  openOfferingDialog(index, prevOfferingId);
+};
+
+const openOfferingDialog = async (
+  index: number,
+  prevOfferingId: string | null = null
+) => {
   if (!offerStore.isGodInvoked) {
     await dialogStore.openInfoDialog({
       title: '提示',
@@ -210,6 +224,7 @@ const openOfferingDialog = async (index: number) => {
 
     const payload = {
       godCode: offerStore.selectedGod?.imageCode,
+      prevOfferingId,
       newOfferingId: res.id,
       paymentMethod: payType,
     };

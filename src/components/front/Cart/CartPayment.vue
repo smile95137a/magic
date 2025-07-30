@@ -5,10 +5,7 @@ import { ref } from 'vue';
 // import { getPayMethodList } from '@/services/OrderService'; // 暫時不用
 
 // 假資料
-const payMethodOptions = ref([
-  { label: '信用卡', value: 'credit_card' },
-  { label: 'ATM 轉帳', value: 'webatm' },
-]);
+const payMethodOptions = ref([{ label: '信用卡', value: 'credit_card' }]);
 
 // 若未來要改回 API 呼叫，可改用這段：
 // const initOptions = async () => {
