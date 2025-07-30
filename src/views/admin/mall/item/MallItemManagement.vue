@@ -91,7 +91,7 @@ const load = async () => {
 
 const goToAdd = () => router.push('/admin/mall/items/add');
 const goToEdit = (id: number) => router.push(`/admin/mall/items/edit/${id}`);
-const goToAdjustStock = async (productId: number) => {
+const goToAdjustStock = async (productId: string) => {
   const result = await dialogStore.openStockAdjustDialog(productId);
   if (result === true) {
     load(); // 更新商品列表

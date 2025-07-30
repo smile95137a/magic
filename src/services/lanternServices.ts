@@ -63,12 +63,22 @@ export const getLanternByCode = async (
 
 export const purchaseLantern = async (
   payload: any
-): Promise<ApiResponse<boolean>> => {
+): Promise<ApiResponse<any>> => {
   try {
     const response = await api.post(`${basePath}/purchase/info`, payload);
     return response.data;
   } catch (error) {
     console.error('purchaseLantern error:', error);
+    throw error;
+  }
+};
+
+export const getMyActiveLanterns = async (): Promise<ApiResponse<any[]>> => {
+  try {
+    const response = await api.post(`${basePath}/mine`);
+    return response.data;
+  } catch (error) {
+    console.error('getMyActiveLanterns error:', error);
     throw error;
   }
 };

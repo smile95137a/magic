@@ -34,18 +34,6 @@ export const getGodInfo = async (payload: any): Promise<ApiResponse<any>> => {
   }
 };
 
-export const extendGodPeriod = async (
-  payload: any
-): Promise<ApiResponse<any>> => {
-  try {
-    const response = await api.post(`${basePath}/extend`, payload);
-    return response.data;
-  } catch (error) {
-    console.error('extendGodPeriod error:', error);
-    throw error;
-  }
-};
-
 export const fetchOfferingList = async (): Promise<ApiResponse<any>> => {
   try {
     const response = await api.post(`${basePath}/offering/list`);

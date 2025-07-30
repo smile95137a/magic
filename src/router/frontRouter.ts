@@ -23,6 +23,10 @@ import Cart from '@/views/front/Cart.vue';
 import Privacy from '@/views/front/Privacy.vue';
 import Policy from '@/views/front/Policy.vue';
 import PaymentCB from '@/views/front/PaymentCB.vue';
+import PaymentCBMaster from '@/views/front/PaymentCBMaster.vue';
+import PaymentCBLantern from '@/views/front/PaymentCBLantern.vue';
+import PaymentCBOGod from '@/views/front/PaymentCBOGod.vue';
+import PaymentCBOffering from '@/views/front/PaymentCBOffering.vue';
 import MyLight from '@/views/front/MyLight.vue';
 import OAuth2Redirect from '@/views/front/OAuth2Redirect.vue';
 import CheckoutSuccess from '@/views/front/CheckoutSuccess.vue';
@@ -85,8 +89,24 @@ export const frontRoutes: Array<RouteRecordRaw> = [
       { path: 'privacy', component: Privacy, name: 'Privacy' },
       { path: 'policy', component: Policy, name: 'Policy' },
       {
-        path: '/PaymentCB',
+        path: '/paymentCB',
         component: PaymentCB,
+      },
+      {
+        path: '/paymentCBMaster',
+        component: PaymentCBMaster,
+      },
+      {
+        path: '/paymentCBLantern',
+        component: PaymentCBLantern,
+      },
+      {
+        path: '/paymentCBOffering',
+        component: PaymentCBOffering,
+      },
+      {
+        path: '/paymentCBGod',
+        component: PaymentCBOGod,
       },
       { path: 'myLight', component: MyLight, name: 'MyLight' },
       {

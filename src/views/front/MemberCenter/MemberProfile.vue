@@ -87,7 +87,7 @@
             <option value="donation">捐贈發票</option>
             <option value="mobile">手機載具</option>
             <option value="citizen">個人電子發票</option>
-            <option value="company">統一編號</option>
+            <option value="company">三聯式/公司戶</option>
           </select>
 
           <span class="error-text">{{ invoiceErrors.invoiceType }}</span>

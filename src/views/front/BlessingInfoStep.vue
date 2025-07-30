@@ -40,19 +40,43 @@ import { storeToRefs } from 'pinia';
 import { useDialogStore } from '@/stores/dialogStore';
 import { getErrorMessage } from '@/utils/ErrorUtils';
 import { executeApi } from '@/utils/executeApiUtils';
+import { submitPaymentForm } from '@/utils/paymentUtils';
 
 const store = useBlessingStore();
 const dialogStore = useDialogStore();
 const { contactInfos, selectedLamp } = storeToRefs(store);
 
 const finalSubmit = async () => {
+  // 開啟付款方式選單
+  const res = await dialogStore.openPaymentMethodDialog();
+
+  if (!res?.code) {
+    await dialogStore.openInfoDialog({
+      title: '尚未選擇付款方式',
+      message: '請選擇付款方式後再送出',
+    });
+    return;
+  }
+
+  const confirmed = await dialogStore.openConfirmDialog({
+    title: '確認送出',
+    message: '是否確認送出祈福資料？',
+    confirmText: '確認送出',
+    cancelText: '再想想',
+  });
+
+  if (!confirmed) return;
+
   const payload = {
     lanternCode: selectedLamp.value?.iconName || '',
+    month: store.selectedPrice?.month || 12,
+    price: store.selectedPrice?.price || 0, // ← 若後端需要金額也可一併帶
     list: contactInfos.value.map((info) => ({
-      ...info,
+      name: info.name,
       birthday: info.birthday ? moment(info.birthday).format('YYYY/MM/DD') : '',
+      message: info.message,
     })),
-    month: 12,
+    paymentMethod: res.code,
   };
 
   await executeApi({
@@ -61,8 +85,17 @@ const finalSubmit = async () => {
     successMessage: '祈福資料已送出！',
     errorTitle: '錯誤',
     errorMessage: '祈福送出失敗，請稍後再試。',
-    onSuccess: () => {
+    onSuccess: (data) => {
       store.resetBlessing();
+      if (res.code === 'credit_card') {
+        submitPaymentForm({
+          sendType: '0',
+          orderNumber: data.externalPaymentNo,
+          totalAmount: data.price,
+          buyerMemo: '點燈祈福 - 信用卡付款',
+          returnUrl: `${window.location.origin}/paymentCBLantern`,
+        });
+      }
     },
   });
 };

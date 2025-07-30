@@ -27,7 +27,7 @@
               點燈
             </div>
           </div>
-          <button class="light-blessing__btn">
+          <button class="light-blessing__btn" @click="goToLightProduct">
             請祝福我 <i class="fas fa-chevron-right"></i>
           </button>
         </div>
@@ -43,12 +43,18 @@ import SectionBackground from '@/components/common/SectionBackground.vue';
 import lightImages from '@/data/lightImages';
 import DateFormatter from '../common/DateFormatter.vue';
 import { getRecommendationLanterns } from '@/services/lanternServices';
+import { useRouter } from 'vue-router';
 
 const lightList = ref<any[]>([]);
+const router = useRouter();
 
 const imageMap = Object.fromEntries(
   lightImages.map((item) => [item.key, item.image])
 );
+
+const goToLightProduct = () => {
+  router.push('/lightProduct');
+};
 
 // 初始化 API
 onMounted(async () => {

@@ -45,48 +45,58 @@
 import Title from '@/components/common/Title.vue';
 import menuDecoBottom from '@/assets/image/menu-deco-bottom.png';
 import menuDecoTop from '@/assets/image/menu-deco-top.png';
-import { extendGodPeriod } from '@/services/GodService';
+import { godDescend } from '@/services/GodService';
 import { useOfferStore } from '@/stores/offerStore';
-import { withLoading } from '@/utils/loadingUtils';
 import { useRouter } from 'vue-router';
 import { useDialogStore } from '@/stores/dialogStore';
-import { getErrorMessage } from '@/utils/ErrorUtils';
+import { executeApi } from '@/utils/executeApiUtils';
+import { submitPaymentForm } from '@/utils/paymentUtils';
 
 const offerStore = useOfferStore();
 const dialogStore = useDialogStore();
 const router = useRouter();
 
 const options = [
-  { days: 7, price: 30 },
-  { days: 30, price: 60 },
+  { days: 7, price: 200 },
+  { days: 30, price: 800 },
 ];
 
 const onExtendClick = async (option: { days: number; price: number }) => {
   const god = offerStore.selectedGod;
-  console.log(god);
+
+  const res = await dialogStore.openPaymentMethodDialog();
+
+  if (!res?.code) {
+    await dialogStore.openInfoDialog({
+      title: '尚未選擇付款方式',
+      message: '請選擇付款方式後再送出',
+    });
+    return;
+  }
 
   const payload = {
     godCode: god.imageCode,
     day: option.days,
+    paymentMethod: res.code,
   };
 
-  try {
-    const res = await withLoading(() => extendGodPeriod(payload));
-    if (res.success) {
+  await executeApi({
+    fn: () => godDescend(payload),
+    successTitle: '成功',
+    errorTitle: '錯誤',
+    onSuccess: (data) => {
       offerStore.setGodInvoked(true);
-      offerStore.goToStep(1);
-    } else {
-      await dialogStore.openInfoDialog({
-        title: '錯誤',
-        message: res.message || '密碼重置失敗，請稍後再試。',
-      });
-    }
-  } catch (error) {
-    await dialogStore.openInfoDialog({
-      title: '錯誤',
-      message: getErrorMessage(error),
-    });
-  }
+      if (res.code === 'credit_card') {
+        submitPaymentForm({
+          sendType: '0',
+          orderNumber: data.externalPaymentNo,
+          totalAmount: data.price,
+          buyerMemo: '供俸 - 信用卡付款',
+          returnUrl: `${window.location.origin}/paymentCBGod`,
+        });
+      }
+    },
+  });
 };
 </script>
 

@@ -135,16 +135,6 @@ const submitForm = async () => {
   const isValid = await validateForm();
   if (!isValid) return;
 
-  const payload = {
-    serviceItem: store.selectedTopic,
-    masterCode: store.selectedMaster.code,
-    customerName: store.name,
-    customerLine: store.lineId,
-    customerEmail: store.email,
-    customerPhone: store.phone,
-    note: '',
-  };
-
   try {
     const res = await dialog.openPaymentMethodDialog();
 
@@ -164,30 +154,37 @@ const submitForm = async () => {
 
     if (!confirmed) return;
 
+    const payload = {
+      serviceItem: store.selectedTopic,
+      masterCode: store.selectedMaster.code,
+      customerName: store.name,
+      customerLine: store.lineId,
+      customerEmail: store.email,
+      customerPhone: store.phone,
+      note: '',
+      paymentMethod: res.code,
+    };
+
     const { success, data } = await withLoading(() =>
       reserveMasterService(payload)
     );
 
     if (success) {
       store.productCode = data;
+
       await dialog.openInfoDialog({
         title: '預約成功',
         message: '已成功送出您的預約申請，稍後將有專人與您聯繫！',
       });
-      // if (res?.code === 'credit_card') {
-      //   const generateShortOrderNo = (orderId: string) => {
-      //     return parseInt(orderId.slice(0, 16), 16).toString(36).toUpperCase();
-      //   };
-
-      //   const shortOrderNo = generateShortOrderNo(data.orderId);
-      //   submitPaymentForm({
-      //     sendType: '0',
-      //     orderNumber: shortOrderNo,
-      //     totalAmount: data.totalAmount,
-      //     buyerMemo: '開運商城 - 信用卡付款',
-      //     returnUrl: `${window.location.origin}/PaymentCB`,
-      //   });
-      // }
+      if (res?.code === 'credit_card') {
+        submitPaymentForm({
+          sendType: '0',
+          orderNumber: data.externalPaymentNo,
+          totalAmount: data.price,
+          buyerMemo: '大師親算 - 信用卡付款',
+          returnUrl: `${window.location.origin}/paymentCBMaster`,
+        });
+      }
     } else {
       await dialog.openInfoDialog({
         title: '預約失敗',

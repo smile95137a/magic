@@ -5,9 +5,6 @@
       <MCard customClass="p-48 text-center">
         <h2 class="m-b-16">{{ title }}</h2>
         <p class="m-b-24">{{ message }}</p>
-        <button class="btn btn-primary" @click="goToOrders">
-          前往訂單紀錄
-        </button>
       </MCard>
     </div>
   </div>
@@ -19,7 +16,6 @@ import { ref, onMounted } from 'vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import MCard from '@/components/common/MCard.vue';
 import { markVirtualPaymentSuccess } from '@/services/paymentService';
-import { paySuccess } from '@/services/OrderService';
 
 const router = useRouter();
 
@@ -44,9 +40,10 @@ onMounted(async () => {
 
   if (isSuccess) {
     try {
-      await paySuccess({
+      await markVirtualPaymentSuccess({
         externalOrderNo,
         providerOrderNo,
+        sourceType: 'G',
       });
       title.value = '付款成功';
       message.value = '感謝您的付款，我們已收到訂單。';

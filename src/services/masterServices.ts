@@ -21,7 +21,7 @@ export const fetchMasterList = async (): Promise<ApiResponse<MasterVO[]>> => {
  */
 export const reserveMasterService = async (
   payload: MasterServiceRequest
-): Promise<ApiResponse<string>> => {
+): Promise<ApiResponse<any>> => {
   try {
     const response = await api.post(`${basePath}/reservation`, payload);
     return response.data;

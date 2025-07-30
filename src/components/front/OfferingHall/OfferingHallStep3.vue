@@ -130,11 +130,6 @@ const throwBwa = () => {
 
       if (shengCount.value === 3) {
         setTimeout(async () => {
-          const res = await withLoading(() =>
-            godDescend({
-              godCode: selectedGod.value.imageCode,
-            })
-          );
           offerStore.nextStep();
         }, 300);
       }

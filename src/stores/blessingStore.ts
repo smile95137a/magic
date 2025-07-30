@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 export interface BlessingContact {
   name: string;
@@ -8,29 +8,20 @@ export interface BlessingContact {
 }
 
 export const useBlessingStore = defineStore('blessing', () => {
-  // 步驟流程（1:選燈數, 2:填資料）
   const step = ref(1);
+  const selectedLamp = ref<any | null>(null);
+  const quantity = ref(1);
+  const contactInfos = ref<BlessingContact[]>([]);
 
   const nextStep = () => {
     if (step.value < 2) step.value++;
   };
-
   const prevStep = () => {
     if (step.value > 1) step.value--;
   };
-
   const resetStep = () => {
     step.value = 1;
   };
-
-  // 已選燈種
-  const selectedLamp = ref<any | null>(null);
-
-  // 燈數
-  const quantity = ref(1);
-
-  // 每盞燈對應的祈福人資料
-  const contactInfos = ref<BlessingContact[]>([]);
 
   const setSelectedLamp = (lamp: any) => {
     selectedLamp.value = lamp;
@@ -62,6 +53,12 @@ export const useBlessingStore = defineStore('blessing', () => {
     resetStep();
   };
 
+  const selectedPrice = ref<{ month: number; price: number } | null>(null);
+
+  const setSelectedPrice = (price: { month: number; price: number }) => {
+    selectedPrice.value = price;
+  };
+
   return {
     step,
     nextStep,
@@ -74,5 +71,7 @@ export const useBlessingStore = defineStore('blessing', () => {
     setQuantity,
     updateContact,
     resetBlessing,
+    selectedPrice,
+    setSelectedPrice,
   };
 });

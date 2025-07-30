@@ -32,7 +32,6 @@ export const appendHiddenInput = (
   input.value = value;
   form.appendChild(input);
 };
-
 export const submitPaymentForm = (payload: PaymentFormPayload) => {
   const sendType = payload.sendType || '0'; // 預設為信用卡
 
@@ -40,40 +39,44 @@ export const submitPaymentForm = (payload: PaymentFormPayload) => {
   form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
   form.method = 'post';
 
-  // 通用欄位
-  appendHiddenInput(form, 'Send_Type', sendType);
-  appendHiddenInput(form, 'Pay_Mode_No', '2');
-  appendHiddenInput(
-    form,
-    'CustomerId',
-    import.meta.env.VITE_PAYMENT_CUSTOMER_ID
-  );
-  appendHiddenInput(form, 'Order_No', payload.orderNumber);
-  appendHiddenInput(form, 'Amount', payload.totalAmount);
+  const appendHiddenInput = (name: string, value: string) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = value;
+    form.appendChild(input);
+  };
 
-  // 信用卡專屬欄位
+  // ✅ 共用欄位
+  appendHiddenInput('Send_Type', sendType);
+  appendHiddenInput('Pay_Mode_No', '2');
+  appendHiddenInput('CustomerId', import.meta.env.VITE_PAYMENT_CUSTOMER_ID);
+  appendHiddenInput('Order_No', payload.orderNumber);
+  appendHiddenInput('Amount', payload.totalAmount);
+
   if (sendType === '0') {
-    appendHiddenInput(form, 'TransMode', '1');
-    appendHiddenInput(form, 'Installment', '0');
-    appendHiddenInput(form, 'TransCode', '00');
-    appendHiddenInput(form, 'Buyer_Memo', payload.buyerMemo || '商品購買');
+    // ✅ 信用卡專屬欄位
+    appendHiddenInput('TransMode', '1');
+    appendHiddenInput('Installment', '0');
+    appendHiddenInput('TransCode', '00');
+    appendHiddenInput('Buyer_Memo', payload.buyerMemo || '商品購買');
     appendHiddenInput(
-      form,
       'Return_url',
       payload.returnUrl || `${window.location.origin}/PaymentCB`
     );
+  } else if (sendType === '4') {
+    // ✅ ATM 轉帳欄位
+    appendHiddenInput('Buyer_Name', payload.buyerName || '');
+    appendHiddenInput('Buyer_Telm', payload.buyerPhone || '');
+    appendHiddenInput('Buyer_Mail', payload.buyerEmail || '');
+    appendHiddenInput('Buyer_Memo', payload.buyerMemo || 'ATM付款');
+    appendHiddenInput('Callback_Url', payload.callbackUrl || '');
   } else {
-    // 其他類型：虛擬帳號、條碼、WebATM 等
-    appendHiddenInput(form, 'Buyer_Name', payload.buyerName || '');
-    appendHiddenInput(form, 'Buyer_Telm', payload.buyerPhone || '');
-    appendHiddenInput(form, 'Buyer_Mail', payload.buyerEmail || '');
-    appendHiddenInput(form, 'Buyer_Memo', payload.buyerMemo || '購物付款');
-    appendHiddenInput(
-      form,
-      'Callback_Url',
-      payload.callbackUrl ||
-        'https://api.onemorelottery.tw:8081/payment/paymentCallback'
-    );
+    appendHiddenInput('Buyer_Name', payload.buyerName || '');
+    appendHiddenInput('Buyer_Telm', payload.buyerPhone || '');
+    appendHiddenInput('Buyer_Mail', payload.buyerEmail || '');
+    appendHiddenInput('Buyer_Memo', payload.buyerMemo || '購物付款');
+    appendHiddenInput('Callback_Url', payload.callbackUrl || '');
   }
 
   document.body.appendChild(form);

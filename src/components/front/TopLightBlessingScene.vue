@@ -33,7 +33,7 @@
               點燈
             </div>
           </div>
-          <button class="top-light-blessing__btn">
+          <button class="light-blessing__btn" @click="goToLightProduct">
             請祝福我 <i class="fas fa-chevron-right"></i>
           </button>
         </div>
@@ -50,6 +50,12 @@ import lightImages from '@/data/lightImages';
 import badge from '@/assets/image/badge.png';
 import { getRankLanterns } from '@/services/lanternServices';
 import DateFormatter from '../common/DateFormatter.vue';
+import { useRouter } from 'vue-router';
+const router = useRouter();
+
+const goToLightProduct = () => {
+  router.push('/lightProduct');
+};
 
 const lightList = ref<any[]>([]);
 

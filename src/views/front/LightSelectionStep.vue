@@ -26,8 +26,21 @@
 
     <div class="lamp-box__row">
       <div class="lamp-box__column">
+        <!-- 點燈費用 -->
         <label class="lamp-box__label">點燈費用：</label>
-        <label><input type="radio" checked /> 1年期NT$188元</label>
+        <div v-if="priceOptions.length">
+          <label
+            v-for="item in priceOptions"
+            :key="item.month"
+            class="lamp-box__price-option"
+          >
+            <input type="radio" :value="item" v-model="store.selectedPrice" />
+            {{ item.month === 12 ? '1年期' : `${item.month}個月` }} NT${{
+              item.price
+            }}元
+          </label>
+        </div>
+        <div v-else>尚無價格資訊</div>
       </div>
 
       <div class="lamp-box__column">
@@ -78,7 +91,15 @@ import lightImages from '@/data/lightImages';
 import { useBlessingStore } from '@/stores/blessingStore';
 
 const store = useBlessingStore();
-
+const priceOptions = computed(() => {
+  try {
+    const list = store.selectedLamp?.priceListJson?.trim();
+    return list ? JSON.parse(list) : [];
+  } catch (err) {
+    console.warn('解析 priceListJson 失敗', err);
+    return [];
+  }
+});
 // 建立 imageMap 用於圖片路徑對應
 const imageMap = Object.fromEntries(
   lightImages.map((item) => [item.key, item.image])

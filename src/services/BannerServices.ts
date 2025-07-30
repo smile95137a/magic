@@ -1,5 +1,5 @@
 // src/services/front/bannerServices.ts
-import { BannerVO, ApiResponse } from '@/vite-env';
+import { ApiResponse } from '@/vite-env';
 import { api } from './FrontAPI';
 
 const basePath = '/banner';
@@ -9,11 +9,9 @@ const basePath = '/banner';
  */
 export const getAvailableBannerByType = async (
   type: string
-): Promise<ApiResponse<BannerVO[]>> => {
+): Promise<ApiResponse<any[]>> => {
   try {
-    const response = await api.post<ApiResponse<BannerVO[]>>(
-      `${basePath}/${type}`
-    );
+    const response = await api.post<ApiResponse<any[]>>(`${basePath}/${type}`);
     return response.data;
   } catch (error) {
     console.error('getAvailableBannerByType error:', error);

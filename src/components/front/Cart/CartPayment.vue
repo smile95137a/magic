@@ -1,31 +1,32 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
 import { useFormContext } from 'vee-validate';
-import { useCartStore } from '@/stores/cartStore';
 
-import { ref, onMounted } from 'vue';
-import { getPayMethodList } from '@/services/OrderService';
+import { ref } from 'vue';
+// import { getPayMethodList } from '@/services/OrderService'; // 暫時不用
 
-const payMethodOptions = ref<any[]>([]);
+// 假資料
+const payMethodOptions = ref([
+  { label: '信用卡', value: 'credit_card' },
+  { label: 'ATM 轉帳', value: 'webatm' },
+]);
 
-const initOptions = async () => {
-  try {
-    const [payRes] = await Promise.all([getPayMethodList()]);
-
-    if (payRes.success) {
-      payMethodOptions.value = payRes.data.map((p: any) => ({
-        label: p.label,
-        value: p.code,
-      }));
-    }
-  } catch (error) {
-    console.error('初始化選項失敗', error);
-  }
-};
-
-onMounted(() => {
-  initOptions();
-});
+// 若未來要改回 API 呼叫，可改用這段：
+// const initOptions = async () => {
+//   try {
+//     const [payRes] = await Promise.all([getPayMethodList()]);
+//     if (payRes.success) {
+//       payMethodOptions.value = payRes.data.map((p: any) => ({
+//         label: p.label,
+//         value: p.code,
+//       }));
+//     }
+//   } catch (error) {
+//     console.error('初始化選項失敗', error);
+//   }
+// };
+// onMounted(() => {
+//   initOptions();
+// });
 
 const { defineField, errors } = useFormContext();
 const [payment] = defineField('payment');

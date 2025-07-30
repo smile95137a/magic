@@ -67,8 +67,7 @@ const customClass = computed(() => dialogStore.customClass);
 const selected = ref<string | null>(null);
 
 const paymentOptions = ref([
-  { code: 'CREDIT', name: '信用卡', icon: 'fas fa-credit-card' },
-  { code: 'ATM', name: 'ATM 轉帳', icon: 'fas fa-university' },
+  { code: 'credit_card', name: '信用卡', icon: 'fas fa-credit-card' },
 ]);
 
 const togglePayment = (code: string) => {

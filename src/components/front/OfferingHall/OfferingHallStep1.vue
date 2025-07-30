@@ -96,8 +96,8 @@
               <span class="offering__extend-number">{{ item.days }}</span> 天
             </p>
             <p class="offering__extend-price">NT${{ item.price }}</p>
-            <button class="offering__extend-btn">
-              選擇 <span class="offering__extend-arrow">➤</span>
+            <button class="offering__extend-btn" @click="onExtendClick(item)">
+              選擇 <i class="fa fa-arrow-right offering__extend-arrow"></i>
             </button>
           </div>
         </div>
@@ -111,6 +111,7 @@ import { onMounted, ref } from 'vue';
 import {
   fetchAllGod,
   getGodInfo,
+  godDescend,
   presentOffering,
 } from '@/services/GodService';
 import { withLoading } from '@/utils/loadingUtils';
@@ -125,6 +126,8 @@ import tample from '@/assets/image/img-tample.png';
 import fruitBowl from '@/assets/image/img-plate.png';
 import { useDialogStore } from '@/stores/dialogStore';
 import { getErrorMessage } from '@/utils/ErrorUtils';
+import { executeApi } from '@/utils/executeApiUtils';
+import { submitPaymentForm } from '@/utils/paymentUtils';
 
 const offerStore = useOfferStore();
 const dialogStore = useDialogStore();
@@ -134,8 +137,8 @@ const gods = ref<any[]>([]);
 const offerings = ref<any[]>([null, null, null]);
 
 const extendOptions = [
-  { days: 7, price: 20 },
-  { days: 30, price: 50 },
+  { days: 7, price: 200 },
+  { days: 30, price: 800 },
 ];
 
 const loadGods = async () => {
@@ -178,42 +181,99 @@ const selectGod = async (god: any) => {
     console.error('取得神明資訊失敗', error);
   }
 };
-
 const openOfferingDialog = async (index: number) => {
   if (!offerStore.isGodInvoked) {
     await dialogStore.openInfoDialog({
       title: '提示',
       message: '請先選擇並成功請神明後，才能供奉供品',
-      customClass: 'my-custom-class',
     });
     return;
   }
 
   try {
     const res = await dialogStore.openPoeOfferingDialog();
+    if (!res) return;
 
-    if (res) {
-      const payload = {
-        godCode: offerStore.selectedGod?.imageCode,
-        newOfferingId: res.id,
-      };
-      const result = await presentOffering(payload);
+    let payType = '';
 
-      if (result.success) {
-        offerings.value[index] = { imageBase64: res.imageBase64 };
-      } else {
+    if (res.price > 0) {
+      const payRes = await dialogStore.openPaymentMethodDialog();
+      if (!payRes?.code) {
         await dialogStore.openInfoDialog({
-          title: '錯誤',
-          message: result.message || '密碼重置失敗，請稍後再試。',
+          title: '尚未選擇付款方式',
+          message: '請選擇付款方式後再送出',
         });
+        return;
       }
+      payType = payRes.code;
     }
+
+    const payload = {
+      godCode: offerStore.selectedGod?.imageCode,
+      newOfferingId: res.id,
+      paymentMethod: payType,
+    };
+
+    await executeApi({
+      fn: () => presentOffering(payload),
+      onSuccess: (data) => {
+        offerings.value[index] = { imageBase64: res.imageBase64 };
+
+        if (payType === 'credit_card') {
+          submitPaymentForm({
+            sendType: '0',
+            orderNumber: data.externalPaymentNo,
+            totalAmount: data.price,
+            buyerMemo: '供品 - 信用卡付款',
+            returnUrl: `${window.location.origin}/paymentCBOffering`,
+          });
+        }
+      },
+    });
   } catch (error) {
     await dialogStore.openInfoDialog({
       title: '錯誤',
       message: getErrorMessage(error),
     });
   }
+};
+
+const onExtendClick = async (option: { days: number; price: number }) => {
+  const god = offerStore.selectedGod;
+
+  const res = await dialogStore.openPaymentMethodDialog();
+
+  if (!res?.code) {
+    await dialogStore.openInfoDialog({
+      title: '尚未選擇付款方式',
+      message: '請選擇付款方式後再送出',
+    });
+    return;
+  }
+
+  const payload = {
+    godCode: god.imageCode,
+    day: String(option.days), // 字串型別
+    paymentMethod: res.code,
+  };
+
+  await executeApi({
+    fn: () => godDescend(payload),
+    successTitle: '成功',
+    errorTitle: '錯誤',
+    onSuccess: (data) => {
+      offerStore.setGodInvoked(true);
+      if (res.code === 'credit_card') {
+        submitPaymentForm({
+          sendType: '0',
+          orderNumber: data.externalPaymentNo,
+          totalAmount: data.price,
+          buyerMemo: '供俸 - 信用卡付款',
+          returnUrl: `${window.location.origin}/paymentCBGod`,
+        });
+      }
+    },
+  });
 };
 </script>
 

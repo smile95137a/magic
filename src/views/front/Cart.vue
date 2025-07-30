@@ -19,6 +19,7 @@ import { withLoading } from '@/utils/loadingUtils';
 import { getImageUrl } from '@/utils/ImageUtils';
 import { useAuthFrontStore } from '@/stores/authFrontStore';
 import { submitPaymentForm } from '@/utils/paymentUtils';
+import { getProfile } from '@/services/UserService';
 
 const router = useRouter();
 
@@ -194,40 +195,45 @@ const submitOrder = handleSubmit(async (formData) => {
 
     if (success) {
       cart.clearCart();
-      // {
-      //     "code": "0000",
-      //     "message": "執行成功",
-      //     "data": {
-      //         "orderId": "4208ce05bf8a4ec6ba5803f20316b2e5",
-      //         "externalOrderNo": "4208ce05bf8a4ec6ba5803f20316b2e5",
-      //         "totalAmount": 50.00,
-      //         "status": "created",
-      //         "paymentStatus": "pending",
-      //         "payMethod": "credit_card",
-      //         "shippingMethod": "f13a2e73463c4b77b2300c2bb1535f0f",
-      //         "paymentUrl": null,
-      //         "paymentInfo": null,
-      //         "createTime": "2025-07-23 16:54:20"
-      //     },
-      //     "success": true
-      // }
-      if (data.payMethod === 'credit_card') {
-        const generateShortOrderNo = (orderId: string) => {
-          return parseInt(orderId.slice(0, 16), 16).toString(36).toUpperCase();
-        };
-        // 訂單編號長度不可大於25碼;
 
-        const shortOrderNo = generateShortOrderNo(data.orderId);
-        submitPaymentForm({
-          sendType: '0',
-          orderNumber: shortOrderNo,
-          totalAmount: data.totalAmount,
-          buyerMemo: '開運商城 - 信用卡付款',
-          returnUrl: `${window.location.origin}/PaymentCB`,
-        });
-        return;
+      switch (data.payMethod) {
+        case 'credit_card':
+          submitPaymentForm({
+            sendType: '0',
+            orderNumber: data.externalOrderNo,
+            totalAmount: data.totalAmount,
+            buyerMemo: '開運商城 - 信用卡付款',
+            returnUrl: `${window.location.origin}/PaymentCB`,
+          });
+          break;
+
+        case 'ATM_TRANSFER':
+          const res = await getProfile();
+          const profile = res.success ? res.data : {};
+
+          submitPaymentForm({
+            sendType: '4',
+            orderNumber: data.externalOrderNo,
+            totalAmount: data.totalAmount,
+            buyerName: profile.nickName || '',
+            buyerPhone: profile.phone || '',
+            buyerEmail: profile.email || '',
+            buyerMemo: '開運商城 - ATM轉帳',
+            callbackUrl: `${
+              import.meta.env.VITE_BASE_API_URL
+            }/payment/virtue/success`,
+          });
+          break;
+
+        default:
+          // 預設導頁至成功頁（若有其他付款方式）
+          router.push({
+            name: 'CheckoutSuccess',
+            params: { orderId: data.orderId },
+          });
       }
-      // router.push({ name: 'CheckoutSuccess', params: { id: orderId } });
+
+      return;
     } else {
       await dialogStore.openInfoDialog({
         title: '錯誤',

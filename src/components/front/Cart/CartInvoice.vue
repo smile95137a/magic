@@ -3,6 +3,16 @@ import { watch } from 'vue';
 import { ref, onMounted } from 'vue';
 import { getInvoiceTypeList } from '@/services/OrderService';
 import { useFormContext } from 'vee-validate';
+import { executeApi } from '@/utils/executeApiUtils';
+import { getProfile } from '@/services/UserService';
+
+const { defineField, errors, setFieldValue } = useFormContext();
+
+const [invoiceType] = defineField('invoiceType');
+const [invoiceTarget] = defineField('invoiceTarget');
+const [carrierId] = defineField('carrierId');
+const [npoban] = defineField('npoban');
+
 const invoiceTypeOptions = ref<any[]>([]);
 
 const initOptions = async () => {
@@ -19,17 +29,31 @@ const initOptions = async () => {
     console.error('初始化選項失敗', error);
   }
 };
+const initProfile = async () => {
+  await executeApi({
+    fn: () => getProfile(),
+    onSuccess: async (data) => {
+      const invoice = data.invoice || {};
+      setFieldValue('invoiceType', invoice.type || '');
+      setFieldValue(
+        'invoiceTarget',
+        invoice.type === 'company' ? invoice.value : ''
+      );
+      setFieldValue(
+        'carrierId',
+        invoice.type === 'mobile' || invoice.type === 'citizen'
+          ? invoice.value
+          : ''
+      );
+      setFieldValue('npoban', invoice.type === 'donation' ? invoice.value : '');
+    },
+  });
+};
 
 onMounted(() => {
   initOptions();
+  initProfile();
 });
-
-const { defineField, errors, setFieldValue } = useFormContext();
-
-const [invoiceType] = defineField('invoiceType');
-const [invoiceTarget] = defineField('invoiceTarget');
-const [carrierId] = defineField('carrierId');
-const [npoban] = defineField('npoban');
 
 watch(
   () => invoiceType,
