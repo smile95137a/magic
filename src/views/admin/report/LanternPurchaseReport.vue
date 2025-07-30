@@ -24,10 +24,19 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="r in currentPageItems" :key="r.date + r.content">
-              <td>{{ r.date }}</td>
-              <td>{{ r.item }}</td>
-              <td>{{ r.content }}</td>
+            <tr v-for="r in currentPageItems" :key="r.id">
+              <td>
+                <DateFormatter
+                  :date="r.createTime"
+                  format="YYYY/MM/DD HH:mm:ss"
+                />
+              </td>
+              <td>{{ r.lanternName }}</td>
+              <td>
+                姓名：{{ r.name }}<br />
+                願望：{{ r.message }}<br />
+                會員：{{ r.username }}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -54,6 +63,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import DateFormatter from '@/components/common/DateFormatter.vue';
 import moment from 'moment';
 import Pagination from '@/components/common/Pagination.vue';
 import NoData from '@/components/common/NoData.vue';

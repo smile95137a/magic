@@ -26,10 +26,15 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="r in currentPageItems" :key="r.date + r.content">
-              <td>{{ r.date }}</td>
-              <td>{{ r.item }}</td>
-              <td>{{ r.content }}</td>
+            <tr v-for="r in currentPageItems" :key="r.id">
+              <td>
+                <DateFormatter
+                  :date="r.createTime"
+                  :format="'YYYY/MM/DD HH:mm:ss'"
+                />
+              </td>
+              <td>{{ r.offeringName }}</td>
+              <td>{{ r.godName }}（{{ r.username }}）</td>
             </tr>
           </tbody>
         </table>
@@ -61,6 +66,7 @@ import { usePagination } from '@/hook/usePagination';
 import { fetchOfferingPurchaseReport } from '@/services/admin/adminReportServices';
 import { ref, onMounted } from 'vue';
 import moment from 'moment';
+import DateFormatter from '@/components/common/DateFormatter.vue';
 
 const startDate = ref('');
 const endDate = ref('');
