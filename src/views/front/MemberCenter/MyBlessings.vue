@@ -12,7 +12,11 @@
       </thead>
       <tbody>
         <tr v-for="(god, index) in myGodInfo" :key="index">
-          <td>{{ god.godName }}</td>
+          <td>
+            <span class="my-blessings__link" @click="goToGod(god)">
+              {{ god.godName }}
+            </span>
+          </td>
           <td>已供奉 {{ god.passDays }} 天，剩餘 {{ god.remainingDays }} 天</td>
           <td>
             <div
@@ -87,6 +91,9 @@ import { getOfferingRecord, getMyGodInfo } from '@/services/UserService';
 import { getErrorMessage } from '@/utils/ErrorUtils';
 import moment from 'moment';
 import { executeApi } from '@/utils/executeApiUtils';
+import godImages from '@/data/godImages';
+import { useRouter } from 'vue-router';
+const router = useRouter();
 
 const dialogStore = useDialogStore();
 
@@ -150,6 +157,28 @@ const handleSearch = async () => {
       recordList.value = data || [];
     },
   });
+};
+
+const goToGod = (god: any) => {
+  const godKey = mapGodNameToKey(god.godName);
+  if (godKey) {
+    router.push({
+      path: '/offeringHall',
+      query: { god: godKey },
+    });
+  } else {
+    dialogStore.openInfoDialog({
+      title: '錯誤',
+      message: `找不到神明「${god.godName}」的對應資料，請稍後再試。`,
+    });
+  }
+};
+
+const mapGodNameToKey = (godName: string): string => {
+  const found = Object.entries(godImages).find(
+    ([, value]) => value.label === godName
+  );
+  return found?.[0] || '';
 };
 
 onMounted(async () => {
@@ -222,6 +251,15 @@ onMounted(async () => {
 
     &:hover {
       background-color: #902e1c;
+    }
+  }
+  &__link {
+    color: #a53b25;
+    cursor: pointer;
+    text-decoration: underline;
+
+    &:hover {
+      color: #902e1c;
     }
   }
 }
