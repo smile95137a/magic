@@ -80,5 +80,7 @@ export const submitPaymentForm = (payload: PaymentFormPayload) => {
   }
 
   document.body.appendChild(form);
-  form.submit();
+  setTimeout(() => {
+    form.submit();
+  }, 300);
 };
