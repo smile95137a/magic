@@ -58,9 +58,12 @@ import bwaXiao from '@/assets/image/bwa-xiao.png';
 import bwaSheng from '@/assets/image/bwa-sheng.png';
 import { ref, computed } from 'vue';
 import { useDialogStore } from '@/stores/dialogStore';
+import { useAuthFrontStore } from '@/stores/authFrontStore';
+import { executeApi } from '@/utils/executeApiUtils';
+import { addNormalPoe } from '@/services/poeService';
 
 const dialogStore = useDialogStore();
-
+const authStore = useAuthFrontStore();
 const isOpen = computed(() => dialogStore.isPoeDivinationDialogOpen);
 const customClass = computed(() => dialogStore.customClass);
 
@@ -76,8 +79,13 @@ const currentResult = ref('');
 const isThrowing = ref(false);
 const maxTries = 3;
 
-const throwBwa = () => {
+const throwBwa = async () => {
   if (isThrowing.value || results.value.length >= maxTries) return;
+  if (results.value.length === 0 && authStore.isLogin) {
+    await executeApi({
+      fn: () => addNormalPoe({ count: 1 }),
+    });
+  }
 
   isThrowing.value = true;
 
@@ -190,3 +198,5 @@ const getCupImage = (result: string) => {
   }
 }
 </style>
+if (authStore.isLogin) { await executeApi({ fn: () => addPoeThrowTimes({ count:
+1 }), }); } 幫我執行的時候打api

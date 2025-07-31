@@ -35,16 +35,28 @@
 <script setup lang="ts">
 import cup from '@/assets/image/cup.png';
 import SectionBackground from '@/components/common/SectionBackground.vue';
-import divinationIntro from '@/assets/image/divinationIntro.png';
 import StartButton from '@/components/front/StartButton.vue';
+
 import { useDivinationStepStore } from '@/stores/divinationStepStore';
 import { useDialogStore } from '@/stores/dialogStore';
+import { useAuthFrontStore } from '@/stores/authFrontStore';
+import { addSiunnPoe } from '@/services/poeService';
+import { executeApi } from '@/utils/executeApiUtils';
+
 const stepStore = useDivinationStepStore();
-const { nextStep, prevStep, resetStep } = stepStore;
+const { nextStep } = stepStore;
 const dialogStore = useDialogStore();
+const authStore = useAuthFrontStore();
 const startDivination = async () => {
   const result = await dialogStore.openPoeDivinationDialog();
+
   if (result) {
+    if (authStore.isLogin) {
+      await executeApi({
+        fn: () => addSiunnPoe({ count: 1 }),
+      });
+    }
+
     nextStep();
   } else {
     await dialogStore.openInfoDialog({

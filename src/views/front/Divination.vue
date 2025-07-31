@@ -1,7 +1,7 @@
 <template>
-  <DivinationInfo v-if="stepIndex === 1" @next="nextStep" />
-  <DivinationConfirm v-if="stepIndex === 2" @next="nextStep" @prev="prevStep" />
-  <DivinationResult v-if="stepIndex === 3" @reset="resetStep" />
+  <DivinationInfo v-if="stepIndex === 1" />
+  <DivinationConfirm v-if="stepIndex === 2" />
+  <DivinationResult v-if="stepIndex === 3" />
 </template>
 
 <script setup lang="ts">
