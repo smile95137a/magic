@@ -218,5 +218,35 @@
       margin-bottom: 1rem;
     }
   }
+
+  &__store-selector {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #fff8f6;
+    border: 1px solid #f2c1b8;
+    border-radius: 8px;
+
+    button {
+      padding: 0.5rem 1.25rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      background-color: #a53b25;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: #d33a00;
+      }
+    }
+
+    p {
+      margin-top: 0.75rem;
+      font-size: 0.95rem;
+      color: #444;
+      line-height: 1.5;
+    }
+  }
 }
 //

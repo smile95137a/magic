@@ -122,6 +122,8 @@ const { handleSubmit, defineField, errors, values, setFieldValue, setValues } =
       carrierId: '',
       npoban: '',
       payment: '',
+      storeId: '',
+      storeName: '',
     },
   });
 

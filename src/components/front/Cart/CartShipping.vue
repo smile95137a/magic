@@ -1,10 +1,18 @@
 <script setup lang="ts">
 import { useFormContext } from 'vee-validate';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { getShippingMethodList } from '@/services/OrderService';
+import { openStoreMap } from '@/utils/logisticsUtils';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
 
 const shippingMethodOptions = ref<any[]>([]);
+const selectedStore = ref<any>(null);
+const { defineField, errors, setValues, values } = useFormContext();
+const [shippingMethod] = defineField('shippingMethod');
 
+// 初始化寄送方式選單
 const initOptions = async () => {
   try {
     const [shippingRes] = await Promise.all([getShippingMethodList()]);
@@ -23,10 +31,68 @@ const initOptions = async () => {
 
 onMounted(() => {
   initOptions();
+
+  localStorage.removeItem('selectedStore');
+
+  const savedForm = localStorage.getItem('cartFormTemp');
+  if (savedForm) {
+    try {
+      setValues(JSON.parse(savedForm));
+      localStorage.removeItem('cartFormTemp'); // 用完就刪
+    } catch (e) {
+      console.error('表單資料解析錯誤', e);
+    }
+  }
+
+  const { storename, storeid, storeaddress } = route.query;
+  if (storename && storeid) {
+    const store = {
+      name: decodeURIComponent(storename as string),
+      id: decodeURIComponent(storeid as string),
+      address: decodeURIComponent((storeaddress ?? '') as string),
+    };
+    selectedStore.value = store;
+    localStorage.setItem('selectedStore', JSON.stringify(store));
+
+    setValues((prev) => ({
+      ...prev,
+      storeId: store.id,
+      storeName: store.name,
+    }));
+  }
 });
 
-const { defineField, errors } = useFormContext();
-const [shippingMethod] = defineField('shippingMethod');
+// 根據寄送方式是否為 7-11 / 全家，顯示「選擇門市」
+const isStorePickup = computed(() =>
+  ['7_ELEVEN', 'FAMILY', 'OK_MART', 'HI_LIFE'].includes(shippingMethod.value)
+);
+const handleOpenMap = () => {
+  // 儲存目前的表單暫存
+  localStorage.setItem('cartFormTemp', JSON.stringify(values));
+
+  // 👉 清除上一次的門市資料，避免重複或干擾
+  localStorage.removeItem('selectedStore');
+
+  const callbackUrl = `${window.location.origin}/cart`;
+
+  let opmode = '3'; // 預設為 7-11
+  switch (shippingMethod.value) {
+    case 'FAMILY':
+      opmode = '1';
+      break;
+    case 'HI_LIFE':
+      opmode = '2';
+      break;
+    case 'OK_MART':
+      opmode = '4';
+      break;
+    case '7_ELEVEN':
+    default:
+      opmode = '3';
+  }
+
+  openStoreMap(opmode, callbackUrl);
+};
 </script>
 
 <template>
@@ -51,5 +117,19 @@ const [shippingMethod] = defineField('shippingMethod');
     <p v-if="errors.shippingMethod" class="checkout__form-error">
       {{ errors.shippingMethod }}
     </p>
+
+    <!-- 門市選擇按鈕 -->
+    <div v-if="isStorePickup" class="checkout__store-selector">
+      <button class="btn btn-secondary" type="button" @click="handleOpenMap">
+        選擇門市
+      </button>
+
+      <!-- 顯示已選門市資訊 -->
+      <p v-if="selectedStore">
+        已選門市：{{ selectedStore.name }} （店號：{{ selectedStore.id }}）
+        <br />
+        地址：{{ selectedStore.address }}
+      </p>
+    </div>
   </div>
 </template>
