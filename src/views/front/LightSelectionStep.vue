@@ -100,7 +100,6 @@ const priceOptions = computed(() => {
     return [];
   }
 });
-// 建立 imageMap 用於圖片路徑對應
 const imageMap = Object.fromEntries(
   lightImages.map((item) => [item.key, item.image])
 );
@@ -109,12 +108,6 @@ const imageMap = Object.fromEntries(
 const handleNext = () => {
   store.setQuantity(store.quantity);
   store.nextStep();
-};
-
-const finalSubmit = () => {
-  console.log('選擇燈數：', store.quantity);
-  console.log('祈福者資料：', store.contactInfos);
-  alert('送出成功！');
 };
 
 const parsedSections = computed(() => {

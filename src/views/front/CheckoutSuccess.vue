@@ -78,8 +78,6 @@ import { useRoute, useRouter } from 'vue-router';
 import MCard from '@/components/common/MCard.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
 import { getOrderDetail } from '@/services/OrderService';
-import { getErrorMessage } from '@/utils/ErrorUtils';
-import { withLoading } from '@/utils/loadingUtils';
 import { useDialogStore } from '@/stores/dialogStore';
 import { executeApi } from '@/utils/executeApiUtils';
 import { getImageUrl } from '@/utils/ImageUtils';
@@ -110,13 +108,13 @@ const init = async () => {
       discount.value = order.discount ?? 0;
 
       shippingMethod.value = order.shippingMethod || '';
-      invoiceInfo.value =
-        order.invoiceType === 'company'
-          ? '三聯式發票'
-          : order.invoiceType === 'mobile'
-          ? '手機載具'
-          : '個人二聯式發票';
+      const invoiceLabelMap: Record<string, string> = {
+        company: '三聯式發票',
+        mobile: '手機載具',
+      };
 
+      invoiceInfo.value =
+        invoiceLabelMap[order.invoiceType] || '個人二聯式發票';
       paymentMethod.value = '待付款';
 
       recipientName.value = order.recipientName || '';

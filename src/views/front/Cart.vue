@@ -221,7 +221,7 @@ const submitOrder = handleSubmit(async (formData) => {
             buyerMemo: '開運商城 - ATM轉帳',
             callbackUrl: `${
               import.meta.env.VITE_BASE_API_URL
-            }/payment/virtue/success`,
+            }/payment/atmCallback`,
           });
           break;
 

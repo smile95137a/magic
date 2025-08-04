@@ -13,7 +13,7 @@ import { useDivinationStepStore } from '@/stores/divinationStepStore';
 
 const stepStore = useDivinationStepStore();
 const { stepIndex } = storeToRefs(stepStore);
-const { nextStep, prevStep, resetStep } = stepStore;
+const { resetStep } = stepStore;
 import { onMounted } from 'vue';
 
 onMounted(() => {

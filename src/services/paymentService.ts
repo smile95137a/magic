@@ -3,14 +3,8 @@ import { ApiResponse } from '@/vite-env';
 
 const basePath = '/payment';
 
-export interface PaymentSuccessRequest {
-  providerOrderNo?: string; // optional
-  externalOrderNo: string; // required
-  sourceType: 'L' | 'O' | 'M' | 'G'; // required, must match ^[LOM]$
-}
-
 export const markVirtualPaymentSuccess = async (
-  payload: PaymentSuccessRequest
+  payload: any
 ): Promise<ApiResponse<boolean>> => {
   try {
     const response = await api.post(`${basePath}/virtual/success`, payload);

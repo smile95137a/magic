@@ -37,9 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import Header from '@/components/front/Header.vue';
 import SectionBackground from '@/components/common/SectionBackground.vue';
-import Footer from '@/components/front/Footer.vue';
 import GodList from '@/components/front/GodList.vue';
 import Worship from '@/components/front/Worship.vue';
 import godImages from '@/data/godImages';

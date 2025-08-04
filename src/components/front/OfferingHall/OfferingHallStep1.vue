@@ -45,6 +45,15 @@
           <div v-else class="offering__fruit-placeholder">供花供果</div>
         </div>
       </div>
+      <div class="offering__confirm-wrap">
+        <button
+          class="offering__confirm-btn"
+          @click="submitOfferings"
+          :disabled="tempOfferingSelections.length === 0"
+        >
+          確認供奉
+        </button>
+      </div>
 
       <div class="offering__tabs">
         <button
@@ -111,7 +120,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import {
   fetchAllGod,
   getGodInfo,
@@ -139,6 +148,7 @@ const dialogStore = useDialogStore();
 const currentTab = ref<'offer' | 'extend'>('offer');
 const gods = ref<any[]>([]);
 const offerings = ref<any[]>([null, null, null]);
+const loadedGodCode = ref<string | null>(null);
 
 const extendOptions = [
   { days: 7, price: 200 },
@@ -146,111 +156,45 @@ const extendOptions = [
 ];
 
 const loadGods = async () => {
-  try {
-    const res = await withLoading(() => fetchAllGod());
-    if (res.success) {
-      gods.value = res.data;
-    }
-  } catch (e) {
-    console.error('神明列表載入失敗', e);
-  }
+  await executeApi({
+    fn: () => fetchAllGod(),
+    onSuccess: (data) => {
+      gods.value = data;
+    },
+  });
 };
 
 onMounted(() => {
   loadGods();
 });
 
-const selectGod = async (god: any) => {
-  try {
-    const { success, data } = await withLoading(() =>
-      getGodInfo({ godCode: god?.imageCode })
-    );
+const fetchAndSetGodInfo = async (god: any) => {
+  await executeApi({
+    fn: () => getGodInfo({ godCode: god?.imageCode }),
+    onSuccess: (data) => {
+      offerStore.setSelectedGod(data);
+      offerStore.setGodInvoked(true);
 
-    if (success) {
-      if (data) {
-        offerStore.setSelectedGod(data);
-        offerStore.setGodInvoked(true);
-        const godOfferings = data.offerings || [];
-        for (let i = 0; i < 3; i++) {
-          offerings.value[i] = godOfferings[i] || null;
-        }
-      } else {
-        offerStore.setSelectedGod(god);
-        offerStore.goToStep(2);
+      const godOfferings = data.offerings || [];
+      for (let i = 0; i < 3; i++) {
+        offerings.value[i] = godOfferings[i] || null;
       }
-    } else {
-      console.warn('API 成功回傳但 success 為 false');
-    }
-  } catch (error) {
-    console.error('取得神明資訊失敗', error);
-  }
+    },
+    onFail: async (data) => {
+      offerStore.setSelectedGod(god);
+      offerStore.goToStep(2);
+    },
+  });
+};
+
+const selectGod = async (god: any) => {
+  await fetchAndSetGodInfo(god);
 };
 
 const handleOfferingClick = (index: number) => {
   const prevOfferingId = offerings.value[index]?.id || null;
 
   openOfferingDialog(index, prevOfferingId);
-};
-
-const openOfferingDialog = async (
-  index: number,
-  prevOfferingId: string | null = null
-) => {
-  if (!offerStore.isGodInvoked) {
-    await dialogStore.openInfoDialog({
-      title: '提示',
-      message: '請先選擇並成功請神明後，才能供奉供品',
-    });
-    return;
-  }
-
-  try {
-    const res = await dialogStore.openPoeOfferingDialog();
-    if (!res) return;
-
-    let payType = '';
-
-    if (res.price > 0) {
-      const payRes = await dialogStore.openPaymentMethodDialog();
-      if (!payRes?.code) {
-        await dialogStore.openInfoDialog({
-          title: '尚未選擇付款方式',
-          message: '請選擇付款方式後再送出',
-        });
-        return;
-      }
-      payType = payRes.code;
-    }
-
-    const payload = {
-      godCode: offerStore.selectedGod?.imageCode,
-      prevOfferingId,
-      newOfferingId: res.id,
-      paymentMethod: payType,
-    };
-
-    await executeApi({
-      fn: () => presentOffering(payload),
-      onSuccess: (data) => {
-        offerings.value[index] = { imageBase64: res.imageBase64 };
-
-        if (payType === 'credit_card') {
-          submitPaymentForm({
-            sendType: '0',
-            orderNumber: data.externalPaymentNo,
-            totalAmount: data.price,
-            buyerMemo: '供品 - 信用卡付款',
-            returnUrl: `${window.location.origin}/paymentCBOffering`,
-          });
-        }
-      },
-    });
-  } catch (error) {
-    await dialogStore.openInfoDialog({
-      title: '錯誤',
-      message: getErrorMessage(error),
-    });
-  }
 };
 
 const onExtendClick = async (option: { days: number; price: number }) => {
@@ -290,6 +234,92 @@ const onExtendClick = async (option: { days: number; price: number }) => {
     },
   });
 };
+
+const tempOfferingSelections = ref<{ index: number; data: any }[]>([]);
+
+// 修改 openOfferingDialog：只暫存，不送出
+const openOfferingDialog = async (
+  index: number,
+  prevOfferingId: string | null = null
+) => {
+  if (!offerStore.isGodInvoked) {
+    await dialogStore.openInfoDialog({
+      title: '提示',
+      message: '請先選擇並成功請神明後，才能供奉供品',
+    });
+    return;
+  }
+
+  const res = await dialogStore.openPoeOfferingDialog();
+  if (!res) return;
+
+  offerings.value[index] = { imageBase64: res.imageBase64 };
+
+  // 暫存選擇結果
+  tempOfferingSelections.value = tempOfferingSelections.value.filter(
+    (s) => s.index !== index
+  );
+  tempOfferingSelections.value.push({ index, data: res });
+};
+
+const submitOfferings = async () => {
+  if (tempOfferingSelections.value.length === 0) return;
+
+  const payRes = await dialogStore.openPaymentMethodDialog();
+  if (!payRes?.code) {
+    await dialogStore.openInfoDialog({
+      title: '尚未選擇付款方式',
+      message: '請選擇付款方式後再送出',
+    });
+    return;
+  }
+
+  const payload = {
+    godCode: offerStore.selectedGod?.imageCode,
+    paymentMethod: payRes.code,
+    list: tempOfferingSelections.value.map((item) => ({
+      index: item.index,
+      newOfferingId: item.data.id,
+    })),
+  };
+
+  await executeApi({
+    fn: () => presentOffering(payload),
+    successTitle: '供奉成功',
+    errorTitle: '供奉失敗',
+    onSuccess: (data) => {
+      for (const item of tempOfferingSelections.value) {
+        offerings.value[item.index] = {
+          imageBase64: item.data.imageBase64,
+        };
+      }
+
+      tempOfferingSelections.value = [];
+
+      // 若為信用卡，轉導付款
+      if (payRes.code === 'credit_card') {
+        submitPaymentForm({
+          sendType: '0',
+          orderNumber: data.externalPaymentNo,
+          totalAmount: data.price,
+          buyerMemo: '供品 - 信用卡付款',
+          returnUrl: `${window.location.origin}/paymentCBOffering`,
+        });
+      }
+    },
+  });
+};
+
+watch(
+  () => offerStore.selectedGod?.imageCode,
+  async (godCode) => {
+    if (godCode && godCode !== loadedGodCode.value) {
+      loadedGodCode.value = godCode;
+      await fetchAndSetGodInfo(offerStore.selectedGod);
+    }
+  },
+  { immediate: false }
+);
 </script>
 
 <style lang="scss" scoped>
@@ -683,6 +713,33 @@ const onExtendClick = async (option: { days: number; price: number }) => {
     max-height: 100%;
     max-width: 100%;
     object-fit: contain;
+  }
+}
+
+.offering__confirm-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.offering__confirm-btn {
+  background: #b64832;
+  color: #fff;
+  font-weight: bold;
+  font-size: 18px;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.3s;
+
+  &:hover:not(:disabled) {
+    background: #df5b3c;
+  }
+
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
   }
 }
 </style>

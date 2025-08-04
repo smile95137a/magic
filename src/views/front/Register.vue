@@ -81,6 +81,7 @@ const onSubmit = handleSubmit(async (values) => {
     onSuccess: () => {
       router.push('/home');
     },
+    showCatchDialog: true,
   });
 });
 
