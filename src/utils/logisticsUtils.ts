@@ -15,6 +15,9 @@ export const openStoreMap = (opmode: string, callbackUrl: string) => {
   form.appendChild(opmodeInput);
 
   document.body.appendChild(form);
-  form.submit();
-  document.body.removeChild(form);
+
+  setTimeout(() => {
+    form.submit();
+    document.body.removeChild(form);
+  }, 500);
 };
