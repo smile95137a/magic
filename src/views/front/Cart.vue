@@ -124,6 +124,7 @@ const { handleSubmit, defineField, errors, values, setFieldValue, setValues } =
       payment: '',
       storeId: '',
       storeName: '',
+      storeAddress: '',
     },
   });
 
@@ -144,6 +145,8 @@ const shippingFee = computed(() => {
 const total = computed(() => productTotal.value + shippingFee.value);
 
 const submitOrder = handleSubmit(async (formData) => {
+  console.log(formData);
+
   const selectedShipping = shippingMethodOptions.value.find(
     (opt) => opt.value === formData.shippingMethod
   );
@@ -181,9 +184,9 @@ const submitOrder = handleSubmit(async (formData) => {
       formData.shippingMethod
     ) && {
       storePickupRecipient: {
-        storeId: '',
-        storeName: '',
-        storeAddress: '',
+        storeId: formData.storeId,
+        storeName: formData.storeName,
+        storeAddress: formData.storeAddress,
         recipientName: formData.recipient.name,
         phone: formData.recipient.phone,
       },
@@ -195,53 +198,53 @@ const submitOrder = handleSubmit(async (formData) => {
       createOrder(payload)
     );
 
-    if (success) {
-      cart.clearCart();
+    // if (success) {
+    //   cart.clearCart();
 
-      switch (data.payMethod) {
-        case 'credit_card':
-          submitPaymentForm({
-            sendType: '0',
-            orderNumber: data.externalOrderNo,
-            totalAmount: data.totalAmount,
-            buyerMemo: '開運商城 - 信用卡付款',
-            returnUrl: `${window.location.origin}/PaymentCB`,
-          });
-          break;
+    //   switch (data.payMethod) {
+    //     case 'credit_card':
+    //       submitPaymentForm({
+    //         sendType: '0',
+    //         orderNumber: data.externalOrderNo,
+    //         totalAmount: data.totalAmount,
+    //         buyerMemo: '開運商城 - 信用卡付款',
+    //         returnUrl: `${window.location.origin}/PaymentCB`,
+    //       });
+    //       break;
 
-        case 'ATM_TRANSFER':
-          const res = await getProfile();
-          const profile = res.success ? res.data : {};
+    //     case 'ATM_TRANSFER':
+    //       const res = await getProfile();
+    //       const profile = res.success ? res.data : {};
 
-          submitPaymentForm({
-            sendType: '4',
-            orderNumber: data.externalOrderNo,
-            totalAmount: data.totalAmount,
-            buyerName: profile.nickName || '',
-            buyerPhone: profile.phone || '',
-            buyerEmail: profile.email || '',
-            buyerMemo: '開運商城 - ATM轉帳',
-            callbackUrl: `${
-              import.meta.env.VITE_BASE_API_URL
-            }/payment/atmCallback`,
-          });
-          break;
+    //       submitPaymentForm({
+    //         sendType: '4',
+    //         orderNumber: data.externalOrderNo,
+    //         totalAmount: data.totalAmount,
+    //         buyerName: profile.nickName || '',
+    //         buyerPhone: profile.phone || '',
+    //         buyerEmail: profile.email || '',
+    //         buyerMemo: '開運商城 - ATM轉帳',
+    //         callbackUrl: `${
+    //           import.meta.env.VITE_BASE_API_URL
+    //         }/payment/atmCallback`,
+    //       });
+    //       break;
 
-        default:
-          // 預設導頁至成功頁（若有其他付款方式）
-          router.push({
-            name: 'CheckoutSuccess',
-            params: { orderId: data.orderId },
-          });
-      }
+    //     default:
+    //       // 預設導頁至成功頁（若有其他付款方式）
+    //       router.push({
+    //         name: 'CheckoutSuccess',
+    //         params: { orderId: data.orderId },
+    //       });
+    //   }
 
-      return;
-    } else {
-      await dialogStore.openInfoDialog({
-        title: '錯誤',
-        message: message || '密碼重置失敗，請稍後再試。',
-      });
-    }
+    //   return;
+    // } else {
+    //   await dialogStore.openInfoDialog({
+    //     title: '錯誤',
+    //     message: message || '密碼重置失敗，請稍後再試。',
+    //   });
+    // }
   } catch (error) {
     await dialogStore.openInfoDialog({
       title: '錯誤',

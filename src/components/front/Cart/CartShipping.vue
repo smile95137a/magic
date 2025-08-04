@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useFormContext } from 'vee-validate';
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, watch, computed, nextTick } from 'vue';
 import { getShippingMethodList } from '@/services/OrderService';
 import { openStoreMap } from '@/utils/logisticsUtils';
 import { useRoute } from 'vue-router';
@@ -9,8 +9,12 @@ const route = useRoute();
 
 const shippingMethodOptions = ref<any[]>([]);
 const selectedStore = ref<any>(null);
-const { defineField, errors, setValues, values } = useFormContext();
+const { defineField, errors, setValues, values, setFieldValue } =
+  useFormContext();
 const [shippingMethod] = defineField('shippingMethod');
+const [storeId] = defineField('storeId');
+const [storeName] = defineField('storeName');
+const [storeAddress] = defineField('storeAddress');
 
 // 初始化寄送方式選單
 const initOptions = async () => {
@@ -29,7 +33,7 @@ const initOptions = async () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   initOptions();
 
   localStorage.removeItem('selectedStore');
@@ -37,8 +41,20 @@ onMounted(() => {
   const savedForm = localStorage.getItem('cartFormTemp');
   if (savedForm) {
     try {
-      setValues(JSON.parse(savedForm));
-      localStorage.removeItem('cartFormTemp'); // 用完就刪
+      const parsed = JSON.parse(savedForm);
+      setTimeout(async () => {
+        setFieldValue('recipient.city', parsed.recipient.city);
+
+        await nextTick();
+
+        setValues(parsed);
+
+        selectedStore.value = {
+          id: parsed.storeId,
+          name: parsed.storeName,
+          address: parsed.storeAddress,
+        };
+      }, 200);
     } catch (e) {
       console.error('表單資料解析錯誤', e);
     }
@@ -54,11 +70,9 @@ onMounted(() => {
     selectedStore.value = store;
     localStorage.setItem('selectedStore', JSON.stringify(store));
 
-    setValues((prev) => ({
-      ...prev,
-      storeId: store.id,
-      storeName: store.name,
-    }));
+    storeId.value = store.id;
+    storeName.value = store.name;
+    storeAddress.value = store.address;
   }
 });
 
