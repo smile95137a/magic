@@ -141,7 +141,9 @@ import { useDialogStore } from '@/stores/dialogStore';
 import { getErrorMessage } from '@/utils/ErrorUtils';
 import { executeApi } from '@/utils/executeApiUtils';
 import { submitPaymentForm } from '@/utils/paymentUtils';
-
+import { getProfile } from '@/services/UserService';
+import { useRouter } from 'vue-router';
+const router = useRouter();
 const offerStore = useOfferStore();
 const dialogStore = useDialogStore();
 
@@ -172,17 +174,18 @@ const fetchAndSetGodInfo = async (god: any) => {
   await executeApi({
     fn: () => getGodInfo({ godCode: god?.imageCode }),
     onSuccess: (data) => {
-      offerStore.setSelectedGod(data);
-      offerStore.setGodInvoked(true);
+      if (data) {
+        offerStore.setSelectedGod(data);
+        offerStore.setGodInvoked(true);
 
-      const godOfferings = data.offerings || [];
-      for (let i = 0; i < 3; i++) {
-        offerings.value[i] = godOfferings[i] || null;
+        const godOfferings = data.offerings || [];
+        for (let i = 0; i < 3; i++) {
+          offerings.value[i] = godOfferings[i] || null;
+        }
+      } else {
+        offerStore.setSelectedGod(god);
+        offerStore.goToStep(2);
       }
-    },
-    onFail: async (data) => {
-      offerStore.setSelectedGod(god);
-      offerStore.goToStep(2);
     },
   });
 };
@@ -201,6 +204,21 @@ const onExtendClick = async (option: { days: number; price: number }) => {
   const god = offerStore.selectedGod;
 
   const res = await dialogStore.openPaymentMethodDialog();
+  const resProfile = await getProfile();
+
+  if (resProfile.data.invoice == null) {
+    const goToProfile = await dialogStore.openConfirmDialog({
+      title: '尚未填寫發票資訊',
+      message: '您尚未填寫發票資訊，是否前往會員中心補填？',
+      confirmText: '前往填寫',
+      cancelText: '取消',
+    });
+
+    if (goToProfile) {
+      router.push('/member-center/memberProfile');
+    }
+    return;
+  }
 
   if (!res?.code) {
     await dialogStore.openInfoDialog({
@@ -264,6 +282,21 @@ const openOfferingDialog = async (
 
 const submitOfferings = async () => {
   if (tempOfferingSelections.value.length === 0) return;
+  const resProfile = await getProfile();
+
+  if (resProfile.data.invoice == null) {
+    const goToProfile = await dialogStore.openConfirmDialog({
+      title: '尚未填寫發票資訊',
+      message: '您尚未填寫發票資訊，是否前往會員中心補填？',
+      confirmText: '前往填寫',
+      cancelText: '取消',
+    });
+
+    if (goToProfile) {
+      router.push('/member-center/memberProfile');
+    }
+    return;
+  }
 
   const payRes = await dialogStore.openPaymentMethodDialog();
   if (!payRes?.code) {

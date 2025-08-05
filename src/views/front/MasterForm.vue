@@ -69,6 +69,10 @@ import { useDialogStore } from '@/stores/dialogStore';
 import { withLoading } from '@/utils/loadingUtils';
 import NumberFormatter from '@/components/common/NumberFormatter.vue';
 import { submitPaymentForm } from '@/utils/paymentUtils';
+import { getProfile } from '@/services/UserService';
+import { useRouter } from 'vue-router';
+const router = useRouter();
+
 const store = useMasterOrderStore();
 const dialog = useDialogStore();
 
@@ -134,6 +138,22 @@ const validateForm = async (): Promise<boolean> => {
 const submitForm = async () => {
   const isValid = await validateForm();
   if (!isValid) return;
+
+  const resProfile = await getProfile();
+
+  if (resProfile.data.invoice == null) {
+    const goToProfile = await dialog.openConfirmDialog({
+      title: '尚未填寫發票資訊',
+      message: '您尚未填寫發票資訊，是否前往會員中心補填？',
+      confirmText: '前往填寫',
+      cancelText: '取消',
+    });
+
+    if (goToProfile) {
+      router.push('/member-center/memberProfile');
+    }
+    return;
+  }
 
   try {
     const res = await dialog.openPaymentMethodDialog();

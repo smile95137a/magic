@@ -38,9 +38,11 @@ import { purchaseLantern } from '@/services/lanternServices';
 import { useBlessingStore } from '@/stores/blessingStore';
 import { storeToRefs } from 'pinia';
 import { useDialogStore } from '@/stores/dialogStore';
-import { getErrorMessage } from '@/utils/ErrorUtils';
 import { executeApi } from '@/utils/executeApiUtils';
 import { submitPaymentForm } from '@/utils/paymentUtils';
+import { useRouter } from 'vue-router';
+import { getProfile } from '@/services/UserService';
+const router = useRouter();
 
 const store = useBlessingStore();
 const dialogStore = useDialogStore();
@@ -49,6 +51,21 @@ const { contactInfos, selectedLamp } = storeToRefs(store);
 const finalSubmit = async () => {
   // 開啟付款方式選單
   const res = await dialogStore.openPaymentMethodDialog();
+  const resProfile = await getProfile();
+
+  if (resProfile.data.invoice == null) {
+    const goToProfile = await dialogStore.openConfirmDialog({
+      title: '尚未填寫發票資訊',
+      message: '您尚未填寫發票資訊，是否前往會員中心補填？',
+      confirmText: '前往填寫',
+      cancelText: '取消',
+    });
+
+    if (goToProfile) {
+      router.push('/member-center/memberProfile');
+    }
+    return;
+  }
 
   if (!res?.code) {
     await dialogStore.openInfoDialog({

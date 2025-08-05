@@ -1,3 +1,4 @@
+http://localhost:5173/cart?cvsnumru=VH&cvsnumst=21&storename=%E9%B9%BD%E5%9F%94%E6%96%B0%E5%9C%8D%E5%BA%97&storeid=016967&storeaddress=%E5%B1%8F%E6%9D%B1%E7%B8%A3%E9%B9%BD%E5%9F%94%E9%84%89%E7%B6%AD%E6%96%B0%E8%B7%AF%EF%BC%99%EF%BC%90%E4%B9%8B%EF%BC%92%E8%99%9F%E3%84%A7%E6%A8%93&storeph=087937325
 <script setup lang="ts">
 import { useFormContext } from 'vee-validate';
 import { ref, onMounted, watch, computed, nextTick } from 'vue';
@@ -44,17 +45,9 @@ onMounted(async () => {
       const parsed = JSON.parse(savedForm);
       setTimeout(async () => {
         setFieldValue('recipient.city', parsed.recipient.city);
-
         await nextTick();
-
         setValues(parsed);
-
-        selectedStore.value = {
-          id: parsed.storeId,
-          name: parsed.storeName,
-          address: parsed.storeAddress,
-        };
-      }, 200);
+      }, 500);
     } catch (e) {
       console.error('表單資料解析錯誤', e);
     }
@@ -76,15 +69,25 @@ onMounted(async () => {
   }
 });
 
-// 根據寄送方式是否為 7-11 / 全家，顯示「選擇門市」
+// 根據寄送方式是否為 7-11 / 全家 等超商，顯示選門市按鈕
 const isStorePickup = computed(() =>
   ['7_ELEVEN', 'FAMILY', 'OK_MART', 'HI_LIFE'].includes(shippingMethod.value)
 );
-const handleOpenMap = () => {
-  // 儲存目前的表單暫存
-  localStorage.setItem('cartFormTemp', JSON.stringify(values));
 
-  // 👉 清除上一次的門市資料，避免重複或干擾
+// 切換寄送方式時清除門市資訊（若非超商）
+watch(shippingMethod, (val) => {
+  if (!isStorePickup.value) {
+    selectedStore.value = null;
+    storeId.value = '';
+    storeName.value = '';
+    storeAddress.value = '';
+    localStorage.removeItem('selectedStore');
+  }
+});
+
+// 開啟門市地圖選單
+const handleOpenMap = () => {
+  localStorage.setItem('cartFormTemp', JSON.stringify(values));
   localStorage.removeItem('selectedStore');
 
   const callbackUrl = `${window.location.origin}/cart`;
@@ -112,6 +115,7 @@ const handleOpenMap = () => {
 <template>
   <h3>寄送資訊</h3>
   <div class="checkout__block">
+    <!-- 寄送方式選項 -->
     <div class="checkout__radio-group">
       <label
         class="checkout__radio-option"
@@ -132,14 +136,14 @@ const handleOpenMap = () => {
       {{ errors.shippingMethod }}
     </p>
 
-    <!-- 門市選擇按鈕 -->
+    <!-- 門市選擇 -->
     <div v-if="isStorePickup" class="checkout__store-selector">
       <button class="btn btn-secondary" type="button" @click="handleOpenMap">
         選擇門市
       </button>
 
-      <!-- 顯示已選門市資訊 -->
-      <p v-if="selectedStore">
+      <!-- 顯示已選門市資訊（需有 id 才顯示） -->
+      <p v-if="selectedStore && selectedStore.id">
         已選門市：{{ selectedStore.name }} （店號：{{ selectedStore.id }}）
         <br />
         地址：{{ selectedStore.address }}
