@@ -17,7 +17,7 @@ import { useForm } from 'vee-validate';
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import * as yup from 'yup';
-
+const dialogStore = useDialogStore();
 const cityOptions = ref<{ value: string; label: string }[]>([]);
 const areaOptions = ref<{ value: string; label: string }[]>([]);
 const router = useRouter();
@@ -78,7 +78,12 @@ const onSubmit = handleSubmit(async (values) => {
     successMessage: '註冊成功，歡迎加入祈願文舍！',
     errorTitle: '註冊失敗',
     errorMessage: '請稍後再試。',
-    onSuccess: () => {
+    onSuccess: async () => {
+      await dialogStore.openInfoDialog({
+        title: '註冊成功',
+        message: '歡迎加入祈願文舍 🙏\n祝您願望早日實現！',
+        confirmText: '前往首頁',
+      });
       router.push('/home');
     },
     showCatchDialog: true,

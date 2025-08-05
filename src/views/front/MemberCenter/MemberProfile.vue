@@ -113,7 +113,7 @@
           <input v-model="taxId" v-bind="taxIdProps" />
           <span class="error-text">{{ invoiceErrors.taxId }}</span>
         </div>
-        <div class="member-profile__field" v-if="invoiceType === 'personal'">
+        <div class="member-profile__field" v-if="invoiceType === 'citizen'">
           <label>說明</label>
           <p style="padding: 0.5rem; font-size: 0.9rem; color: #555">
             個人電子發票將自動對帳，無需輸入載具或統編。
@@ -303,7 +303,7 @@ const submitInvoice = handleInvoiceSubmit(async (invoiceValues) => {
     donation: { type: 'donation', value: invoiceValues.donationCode },
     mobile: { type: 'mobile', value: invoiceValues.mobileCarrier },
     company: { type: 'company', value: invoiceValues.taxId },
-    personal: { type: 'citizen', value: '' },
+    citizen: { type: 'citizen', value: '' },
   };
 
   const invoice = invoiceMap[invoiceValues.invoiceType];

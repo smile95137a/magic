@@ -201,7 +201,13 @@ const handleOfferingClick = (index: number) => {
 };
 
 const onExtendClick = async (option: { days: number; price: number }) => {
-  const god = offerStore.selectedGod;
+  if (!offerStore.selectedGod) {
+    await dialogStore.openInfoDialog({
+      title: '尚未選擇神明',
+      message: '請先選擇要延長供奉的神明',
+    });
+    return;
+  }
 
   const res = await dialogStore.openPaymentMethodDialog();
   const resProfile = await getProfile();
