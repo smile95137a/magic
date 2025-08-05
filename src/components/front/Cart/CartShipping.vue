@@ -1,4 +1,3 @@
-http://localhost:5173/cart?cvsnumru=VH&cvsnumst=21&storename=%E9%B9%BD%E5%9F%94%E6%96%B0%E5%9C%8D%E5%BA%97&storeid=016967&storeaddress=%E5%B1%8F%E6%9D%B1%E7%B8%A3%E9%B9%BD%E5%9F%94%E9%84%89%E7%B6%AD%E6%96%B0%E8%B7%AF%EF%BC%99%EF%BC%90%E4%B9%8B%EF%BC%92%E8%99%9F%E3%84%A7%E6%A8%93&storeph=087937325
 <script setup lang="ts">
 import { useFormContext } from 'vee-validate';
 import { ref, onMounted, watch, computed, nextTick } from 'vue';
