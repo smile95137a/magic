@@ -208,6 +208,7 @@ const onExtendClick = async (option: { days: number; price: number }) => {
     });
     return;
   }
+  const god = offerStore.selectedGod;
 
   const res = await dialogStore.openPaymentMethodDialog();
   const resProfile = await getProfile();
