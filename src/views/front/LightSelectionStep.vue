@@ -28,7 +28,7 @@
       <div class="lamp-box__column">
         <!-- 點燈費用 -->
         <label class="lamp-box__label">點燈費用：</label>
-        <div v-if="priceOptions.length">
+        <div v-if="priceOptions.length" class="lamp-box__price-list">
           <label
             v-for="item in priceOptions"
             :key="item.month"
@@ -89,7 +89,10 @@
 import { computed } from 'vue';
 import lightImages from '@/data/lightImages';
 import { useBlessingStore } from '@/stores/blessingStore';
+import { useDialogStore } from '@/stores/dialogStore';
+import { watch } from 'vue';
 
+const dialogStore = useDialogStore();
 const store = useBlessingStore();
 const priceOptions = computed(() => {
   try {
@@ -105,7 +108,23 @@ const imageMap = Object.fromEntries(
 );
 
 // 點擊下一步
-const handleNext = () => {
+const handleNext = async () => {
+  if (!store.selectedPrice) {
+    await dialogStore.openInfoDialog({
+      title: '請選擇點燈期間',
+      message: '請先選擇一個點燈費用方案才能繼續。',
+    });
+    return;
+  }
+
+  if (!store.quantity || store.quantity <= 0) {
+    await dialogStore.openInfoDialog({
+      title: '請選擇燈數',
+      message: '請至少選擇 1 盞燈才能繼續。',
+    });
+    return;
+  }
+
   store.setQuantity(store.quantity);
   store.nextStep();
 };
@@ -120,6 +139,12 @@ const parsedSections = computed(() => {
     return [];
   }
 });
+watch(
+  () => store.selectedLamp?.id, // 或其他唯一值
+  () => {
+    store.selectedPrice = null;
+  }
+);
 </script>
 
 <style scoped lang="scss">
@@ -331,6 +356,30 @@ const parsedSections = computed(() => {
     line-height: 1.6;
     font-size: 1rem;
     color: #000;
+  }
+}
+.lamp-box__price-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.lamp-box__price-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #ffe5df;
+  }
+
+  input {
+    cursor: pointer;
   }
 }
 </style>
