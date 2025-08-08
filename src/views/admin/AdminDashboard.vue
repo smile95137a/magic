@@ -41,6 +41,7 @@ const menu = [
   { label: '供品報表', path: '/admin/reports/offering-purchases' },
   { label: '點燈設定', path: '/admin/settings/lantern' },
   { label: '推薦點燈清單', path: '/admin/settings/lantern-recommend' },
+  { label: '寄件人資訊設定', path: '/admin/settings/sender-info' },
 ];
 </script>
 

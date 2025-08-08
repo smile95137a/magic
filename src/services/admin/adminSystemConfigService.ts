@@ -62,3 +62,30 @@ export const updatePurchaseLanternCount = async (
     throw error;
   }
 };
+/**
+ * 查詢寄件人資訊
+ */
+export const fetchSenderInfo = async (): Promise<ApiResponse<any>> => {
+  try {
+    const res = await api.get(`${basePath}/sender-info`);
+    return res.data;
+  } catch (error) {
+    console.error('fetchSenderInfo error:', error);
+    throw error;
+  }
+};
+
+/**
+ * 更新寄件人資訊
+ */
+export const updateSenderInfo = async (
+  req: any
+): Promise<ApiResponse<boolean>> => {
+  try {
+    const res = await api.post(`${basePath}/sender-info`, req);
+    return res.data;
+  } catch (error) {
+    console.error('updateSenderInfo error:', error);
+    throw error;
+  }
+};
