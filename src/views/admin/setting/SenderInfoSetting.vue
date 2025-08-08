@@ -5,10 +5,31 @@
     <form class="admin-list__form" @submit.prevent="handleSubmit">
       <div class="form-grid">
         <div class="form-item">
-          <label for="name" class="form-item__label">姓名</label>
+          <label class="form-item__label">姓名（最多 5 字）</label>
           <input
-            id="name"
             v-model="form.name"
+            type="text"
+            maxlength="5"
+            class="form-item__input"
+            required
+          />
+        </div>
+
+        <div class="form-item">
+          <label class="form-item__label">電話（10 碼數字）</label>
+          <input
+            v-model="form.phone"
+            type="tel"
+            maxlength="10"
+            class="form-item__input"
+            required
+          />
+        </div>
+
+        <div class="form-item">
+          <label class="form-item__label">縣市</label>
+          <input
+            v-model="form.city"
             type="text"
             class="form-item__input"
             required
@@ -16,31 +37,19 @@
         </div>
 
         <div class="form-item">
-          <label for="phone" class="form-item__label">電話</label>
+          <label class="form-item__label">郵遞區號</label>
           <input
-            id="phone"
-            v-model="form.phone"
-            type="tel"
-            class="form-item__input"
-            required
-          />
-        </div>
-
-        <div class="form-item">
-          <label for="email" class="form-item__label">Email</label>
-          <input
-            id="email"
-            v-model="form.email"
-            type="email"
+            v-model="form.zipcode"
+            type="text"
+            maxlength="5"
             class="form-item__input"
             required
           />
         </div>
 
         <div class="form-item form-item--full">
-          <label for="address" class="form-item__label">地址</label>
+          <label class="form-item__label">地址</label>
           <input
-            id="address"
             v-model="form.address"
             type="text"
             class="form-item__input"
@@ -58,39 +67,37 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { SenderInfoDto } from '@/vite-env';
 import {
   fetchSenderInfo,
   updateSenderInfo,
 } from '@/services/admin/adminSystemConfigService';
 import { withLoading } from '@/utils/loadingUtils';
 import { useDialogStore } from '@/stores/dialogStore';
+import { executeApi } from '@/utils/executeApiUtils';
 
 const dialogStore = useDialogStore();
 
-const form = ref<SenderInfoDto>({
+const form = ref<any>({
   name: '',
   phone: '',
-  email: '',
+  city: '',
   address: '',
+  zipcode: '',
 });
 
 const load = async () => {
-  const res = await withLoading(() => fetchSenderInfo());
-  if (res.success) {
-    form.value = res.data;
-  } else {
-    dialogStore.openInfoDialog('載入寄件人資訊失敗');
-  }
+  await executeApi({
+    fn: () => fetchSenderInfo(),
+    onSuccess: (data) => {
+      form.value = data;
+    },
+  });
 };
 
 const handleSubmit = async () => {
-  const res = await withLoading(() => updateSenderInfo(form.value));
-  if (res.success) {
-    dialogStore.openInfoDialog('儲存成功');
-  } else {
-    dialogStore.openInfoDialog('儲存失敗');
-  }
+  await executeApi({
+    fn: () => updateSenderInfo(form.value),
+  });
 };
 
 onMounted(() => {
