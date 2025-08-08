@@ -186,6 +186,7 @@ const {
     city: '',
     area: '',
     address: '',
+    zipCode: '',
   },
 });
 
@@ -196,7 +197,7 @@ const [phone, phoneProps] = defineProfileField('phone');
 const [city, cityProps] = defineProfileField('city');
 const [area, areaProps] = defineProfileField('area');
 const [address, addressProps] = defineProfileField('address');
-
+const [zipCode] = defineProfileField('zipCode');
 // --- 發票表單 useForm
 const {
   defineField: defineInvoiceField,
@@ -235,8 +236,9 @@ watch(city, (newCity) => {
 
 watch(area, (newArea) => {
   if (newArea) {
-    const zipCode = getZipCodeByCityAndAreaName(city.value, newArea);
-    if (zipCode) {
+    const zCode = getZipCodeByCityAndAreaName(city.value, newArea);
+    if (zCode) {
+      zipCode.value = zCode;
     }
   }
 });

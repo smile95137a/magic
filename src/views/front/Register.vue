@@ -9,10 +9,7 @@ import {
 } from '@/services/taiwanCitiesService';
 import { register } from '@/services/UserService';
 import { useDialogStore } from '@/stores/dialogStore';
-import { useLoadingStore } from '@/stores/loadingStore';
-import { getErrorMessage } from '@/utils/ErrorUtils';
 import { executeApi } from '@/utils/executeApiUtils';
-import { withLoading } from '@/utils/loadingUtils';
 import { useForm } from 'vee-validate';
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
@@ -55,6 +52,7 @@ const { defineField, handleSubmit, errors, setFieldValue } = useForm({
     city: '',
     area: '',
     address: '',
+    zipCode: '',
     agreeTerms: false,
   },
 });
@@ -69,7 +67,8 @@ const [city, cityProps] = defineField('city');
 const [area, areaProps] = defineField('area');
 const [address, addressProps] = defineField('address');
 const [lineId, lineIdProps] = defineField('lineId');
-const [agreeTerms, agreeTermsProps] = defineField('agreeTerms');
+const [agreeTerms] = defineField('agreeTerms');
+const [zipCode] = defineField('zipCode');
 
 const onSubmit = handleSubmit(async (values) => {
   await executeApi({
@@ -117,8 +116,9 @@ watch(city, (newCity) => {
 
 watch(area, (newArea) => {
   if (newArea) {
-    const zipCode = getZipCodeByCityAndAreaName(city.value, newArea);
-    if (zipCode) {
+    const zCode = getZipCodeByCityAndAreaName(city.value, newArea);
+    if (zCode) {
+      zipCode.value = zCode;
     }
   } else {
   }
