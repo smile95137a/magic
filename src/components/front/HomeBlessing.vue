@@ -39,7 +39,7 @@
             </Swiper>
           </template>
           <template v-else>
-            <div class="home-blessing__banner-placeholder">主 Banner 區塊</div>
+            <div class="home-blessing__banner-placeholder"></div>
           </template>
         </div>
 
@@ -69,9 +69,7 @@
               </Swiper>
             </template>
             <template v-else>
-              <div class="home-blessing__sub-banner-placeholder">
-                次圖 Banner
-              </div>
+              <div class="home-blessing__sub-banner-placeholder"></div>
             </template>
           </div>
         </div>
