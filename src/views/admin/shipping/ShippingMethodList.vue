@@ -50,10 +50,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { fetchShippingMethodList } from '@/services/admin/adminOrderServices';
 import Pagination from '@/components/common/Pagination.vue';
 import NoData from '@/components/common/NoData.vue';
 import { usePagination } from '@/hook/usePagination';
+import { fetchShippingMethodList } from '@/services/admin/adminShippingMethodServices';
+import { executeApi } from '@/utils/executeApiUtils';
 const router = useRouter();
 const list = ref<any[]>([]);
 const pageLimitSize = ref(10);
@@ -67,12 +68,15 @@ const {
   goToPage,
 } = usePagination<any>(list, pageLimitSize);
 const load = async () => {
-  const res = await fetchShippingMethodList();
-  if (res.success) {
-    list.value = res.data ?? [];
-  } else {
-    list.value = [];
-  }
+  await executeApi({
+    fn: () => fetchShippingMethodList(),
+    onSuccess: (data) => {
+      list.value = data ?? [];
+    },
+    onFail: (data) => {
+      list.value = [];
+    },
+  });
 };
 
 const goEdit = (id: string) => {

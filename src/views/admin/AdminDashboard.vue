@@ -39,6 +39,7 @@ const menu = [
   { label: '物流管理', path: '/admin/shipping-method' },
   { label: '點燈報表', path: '/admin/reports/lantern-purchases' },
   { label: '供品報表', path: '/admin/reports/offering-purchases' },
+  { label: '付款紀錄報表', path: '/admin/reports/money' },
   { label: '點燈設定', path: '/admin/settings/lantern' },
   { label: '推薦點燈清單', path: '/admin/settings/lantern-recommend' },
   { label: '寄件人資訊設定', path: '/admin/settings/sender-info' },

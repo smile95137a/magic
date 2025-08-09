@@ -69,11 +69,12 @@ import { useForm } from 'vee-validate';
 import { object, string, number, boolean } from 'yup';
 import { onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import {
-  saveShippingMethod,
-  fetchShippingMethodList,
-} from '@/services/admin/adminOrderServices';
+
 import { executeApi } from '@/utils/executeApiUtils';
+import {
+  fetchShippingMethodList,
+  modifyShippingMethod,
+} from '@/services/admin/adminShippingMethodServices';
 
 const route = useRoute();
 const router = useRouter();
@@ -120,7 +121,7 @@ const onSubmit = handleSubmit(async (values) => {
   };
 
   await executeApi({
-    fn: () => saveShippingMethod(payload),
+    fn: () => modifyShippingMethod(payload),
     successTitle: '系統通知',
     successMessage: isEdit ? '物流方式已修改成功！' : '物流方式已新增成功！',
     errorTitle: '錯誤',

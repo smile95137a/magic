@@ -47,3 +47,15 @@ export const fetchMasterReservationReport = async (
     throw error;
   }
 };
+
+export const fetchMoneyReport = async (
+  payload: any
+): Promise<ApiResponse<any[]>> => {
+  try {
+    const res = await api.post(`${basePath}/money`, payload);
+    return res.data;
+  } catch (error) {
+    console.error('[fetchMoneyReport] Failed:', error);
+    throw error;
+  }
+};

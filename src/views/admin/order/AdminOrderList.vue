@@ -11,13 +11,13 @@
       />
       <input
         v-model="searchForm.customerName"
-        placeholder="顧客姓名"
+        placeholder="會員帳號/顧客姓名"
         class="admin-list__input"
       />
       <button @click="loadOrders" class="admin-list__button">查詢</button>
     </div>
 
-    <!-- 批次更新狀態 -->
+    <!-- 批次操作 -->
     <div class="admin-list__actions">
       <select v-model="selectedStatus" class="admin-list__input">
         <option disabled value="">選擇新狀態</option>
@@ -32,6 +32,10 @@
 
       <button class="admin-list__button" @click="handleBatchUpdate">
         批次更新狀態
+      </button>
+
+      <button class="admin-list__button" @click="openShipDialog">
+        準備出貨
       </button>
     </div>
 
@@ -49,6 +53,7 @@
                 />
               </th>
               <th>訂單編號</th>
+              <th>顧客帳號</th>
               <th>金額</th>
               <th>訂單狀態</th>
               <th>付款狀態</th>
@@ -68,15 +73,16 @@
                 />
               </td>
               <td>{{ order.id }}</td>
-              <td>${{ order.totalAmount.toFixed(2) }}</td>
-              <td>{{ order.status }}</td>
-              <td>{{ order.paymentStatus }}</td>
-              <td>{{ order.shippingMethod }}</td>
+              <td>{{ order.username }}</td>
+              <td>${{ order.totalAmount?.toFixed(2) }}</td>
+              <td>{{ order.status || '' }}</td>
+              <td>{{ order.paymentStatus || '' }}</td>
+              <td>{{ order.shippingMethodName || '' }}</td>
               <td>{{ order.trackingNo || '' }}</td>
               <td>
                 <DateFormatter
                   :date="order.createTime"
-                  :format="'YYYY/MM/DD HH:mm:ss'"
+                  format="YYYY/MM/DD HH:mm:ss"
                 />
               </td>
               <td>
@@ -96,6 +102,7 @@
             </tr>
           </tbody>
         </table>
+
         <div class="flex justify-center m-t-12">
           <Pagination
             :totalPages="totalPages"
@@ -113,6 +120,40 @@
 
       <NoData v-else />
     </div>
+
+    <!-- 準備出貨 Dialog -->
+    <div v-if="showShipDialog" class="admin-list__dialog-backdrop">
+      <div class="admin-list__dialog" role="dialog" aria-modal="true">
+        <h3 class="admin-list__dialog-title">
+          設定出貨資訊（已選 {{ selectedOrderIds.length }} 筆）
+        </h3>
+        <div class="admin-list__dialog-body">
+          <label class="admin-list__dialog-label">出貨日期（必填）</label>
+          <input
+            type="date"
+            v-model="shipDate"
+            class="admin-list__input"
+            required
+          />
+
+          <label class="admin-list__dialog-label m-t-8"
+            >備註（選填，套用全部）</label
+          >
+          <input
+            type="text"
+            v-model="shipRemark"
+            class="admin-list__input"
+            placeholder="例：優先出貨"
+          />
+        </div>
+        <div class="admin-list__dialog-actions">
+          <button class="admin-list__button" @click="confirmShip">確認</button>
+          <button class="admin-list__button" @click="closeShipDialog">
+            取消
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -123,10 +164,12 @@ import { usePagination } from '@/hook/usePagination';
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import DateFormatter from '@/components/common/DateFormatter.vue';
+import moment from 'moment';
 import {
   fetchOrderList,
   fetchUpdatableOrderStatusList,
   updateOrderStatusBatch,
+  markOrdersReadyToShip,
 } from '@/services/admin/adminOrderServices';
 
 const router = useRouter();
@@ -156,7 +199,7 @@ const searchForm = ref({
 const loadOrders = async () => {
   const res = await fetchOrderList(searchForm.value);
   if (res.success) {
-    list.value = res.data;
+    list.value = res.data || [];
     selectedOrderIds.value = [];
   }
 };
@@ -167,11 +210,10 @@ const toggleSelectAll = (e: Event) => {
   selectedOrderIds.value = checked ? list.value.map((o) => o.id) : [];
 };
 
-const isAllSelected = computed(() => {
-  return (
+const isAllSelected = computed(
+  () =>
     list.value.length > 0 && selectedOrderIds.value.length === list.value.length
-  );
-});
+);
 
 // 跳轉
 const goToDetail = (orderId: string) => {
@@ -184,12 +226,8 @@ const goToDeliveryNote = (orderId: string) => {
 
 // 批次更新狀態
 const handleBatchUpdate = async () => {
-  if (!selectedOrderIds.value.length) {
-    return;
-  }
-  if (!selectedStatus.value) {
-    return;
-  }
+  if (!selectedOrderIds.value.length) return;
+  if (!selectedStatus.value) return;
 
   const updates = list.value
     .filter((o) => selectedOrderIds.value.includes(o.id))
@@ -205,14 +243,54 @@ const handleBatchUpdate = async () => {
       status: selectedStatus.value,
     });
     await loadOrders();
-  } catch (err) {}
+  } catch (err) {
+    console.error('updateOrderStatusBatch error:', err);
+  }
+};
+
+/* ===== 準備出貨 ===== */
+const showShipDialog = ref(false);
+const shipDate = ref('');
+const shipRemark = ref('');
+
+const openShipDialog = () => {
+  if (!selectedOrderIds.value.length) return;
+  shipDate.value = moment().format('YYYY-MM-DD');
+  shipRemark.value = '';
+  showShipDialog.value = true;
+};
+const closeShipDialog = () => (showShipDialog.value = false);
+
+const confirmShip = async () => {
+  if (!shipDate.value) return;
+
+  // 後端是 Java Date，傳 ISO 8601 字串即可
+  const shippingDateIso = moment(shipDate.value, 'YYYY-MM-DD')
+    .toDate()
+    .toISOString();
+
+  const payload = list.value
+    .filter((o) => selectedOrderIds.value.includes(o.id))
+    .map((o) => ({
+      orderId: o.id,
+      remark: shipRemark.value || '',
+      shippingDate: shippingDateIso,
+    }));
+
+  try {
+    await markOrdersReadyToShip(payload);
+    closeShipDialog();
+    await loadOrders();
+  } catch (e) {
+    console.error('markOrdersReadyToShip error:', e);
+  }
 };
 
 const loadStatusOptions = async () => {
   try {
     const res = await fetchUpdatableOrderStatusList();
     if (res.success) {
-      statusOptions.value = res.data;
+      statusOptions.value = res.data || [];
     }
   } catch (e) {
     console.error('載入狀態選項失敗', e);
@@ -224,3 +302,43 @@ onMounted(() => {
   loadStatusOptions();
 });
 </script>
+
+<style scoped>
+/* Dialog（簡易樣式，可換成你的通用 Dialog） */
+.admin-list__dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.admin-list__dialog {
+  background: #fff;
+  border-radius: 12px;
+  width: 520px;
+  max-width: 92vw;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+.admin-list__dialog-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.admin-list__dialog-body {
+  display: grid;
+  gap: 8px;
+}
+.admin-list__dialog-label {
+  font-size: 14px;
+  color: #555;
+}
+.admin-list__dialog-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+</style>
