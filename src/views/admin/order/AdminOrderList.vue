@@ -171,8 +171,10 @@ import {
   updateOrderStatusBatch,
   markOrdersReadyToShip,
 } from '@/services/admin/adminOrderServices';
+import { useDialogStore } from '@/stores/dialogStore';
 
 const router = useRouter();
+const dialog = useDialogStore();
 const selectedOrderIds = ref<string[]>([]);
 const selectedStatus = ref('');
 
@@ -262,7 +264,53 @@ const openShipDialog = () => {
 const closeShipDialog = () => (showShipDialog.value = false);
 
 const confirmShip = async () => {
-  if (!shipDate.value) return;
+  const ALLOWED = new Set(['paid', 'processing']);
+
+  // 防呆：要有選訂單
+  if (!selectedOrderIds.value.length) {
+    await dialog.openInfoDialog({
+      title: '格式錯誤',
+      message: '請先勾選要出貨的訂單',
+    });
+    return;
+  }
+
+  // 防呆：狀態必須是 paid 或 processing（下拉選單）
+  if (!ALLOWED.has(selectedStatus.value)) {
+    await dialog.openInfoDialog({
+      title: '格式錯誤',
+      message: '請先在狀態下拉選擇「已付款(paid)」或「訂單準備中(processing)」',
+    });
+    return;
+  }
+
+  // （可選）更嚴：實際檢查每筆被勾選訂單的當前狀態
+  const invalid = list.value.filter(
+    (o) =>
+      selectedOrderIds.value.includes(o.id) && !ALLOWED.has(String(o.status))
+  );
+  if (invalid.length > 0) {
+    const ids = invalid
+      .slice(0, 5)
+      .map((o) => o.id)
+      .join(', ');
+    await dialog.openInfoDialog({
+      title: '格式錯誤',
+      message: `以下訂單目前狀態不是「已付款/訂單準備中」，無法準備出貨：${ids}${
+        invalid.length > 5 ? '…' : ''
+      }`,
+    });
+    return;
+  }
+
+  // 防呆：出貨日期
+  if (!shipDate.value) {
+    await dialog.openInfoDialog({
+      title: '格式錯誤',
+      message: '請選擇出貨日期',
+    });
+    return;
+  }
 
   // 後端是 Java Date，傳 ISO 8601 字串即可
   const shippingDateIso = moment(shipDate.value, 'YYYY-MM-DD')
@@ -290,7 +338,9 @@ const loadStatusOptions = async () => {
   try {
     const res = await fetchUpdatableOrderStatusList();
     if (res.success) {
-      statusOptions.value = res.data || [];
+      statusOptions.value = (res.data || []).filter(
+        (option) => option.code !== 'ready_to_ship'
+      );
     }
   } catch (e) {
     console.error('載入狀態選項失敗', e);
