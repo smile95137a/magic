@@ -14,7 +14,11 @@
 
           <div v-if="offerStore.isGodInvoked" class="offering__god-image">
             <img
-              :src="godImages[offerStore.selectedGod?.imageCode]?.default"
+              :src="
+                offerStore.selectedGod?.golden
+                  ? godImages[offerStore.selectedGod?.imageCode]?.highlighted
+                  : godImages[offerStore.selectedGod?.imageCode]?.default
+              "
               :alt="offerStore.selectedGod?.name"
               class="offering__god-image-img"
             />

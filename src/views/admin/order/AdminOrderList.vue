@@ -205,6 +205,15 @@ const loadOrders = async () => {
     selectedOrderIds.value = [];
   }
 };
+const ALLOWED = new Set(['paid', 'processing']);
+
+const selectedOrders = computed(() =>
+  list.value.filter((o) => selectedOrderIds.value.includes(o.id))
+);
+
+const invalidForShipping = computed(() =>
+  selectedOrders.value.filter((o) => !ALLOWED.has(String(o.status)))
+);
 
 // 全選
 const toggleSelectAll = (e: Event) => {
@@ -264,9 +273,6 @@ const openShipDialog = () => {
 const closeShipDialog = () => (showShipDialog.value = false);
 
 const confirmShip = async () => {
-  const ALLOWED = new Set(['paid', 'processing']);
-
-  // 防呆：要有選訂單
   if (!selectedOrderIds.value.length) {
     await dialog.openInfoDialog({
       title: '格式錯誤',
@@ -275,35 +281,20 @@ const confirmShip = async () => {
     return;
   }
 
-  // 防呆：狀態必須是 paid 或 processing（下拉選單）
-  if (!ALLOWED.has(selectedStatus.value)) {
-    await dialog.openInfoDialog({
-      title: '格式錯誤',
-      message: '請先在狀態下拉選擇「已付款(paid)」或「訂單準備中(processing)」',
-    });
-    return;
-  }
-
-  // （可選）更嚴：實際檢查每筆被勾選訂單的當前狀態
-  const invalid = list.value.filter(
-    (o) =>
-      selectedOrderIds.value.includes(o.id) && !ALLOWED.has(String(o.status))
-  );
-  if (invalid.length > 0) {
-    const ids = invalid
+  if (invalidForShipping.value.length > 0) {
+    const ids = invalidForShipping.value
       .slice(0, 5)
       .map((o) => o.id)
       .join(', ');
     await dialog.openInfoDialog({
-      title: '格式錯誤',
+      title: '狀態不符',
       message: `以下訂單目前狀態不是「已付款/訂單準備中」，無法準備出貨：${ids}${
-        invalid.length > 5 ? '…' : ''
+        invalidForShipping.value.length > 5 ? '…' : ''
       }`,
     });
     return;
   }
 
-  // 防呆：出貨日期
   if (!shipDate.value) {
     await dialog.openInfoDialog({
       title: '格式錯誤',
@@ -312,18 +303,15 @@ const confirmShip = async () => {
     return;
   }
 
-  // 後端是 Java Date，傳 ISO 8601 字串即可
   const shippingDateIso = moment(shipDate.value, 'YYYY-MM-DD')
     .toDate()
     .toISOString();
 
-  const payload = list.value
-    .filter((o) => selectedOrderIds.value.includes(o.id))
-    .map((o) => ({
-      orderId: o.id,
-      remark: shipRemark.value || '',
-      shippingDate: shippingDateIso,
-    }));
+  const payload = selectedOrders.value.map((o) => ({
+    orderId: o.id,
+    remark: shipRemark.value || '',
+    shippingDate: shippingDateIso,
+  }));
 
   try {
     await markOrdersReadyToShip(payload);

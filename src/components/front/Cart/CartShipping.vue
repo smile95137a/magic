@@ -36,22 +36,7 @@ const initOptions = async () => {
 onMounted(async () => {
   initOptions();
 
-  localStorage.removeItem('selectedStore');
-
-  const savedForm = localStorage.getItem('cartFormTemp');
-  if (savedForm) {
-    try {
-      const parsed = JSON.parse(savedForm);
-      setTimeout(async () => {
-        setFieldValue('recipient.city', parsed.recipient.city);
-        await nextTick();
-        setValues(parsed);
-      }, 500);
-    } catch (e) {
-      console.error('表單資料解析錯誤', e);
-    }
-  }
-
+  // 先讀取回傳的門市（避免被後面的 setValues 覆蓋）
   const { storename, storeid, storeaddress } = route.query;
   if (storename && storeid) {
     const store = {
@@ -62,9 +47,48 @@ onMounted(async () => {
     selectedStore.value = store;
     localStorage.setItem('selectedStore', JSON.stringify(store));
 
-    storeId.value = store.id;
-    storeName.value = store.name;
-    storeAddress.value = store.address;
+    // 寫回表單欄位（這三個就是父層 submit 讀的）
+    setFieldValue('storeId', store.id);
+    setFieldValue('storeName', store.name);
+    setFieldValue('storeAddress', store.address);
+  }
+
+  // 再處理暫存的表單，但要「合併門市資訊」避免覆蓋掉上面
+  const savedForm = localStorage.getItem('cartFormTemp');
+  if (savedForm) {
+    try {
+      const parsed = JSON.parse(savedForm);
+
+      // 合併：若目前已有門市（上面剛寫入），就把它帶回 parsed 裡一起 set
+      const merged = {
+        ...parsed,
+        storeId:
+          (selectedStore.value && selectedStore.value.id) ||
+          parsed.storeId ||
+          '',
+        storeName:
+          (selectedStore.value && selectedStore.value.name) ||
+          parsed.storeName ||
+          '',
+        storeAddress:
+          (selectedStore.value && selectedStore.value.address) ||
+          parsed.storeAddress ||
+          '',
+      };
+
+      // 不需要 setTimeout；直接設值即可
+      await nextTick();
+      setValues(merged);
+    } catch (e) {
+      console.error('表單資料解析錯誤', e);
+    }
+  } else {
+    // 沒有暫存也要確保 route 門市有被寫進表單（保險一次）
+    if (selectedStore.value?.id) {
+      setFieldValue('storeId', selectedStore.value.id);
+      setFieldValue('storeName', selectedStore.value.name);
+      setFieldValue('storeAddress', selectedStore.value.address);
+    }
   }
 });
 

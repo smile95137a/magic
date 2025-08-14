@@ -22,7 +22,7 @@ export async function executeApi<T = any>({
   errorMessage = '操作失敗，請稍後再試。',
   onSuccess,
   onFail,
-  showCatchDialog = false,
+  showCatchDialog = true,
   showFailDialog = true,
 }: ExecuteApiOptions<T>): Promise<T | null> {
   const dialogStore = useDialogStore();

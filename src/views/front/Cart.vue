@@ -190,7 +190,6 @@ const submitOrder = handleSubmit(async (formData) => {
       },
     }),
   };
-
   try {
     const { success, data, message } = await withLoading(() =>
       createOrder(payload)
