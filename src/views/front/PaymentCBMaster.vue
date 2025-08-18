@@ -5,6 +5,9 @@
       <MCard customClass="p-48 text-center">
         <h2 class="m-b-16">{{ title }}</h2>
         <p class="m-b-24">{{ message }}</p>
+        <button class="payment-callback__btn" @click="goToOfficialLine">
+          加入祈福文舍官方 LINE
+        </button>
       </MCard>
     </div>
   </div>
@@ -30,8 +33,8 @@ const isGoToOrderQuery = queryParams.get('isGoToOrderQuery') === '1';
 const providerOrderNo = queryParams.get('OrderID'); // 你的訂單號
 const externalOrderNo = queryParams.get('e_orderno'); // 金流單號
 
-const goToOrders = () => {
-  router.push('/member-center/orderHistory');
+const goToOfficialLine = () => {
+  window.location.href = 'https://line.me/R/ti/p/@131gsonn';
 };
 
 onMounted(async () => {
@@ -47,9 +50,6 @@ onMounted(async () => {
       });
       title.value = '付款成功';
       message.value = '感謝您的付款，我們已收到訂單。';
-      if (isGoToOrderQuery) {
-        setTimeout(() => goToOrders(), 3000);
-      }
     } catch (err) {
       title.value = '付款結果異常';
       message.value =
@@ -60,10 +60,6 @@ onMounted(async () => {
     message.value = decodedMsg
       ? `付款未成功，原因：${decodedMsg}`
       : '付款未成功，請重新操作或聯繫客服。';
-
-    if (isGoToOrderQuery) {
-      setTimeout(() => goToOrders(), 4000);
-    }
   }
 });
 </script>
@@ -79,5 +75,21 @@ onMounted(async () => {
   width: 100%;
   max-width: 600px;
   margin: auto;
+}
+.payment-callback__btn {
+  margin-top: 20px;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #06c755; /* LINE 綠 */
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background-color: #05b14c;
+  }
 }
 </style>

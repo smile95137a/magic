@@ -11,6 +11,10 @@
           <div class="offering__sign">
             {{ offerStore.selectedGod?.name || '' }}
           </div>
+          <div v-if="showTimer" class="offering__timer" aria-live="polite">
+            <span class="offering__timer-label">{{ timerPrefix }}</span>
+            <span class="offering__timer-value">{{ remainingLabel }}</span>
+          </div>
 
           <div v-if="offerStore.isGodInvoked" class="offering__god-image">
             <img
@@ -124,7 +128,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, onBeforeUnmount, ref, watch } from 'vue'; // ← 多加 onBeforeUnmount
 import {
   fetchAllGod,
   getGodInfo,
@@ -156,6 +160,85 @@ const gods = ref<any[]>([]);
 const offerings = ref<any[]>([null, null, null]);
 const loadedGodCode = ref<string | null>(null);
 
+const remainingLabel = ref('');
+const timerPrefix = ref(''); // 顯示「上架倒數 / 剩餘 / 冷卻中」
+const showTimer = ref(false);
+let timerHandle: number | null = null;
+
+function pad(n: number) {
+  return n < 10 ? `0${n}` : `${n}`;
+}
+
+function formatDuration(ms: number) {
+  if (ms < 0) ms = 0;
+  const sec = Math.floor(ms / 1000);
+  const days = Math.floor(sec / 86400);
+  const h = Math.floor((sec % 86400) / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  if (days > 0) return `${days}天 ${pad(h)}:${pad(m)}:${pad(s)}`;
+  return `${pad(h)}:${pad(m)}:${pad(s)}`;
+}
+
+function updateCountdown() {
+  const g = offerStore.selectedGod as any;
+  if (!g) {
+    showTimer.value = false;
+    remainingLabel.value = '';
+    timerPrefix.value = '';
+    return;
+  }
+
+  const now = Date.now();
+  const on = g.onshelfTime ? new Date(g.onshelfTime).getTime() : null;
+  const off = g.offshelfTime ? new Date(g.offshelfTime).getTime() : null;
+  const cool = g.cooldownTime ? new Date(g.cooldownTime).getTime() : null;
+
+  // 沒有時間資訊就不顯示
+  if (!on && !off && !cool) {
+    showTimer.value = false;
+    remainingLabel.value = '';
+    timerPrefix.value = '';
+    return;
+  }
+
+  // 判斷階段
+  if (on && now < on) {
+    // 上架倒數
+    timerPrefix.value = '上架倒數';
+    remainingLabel.value = formatDuration(on - now);
+    showTimer.value = true;
+  } else if (off && now < off) {
+    // 供奉中剩餘
+    timerPrefix.value = '剩餘';
+    remainingLabel.value = formatDuration(off - now);
+    showTimer.value = true;
+  } else if (cool && now < cool) {
+    // 冷卻中
+    timerPrefix.value = '冷卻中';
+    remainingLabel.value = formatDuration(cool - now);
+    showTimer.value = true;
+  } else {
+    // 已結束
+    timerPrefix.value = '已結束';
+    remainingLabel.value = '';
+    showTimer.value = true;
+  }
+}
+
+function startTimer() {
+  stopTimer();
+  updateCountdown();
+  timerHandle = window.setInterval(updateCountdown, 1000);
+}
+
+function stopTimer() {
+  if (timerHandle) {
+    clearInterval(timerHandle);
+    timerHandle = null;
+  }
+}
+
 const extendOptions = [
   { days: 7, price: 200 },
   { days: 30, price: 800 },
@@ -170,10 +253,6 @@ const loadGods = async () => {
   });
 };
 
-onMounted(() => {
-  loadGods();
-});
-
 const fetchAndSetGodInfo = async (god: any) => {
   await executeApi({
     fn: () => getGodInfo({ godCode: god?.imageCode }),
@@ -186,9 +265,12 @@ const fetchAndSetGodInfo = async (god: any) => {
         for (let i = 0; i < 3; i++) {
           offerings.value[i] = godOfferings[i] || null;
         }
+
+        startTimer();
       } else {
         offerStore.setSelectedGod(god);
         offerStore.goToStep(2);
+        startTimer();
       }
     },
   });
@@ -339,16 +421,18 @@ const submitOfferings = async () => {
       }
 
       tempOfferingSelections.value = [];
-
-      // 若為信用卡，轉導付款
-      if (payRes.code === 'credit_card') {
-        submitPaymentForm({
-          sendType: '0',
-          orderNumber: data.externalPaymentNo,
-          totalAmount: data.price,
-          buyerMemo: '供品 - 信用卡付款',
-          returnUrl: `${window.location.origin}/paymentCBOffering`,
-        });
+      if (data.price > 0) {
+        if (payRes.code === 'credit_card') {
+          setTimeout(() => {
+            submitPaymentForm({
+              sendType: '0',
+              orderNumber: data.externalPaymentNo,
+              totalAmount: data.price,
+              buyerMemo: '供品 - 信用卡付款',
+              returnUrl: `${window.location.origin}/paymentCBOffering`,
+            });
+          }, 15000);
+        }
       }
     },
   });
@@ -360,10 +444,20 @@ watch(
     if (godCode && godCode !== loadedGodCode.value) {
       loadedGodCode.value = godCode;
       await fetchAndSetGodInfo(offerStore.selectedGod);
+      startTimer();
     }
   },
   { immediate: false }
 );
+
+onMounted(() => {
+  loadGods();
+  startTimer();
+});
+
+onBeforeUnmount(() => {
+  stopTimer();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -784,6 +878,31 @@ watch(
   &:disabled {
     background: #ccc;
     cursor: not-allowed;
+  }
+}
+
+.offering__timer {
+  position: absolute;
+  top: 200px; // 依視覺可調
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(60, 35, 19, 0.9);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 14px;
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  z-index: 3;
+
+  .offering__timer-label {
+    opacity: 0.9;
+  }
+
+  .offering__timer-value {
+    font-weight: 700;
+    letter-spacing: 0.5px;
   }
 }
 </style>

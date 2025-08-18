@@ -13,20 +13,6 @@
 
       <div class="footer__links">
         <div class="footer__column">
-          <h4 class="footer__title">關於我們</h4>
-          <ul class="footer__list">
-            <li class="footer__item">
-              <RouterLink to="/about">公司介紹</RouterLink>
-            </li>
-            <li class="footer__item">
-              <RouterLink to="/careers">人才招募</RouterLink>
-            </li>
-            <li class="footer__item">
-              <RouterLink to="/sitemap">網站導覽</RouterLink>
-            </li>
-          </ul>
-        </div>
-        <div class="footer__column">
           <h4 class="footer__title">熱門服務</h4>
           <ul class="footer__list">
             <li class="footer__item">
@@ -46,6 +32,7 @@
             </li>
           </ul>
         </div>
+
         <div class="footer__column">
           <h4 class="footer__title">客戶服務</h4>
           <ul class="footer__list">
@@ -53,12 +40,38 @@
               <RouterLink to="/member-center">會員中心</RouterLink>
             </li>
             <li class="footer__item">
-              <RouterLink to="/support">客服中心</RouterLink>
-            </li>
-            <li class="footer__item">
-              <RouterLink to="/contact">客服信箱</RouterLink>
+              <a
+                href="https://line.me/R/ti/p/@131gsonn"
+                target="_blank"
+                rel="noopener"
+                >客服中心</a
+              >
             </li>
           </ul>
+        </div>
+
+        <!-- 公司資訊 -->
+        <div class="footer__column">
+          <h4 class="footer__title">公司資訊</h4>
+          <p>網站維護管理：神乎奇技文創有限公司</p>
+          <p>公司統編：60755266</p>
+          <p>公司地址：新北市板橋區雙十路二段10-3號7樓</p>
+          <p>客服服務時間：週一至週五 09:00~17:00</p>
+          <div class="footer__social">
+            <a
+              href="https://www.facebook.com/profile.php?id=100079259756919&mibextid=ZbWKwL"
+              target="_blank"
+              rel="noopener"
+              >Facebook</a
+            >
+            ｜
+            <a
+              href="https://www.instagram.com/magic20.22?igsh=MTY1OGVmMWh5ZGo4Ng=="
+              target="_blank"
+              rel="noopener"
+              >Instagram</a
+            >
+          </div>
         </div>
       </div>
     </div>

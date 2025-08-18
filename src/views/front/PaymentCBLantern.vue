@@ -5,6 +5,10 @@
       <MCard customClass="p-48 text-center">
         <h2 class="m-b-16">{{ title }}</h2>
         <p class="m-b-24">{{ message }}</p>
+
+        <button class="payment-callback__btn" @click="goToMyLight">
+          回到我的祈福燈
+        </button>
       </MCard>
     </div>
   </div>
@@ -30,8 +34,9 @@ const isGoToOrderQuery = queryParams.get('isGoToOrderQuery') === '1';
 const providerOrderNo = queryParams.get('OrderID'); // 你的訂單號
 const externalOrderNo = queryParams.get('e_orderno'); // 金流單號
 
-const goToOrders = () => {
-  router.push('/member-center/orderHistory');
+// 新增：回到我的祈福燈
+const goToMyLight = () => {
+  router.push('/myLight');
 };
 
 onMounted(async () => {
@@ -47,9 +52,6 @@ onMounted(async () => {
       });
       title.value = '付款成功';
       message.value = '感謝您的付款，我們已收到訂單。';
-      if (isGoToOrderQuery) {
-        setTimeout(() => goToOrders(), 3000);
-      }
     } catch (err) {
       title.value = '付款結果異常';
       message.value =
@@ -60,10 +62,6 @@ onMounted(async () => {
     message.value = decodedMsg
       ? `付款未成功，原因：${decodedMsg}`
       : '付款未成功，請重新操作或聯繫客服。';
-
-    if (isGoToOrderQuery) {
-      setTimeout(() => goToOrders(), 4000);
-    }
   }
 });
 </script>
@@ -79,5 +77,22 @@ onMounted(async () => {
   width: 100%;
   max-width: 600px;
   margin: auto;
+}
+
+.payment-callback__btn {
+  margin-top: 16px;
+  padding: 0.5rem 1.5rem;
+  border: none;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #b64832;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background-color: #df5b3c;
+  }
 }
 </style>

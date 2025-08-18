@@ -23,6 +23,19 @@
               class="offering__item-img"
             />
             <p class="offering__item-name">{{ item.name }}</p>
+
+            <p class="offering__item-meta" aria-label="供品資訊">
+              <span
+                v-if="Number(item.points) > 0"
+                class="badge badge--enhance"
+                aria-label="強化等級"
+              >
+                強化 +{{ item.points }}
+              </span>
+              <span class="badge badge--price" aria-label="供品費用">
+                {{ formatPrice(item.price) }}
+              </span>
+            </p>
           </div>
         </div>
 
@@ -62,6 +75,11 @@ const offeringOptions = ref<any[]>([]);
 
 const toggleOffering = (id: string) => {
   selected.value = selected.value === id ? null : id;
+};
+
+const formatPrice = (price: number | string) => {
+  const n = Number(price) || 0;
+  return n === 0 ? '免費' : `NT$${n.toLocaleString('zh-TW')}`;
 };
 
 const submit = () => {
@@ -186,6 +204,39 @@ onMounted(loadOfferings);
         background-color: rgba(255, 255, 255, 0.1);
       }
     }
+  }
+  &__item-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 6px;
+    align-items: center;
+    justify-content: center;
+    min-height: 24px;
+  }
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+
+  &--enhance {
+    background: #ffe6e1;
+    color: #b64832;
+    border: 1px solid #df5b3c;
+    font-weight: 700;
+  }
+
+  &--price {
+    background: #f4f4f4;
+    color: #333;
+    border: 1px solid #e0e0e0;
+    font-weight: 600;
   }
 }
 </style>

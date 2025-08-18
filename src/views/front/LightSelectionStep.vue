@@ -211,10 +211,10 @@ watch(
   }
 
   &__image {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     border-radius: 10px;
-    object-fit: cover;
+    object-fit: contain;
   }
 
   &__info {
