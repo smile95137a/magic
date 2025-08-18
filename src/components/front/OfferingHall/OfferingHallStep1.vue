@@ -15,6 +15,11 @@
             <span class="offering__timer-label">{{ timerPrefix }}</span>
             <span class="offering__timer-value">{{ remainingLabel }}</span>
           </div>
+          <div v-if="offerStore.selectedGod" class="offering__exp">
+            <span>距離金身還差</span>
+            <strong>{{ offerStore.selectedGod.expToGolden }}</strong>
+            <span> 點經驗值</span>
+          </div>
 
           <div v-if="offerStore.isGodInvoked" class="offering__god-image">
             <img
@@ -431,7 +436,7 @@ const submitOfferings = async () => {
               buyerMemo: '供品 - 信用卡付款',
               returnUrl: `${window.location.origin}/paymentCBOffering`,
             });
-          }, 15000);
+          }, 1000);
         }
       }
     },
@@ -904,5 +909,19 @@ onBeforeUnmount(() => {
     font-weight: 700;
     letter-spacing: 0.5px;
   }
+}
+
+.offering__exp {
+  position: absolute;
+  top: 260px; // 可以依照 UI 調整位置
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.85);
+  color: #3c2313;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: bold;
+  z-index: 3;
 }
 </style>

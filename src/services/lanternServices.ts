@@ -82,3 +82,15 @@ export const getMyActiveLanterns = async (): Promise<ApiResponse<any[]>> => {
     throw error;
   }
 };
+
+export const checkinLantern = async (
+  purchaseId: string
+): Promise<ApiResponse<string>> => {
+  try {
+    const response = await api.post(`${basePath}/checkin/${purchaseId}`);
+    return response.data;
+  } catch (error) {
+    console.error('checkinLantern error:', error);
+    throw error;
+  }
+};
