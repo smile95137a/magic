@@ -19,9 +19,9 @@
         <span class="form__error" v-if="errors.price">{{ errors.price }}</span>
       </div>
 
-      <!-- 經驗值 -->
+      <!-- 供奉值 -->
       <div class="form__group">
-        <label class="form__label">獲得經驗值</label>
+        <label class="form__label">獲得供奉值</label>
         <input type="number" v-model="points" class="form__input" />
         <span class="form__error" v-if="errors.points">{{
           errors.points
@@ -77,7 +77,7 @@ const isEdit = !!id;
 const schema = object({
   name: string().required('供品名稱為必填'),
   price: number().required('價格為必填').min(0, '價格不可小於 0'),
-  points: number().required('經驗值為必填').min(0, '經驗值不可小於 0'),
+  points: number().required('供奉值為必填').min(0, '供奉值不可小於 0'),
   imageBase64: string().required('請上傳圖片'),
 });
 

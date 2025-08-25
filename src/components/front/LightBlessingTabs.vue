@@ -4,7 +4,10 @@
       祈福燈產品
     </div>
     <div class="light-blessing__tab" @click="handleTabClick('my')">
-      我的祈福燈
+      <div class="light-blessing__tab-title">我的祈福燈</div>
+      <div class="light-blessing__tab-subtitle">
+        每日可以回來對燈祈福,可加強效果。
+      </div>
     </div>
   </div>
 </template>
@@ -15,10 +18,6 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 function handleTabClick(tab: 'product' | 'my') {
-  navigateToRoute(tab);
-}
-
-function navigateToRoute(tab: 'product' | 'my') {
   const routeMap = {
     product: '/lightProduct',
     my: '/myLight',
@@ -37,7 +36,6 @@ function navigateToRoute(tab: 'product' | 'my') {
   overflow: hidden;
   width: 100%;
   height: 70px;
-
   margin-bottom: 2rem;
   flex-wrap: wrap;
 }
@@ -50,9 +48,21 @@ function navigateToRoute(tab: 'product' | 'my') {
   font-size: 1rem;
   text-align: center;
   white-space: nowrap;
-
   display: flex;
+  flex-direction: column; /* 讓主標 + 子標上下排 */
   align-items: center;
   justify-content: center;
+}
+
+.light-blessing__tab-title {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.light-blessing__tab-subtitle {
+  font-size: 0.75rem;
+  font-weight: normal;
+  margin-top: 0.25rem;
+  color: #6b2d1d; /* 深一點的文字顏色 */
 }
 </style>

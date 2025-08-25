@@ -18,7 +18,7 @@
           <div v-if="offerStore.selectedGod" class="offering__exp">
             <span>距離金身還差</span>
             <strong>{{ offerStore.selectedGod.expToGolden }}</strong>
-            <span> 點經驗值</span>
+            <span> 點供奉值</span>
           </div>
 
           <div v-if="offerStore.isGodInvoked" class="offering__god-image">
@@ -66,6 +66,9 @@
         >
           確認供奉
         </button>
+      </div>
+      <div class="offering__note">
+        ※ 供品將於每天晚上 24:00 自動清除（不影響已累積的經驗值）
       </div>
 
       <div class="offering__tabs">
@@ -923,5 +926,12 @@ onBeforeUnmount(() => {
   font-size: 14px;
   font-weight: bold;
   z-index: 3;
+}
+.offering__note {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 14px;
+  color: #fff;
+  opacity: 0.9;
 }
 </style>

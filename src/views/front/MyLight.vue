@@ -54,6 +54,19 @@
                 剩餘 {{ calcDaysLeft(lamp.expiredTime) }} 天
               </p>
             </div>
+            <div class="lamp-info__actions">
+              <button
+                class="lamp-action__btn"
+                :disabled="lamp.checkedIn"
+                @click.stop="strengthenBlessing(lamp)"
+              >
+                {{ lamp.checkedIn ? '今日已加強' : '加強祈福' }}
+              </button>
+
+              <small class="lamp-info__hint"
+                >每日可加強一次，完成後燈卡會發亮</small
+              >
+            </div>
           </div>
         </div>
 
@@ -100,8 +113,6 @@ import { useDialogStore } from '@/stores/dialogStore';
 const router = useRouter();
 const authStore = useAuthFrontStore();
 
-const dialogStore = useDialogStore();
-
 const activeLamps = ref<any[]>([]);
 const selectedLamp = ref<any | null>(null);
 
@@ -120,19 +131,32 @@ const calcDaysLeft = (expiredTime: string) => {
 const formatDate = (val: string) =>
   val ? moment(val).format('YYYY/MM/DD') : '-';
 
-const selectLamp = async (lamp: any) => {
-  try {
-    await executeApi({
-      fn: () => checkinLantern(lamp.id),
-      errorTitle: '簽到失敗',
-      onSuccess: () => {
-        lamp.checkedIn = true;
-        selectedLamp.value = { ...lamp, records: lamp.records ?? [] };
-      },
-    });
-  } catch (err) {
-    console.error(err);
-  }
+const selectLamp = (lamp: any) => {
+  selectedLamp.value = { ...lamp, records: lamp.records ?? [] };
+};
+
+const strengthenBlessing = async (lamp: any) => {
+  if (!lamp || lamp.checkedIn) return;
+  await executeApi({
+    fn: () => checkinLantern(lamp.id),
+    errorTitle: '加強祈福失敗',
+    onSuccess: () => {
+      // 更新該筆燈
+      lamp.checkedIn = true;
+
+      const idx = activeLamps.value.findIndex((l) => l.id === lamp.id);
+      if (idx > -1) {
+        activeLamps.value[idx] = {
+          ...activeLamps.value[idx],
+          checkedIn: true,
+        };
+      }
+
+      if (selectedLamp.value?.id === lamp.id) {
+        selectedLamp.value = { ...selectedLamp.value, checkedIn: true };
+      }
+    },
+  });
 };
 
 const fetchData = async () => {
@@ -399,7 +423,23 @@ const getStars = (lampId: string): Star[] => {
     font-size: 1rem;
     color: #000;
   }
-} /* ✅ 已簽到：閃閃發亮 */
+
+  &__actions {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &__hint {
+    font-size: 12px;
+    color: #7a4b34;
+    opacity: 0.9;
+  }
+}
+
+/* ✅ 已簽到：閃閃發亮 */
 .my-light__item--checked {
   .my-light__thumb {
     box-shadow: 0 0 18px rgba(255, 230, 150, 1),
@@ -416,6 +456,88 @@ const getStars = (lampId: string): Star[] => {
   /* 掃光自動跑不停 */
   .my-light__shine {
     animation: shine 2s ease-in-out infinite;
+  }
+}
+
+/* === 按鈕樣式（BEM：.lamp-action__btn） === */
+.lamp-action__btn {
+  --btn-bg: #a2352c;
+  --btn-bg-hover: #8f2e28;
+  --btn-bg-disabled: #c9b0ab;
+  --btn-fg: #fff;
+  --btn-shadow: 0 6px 14px rgba(162, 53, 44, 0.3);
+
+  appearance: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 112px;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+
+  color: var(--btn-fg);
+  background: var(--btn-bg);
+  box-shadow: var(--btn-shadow);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+
+  &:hover {
+    background: var(--btn-bg-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(162, 53, 44, 0.38);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(162, 53, 44, 0.25);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #ffd08a;
+    outline-offset: 2px;
+  }
+
+  &[aria-busy='true'] {
+    position: relative;
+    pointer-events: none;
+
+    /* 簡單 loading dots */
+    &::after {
+      content: '⋯';
+      margin-left: 0.25rem;
+      animation: ellipsis 1s steps(3, end) infinite;
+    }
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    background: var(--btn-bg-disabled);
+    box-shadow: none;
+    transform: none;
+    opacity: 0.9;
+  }
+}
+
+@keyframes ellipsis {
+  0% {
+    content: '⋯';
+  }
+  33% {
+    content: '⋅⋯';
+  }
+  66% {
+    content: '⋅⋅⋯';
+  }
+  100% {
+    content: '⋯';
   }
 }
 </style>
