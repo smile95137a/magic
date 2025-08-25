@@ -29,6 +29,7 @@
 
 <script setup lang="ts">
 const menu = [
+  { label: '會員管理', path: '/admin/users' },
   { label: '老師管理', path: '/admin/masters' },
   { label: '老師預約報表', path: '/admin/reports/master-reservations' },
   { label: 'Banner 管理', path: '/admin/banners' },

@@ -12,6 +12,7 @@ import adminOrderRoutes from './modules/adminOrderRoutes';
 import adminShippingMethodRoutes from './modules/adminShippingRoutes';
 import adminReportRoutes from './modules/adminReportRoutes';
 import adminSettingRoutes from './modules/adminSettingRoutes';
+import adminUserRoutes from './modules/adminUserRoutes';
 
 export const adminRoutes: Array<RouteRecordRaw> = [
   {
@@ -36,6 +37,7 @@ export const adminRoutes: Array<RouteRecordRaw> = [
       adminShippingMethodRoutes,
       adminReportRoutes,
       adminSettingRoutes,
+      adminUserRoutes,
       {
         path: ':pathMatch(.*)*',
         name: 'AdminNotFound',
