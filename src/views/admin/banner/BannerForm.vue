@@ -23,9 +23,9 @@
       <div class="form__group">
         <label class="form__label">圖片</label>
         <input type="file" @change="onImageChange" class="form__input" />
-        <span class="form__error" v-if="errors.imageBase64">{{
-          errors.imageBase64
-        }}</span>
+        <span class="form__error" v-if="errors.imageBase64">
+          {{ errors.imageBase64 }}
+        </span>
         <img v-if="imageBase64" :src="imageBase64" class="form__preview-img" />
       </div>
 
@@ -43,27 +43,27 @@
       <div class="form__group">
         <label class="form__label">上架日期</label>
         <input type="date" v-model="availableFrom" class="form__input" />
-        <span class="form__error" v-if="errors.availableFrom">{{
-          errors.availableFrom
-        }}</span>
+        <span class="form__error" v-if="errors.availableFrom">
+          {{ errors.availableFrom }}
+        </span>
       </div>
 
       <!-- 下架日期 -->
       <div class="form__group">
         <label class="form__label">下架日期</label>
         <input type="date" v-model="availableUntil" class="form__input" />
-        <span class="form__error" v-if="errors.availableUntil">{{
-          errors.availableUntil
-        }}</span>
+        <span class="form__error" v-if="errors.availableUntil">
+          {{ errors.availableUntil }}
+        </span>
       </div>
 
       <!-- 說明 -->
       <div class="form__group">
         <label class="form__label">說明</label>
         <input v-model="description" class="form__input" />
-        <span class="form__error" v-if="errors.description">{{
-          errors.description
-        }}</span>
+        <span class="form__error" v-if="errors.description">
+          {{ errors.description }}
+        </span>
       </div>
 
       <!-- 按鈕 -->
@@ -84,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { object, string, number } from 'yup';
 import { useForm } from 'vee-validate';
@@ -101,6 +101,9 @@ const route = useRoute();
 const id = route.params.id as string | undefined;
 const isEdit = !!id;
 
+// 編輯時是否有挑新圖（只有挑了才會送 imageBase64/filename）
+const imageChanged = ref(false);
+
 const schema = object({
   filename: string().required('請上傳圖片'),
   sort: number().required('排序為必填').min(0, '排序不可小於 0'),
@@ -112,7 +115,7 @@ const schema = object({
   imageBase64: string().required('請上傳圖片'),
 });
 
-const { handleSubmit, errors, defineField, setValues, values } = useForm({
+const { handleSubmit, errors, defineField, setValues } = useForm({
   validationSchema: schema,
   initialValues: {
     filename: '',
@@ -127,14 +130,14 @@ const { handleSubmit, errors, defineField, setValues, values } = useForm({
 });
 
 // defineField - 綁定每個欄位
-const [filename] = defineField('filename');
-const [sort] = defineField('sort');
-const [type] = defineField('type');
-const [availableFrom] = defineField('availableFrom');
-const [availableUntil] = defineField('availableUntil');
-const [url] = defineField('url');
-const [description] = defineField('description');
-const [imageBase64] = defineField('imageBase64');
+const [filename] = defineField<string>('filename');
+const [sort] = defineField<number>('sort');
+const [type] = defineField<string>('type');
+const [availableFrom] = defineField<string>('availableFrom');
+const [availableUntil] = defineField<string>('availableUntil');
+const [url] = defineField<string | null>('url');
+const [description] = defineField<string | null>('description');
+const [imageBase64] = defineField<string>('imageBase64');
 
 const goBack = () => router.push('/admin/banners');
 
@@ -146,17 +149,24 @@ const onImageChange = (e: Event) => {
   reader.onload = () => {
     imageBase64.value = reader.result as string;
     filename.value = file.name;
+    imageChanged.value = true; // ★ 有選新圖才會換
   };
   reader.readAsDataURL(file);
 };
 
 const onSubmit = handleSubmit(async (formValues) => {
-  const payload = {
+  const payload: any = {
     ...formValues,
     availableFrom: moment(formValues.availableFrom).format('YYYY/MM/DD'),
     availableUntil: moment(formValues.availableUntil).format('YYYY/MM/DD'),
-    id: isEdit ? id : undefined,
+    id: isEdit ? Number(id) : undefined,
   };
+
+  // ★ 編輯模式且沒有更換圖片 → 不送 imageBase64/filename，後端就不會動舊圖
+  if (isEdit && !imageChanged.value) {
+    delete payload.imageBase64;
+    delete payload.filename;
+  }
 
   await executeApi({
     fn: () => (isEdit ? modifyBanner(payload) : addBanner(payload)),
@@ -180,13 +190,14 @@ const loadData = async () => {
     setValues({
       url: data.url || '',
       sort: data.sort,
-      imageBase64: data.imageBase64,
-      filename: data.filename ?? 'banner.jpg',
+      imageBase64: data.imageBase64, // 用於預覽與通過驗證
+      filename: data.imageName ?? 'banner.jpg', // ★ 用後端的 imageName
       type: data.type,
       availableFrom: moment(data.availableFrom).format('YYYY-MM-DD'),
       availableUntil: moment(data.availableUntil).format('YYYY-MM-DD'),
       description: data.description ?? '',
     });
+    imageChanged.value = false; // 初始為未更換
   }
 };
 
@@ -209,6 +220,64 @@ onMounted(() => {
     font-weight: 600;
     margin-bottom: 24px;
     text-align: center;
+  }
+}
+
+.form {
+  &__group {
+    margin-bottom: 16px;
+  }
+
+  &__label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  &__input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    outline: none;
+  }
+
+  &__error {
+    display: block;
+    color: #d32f2f;
+    margin-top: 6px;
+    font-size: 13px;
+  }
+
+  &__preview-img {
+    display: block;
+    margin-top: 10px;
+    max-width: 100%;
+    border-radius: 8px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  &__button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+
+    &--primary {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    &--secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
   }
 }
 </style>
