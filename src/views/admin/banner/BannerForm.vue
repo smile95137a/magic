@@ -130,14 +130,14 @@ const { handleSubmit, errors, defineField, setValues } = useForm({
 });
 
 // defineField - 綁定每個欄位
-const [filename] = defineField<string>('filename');
-const [sort] = defineField<number>('sort');
-const [type] = defineField<string>('type');
-const [availableFrom] = defineField<string>('availableFrom');
-const [availableUntil] = defineField<string>('availableUntil');
-const [url] = defineField<string | null>('url');
-const [description] = defineField<string | null>('description');
-const [imageBase64] = defineField<string>('imageBase64');
+const [filename] = defineField<any>('filename');
+const [sort] = defineField<any>('sort');
+const [type] = defineField<any>('type');
+const [availableFrom] = defineField<any>('availableFrom');
+const [availableUntil] = defineField<any>('availableUntil');
+const [url] = defineField<any>('url');
+const [description] = defineField<any>('description');
+const [imageBase64] = defineField<any>('imageBase64');
 
 const goBack = () => router.push('/admin/banners');
 
