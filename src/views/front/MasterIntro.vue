@@ -22,10 +22,11 @@
           <div class="master__content">
             <div class="master__left">
               <div class="master__desc">
-                <p><strong>主星：</strong>{{ masterItem.mainStar }}</p>
                 <p><strong>簡介：</strong>{{ masterItem.bio }}</p>
-                <p><strong>學經歷：</strong>{{ masterItem.experience }}</p>
-                <p><strong>隨身物品：</strong>{{ masterItem.personalItems }}</p>
+                <p><strong>親算項目：</strong>{{ masterItem.personalItems }}</p>
+                <p v-if="masterItem.serviceTime">
+                  <strong>服務時間：</strong>{{ masterItem.serviceTime }}
+                </p>
               </div>
             </div>
             <div class="master__right">

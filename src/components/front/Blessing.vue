@@ -13,7 +13,7 @@
             <div class="blessing__tags">{{ item.tags }}</div>
           </div>
           <button class="blessing__btn">
-            請祝福我 <span class="blessing__btn-arrow">➤</span>
+            我要點燈 <span class="blessing__btn-arrow">➤</span>
           </button>
         </div>
       </div>
@@ -37,7 +37,7 @@
             <div class="blessing__tags">{{ item.tags }}</div>
           </div>
           <button class="blessing__btn">
-            請祝福我 <span class="blessing__btn-arrow">➤</span>
+            我要點燈 <span class="blessing__btn-arrow">➤</span>
           </button>
         </div>
       </div>

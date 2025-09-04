@@ -1,3 +1,5 @@
+幫我加入
+
 <template>
   <div class="product-detail">
     <SectionBackground variant="divination" />
@@ -43,13 +45,29 @@
                 <NumberFormatter :number="product.originalPrice ?? 0" />
               </span>
             </p>
+            <div class="product-detail__actions">
+              <button class="btn btn-primary" @click="addToCart">
+                加入購物車
+              </button>
+              <button class="btn btn-outline" @click="goToCart">
+                前往購物車
+              </button>
 
-            <button class="btn btn-primary" @click="addToCart">
-              加入購物車
-            </button>
-            <button class="btn btn-outline" @click="goToCart">
-              前往購物車
-            </button>
+              <a
+                class="line-cta"
+                href="https://lin.ee/DjLjYXZ"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="加入我們的 LINE 社群，獲得最新賞品資訊！"
+              >
+                <span class="line-cta__icon" aria-hidden="true">
+                  <i class="fa-brands fa-line"></i>
+                </span>
+                <span class="line-cta__text"
+                  >加入我們的LINE社群，獲得最新賞品資訊！</span
+                >
+              </a>
+            </div>
           </div>
         </div>
 
@@ -160,6 +178,19 @@ const goToCart = () => router.push('/cart');
 </script>
 
 <style scoped lang="scss">
+/* =============================
+   Variables
+============================= */
+$product-detail-red: #a93e26;
+$product-detail-red-hover: #902f1d;
+$product-detail-light-gray: #f5f5f5;
+$product-detail-muted: #888;
+$line-green: #06c755;
+$line-green-hover: #05b84f;
+
+/* =============================
+   Product Detail
+============================= */
 .product-detail {
   width: 100%;
   position: relative;
@@ -168,6 +199,7 @@ const goToCart = () => router.push('/cart');
     max-width: 1200px;
     margin: 0 auto;
     padding: 4rem 2rem;
+    box-sizing: border-box;
   }
 
   &__main {
@@ -183,9 +215,11 @@ const goToCart = () => router.push('/cart');
   &__image {
     width: 100%;
     height: 400px;
+    max-height: 100%;
     border-radius: 1rem;
     overflow: hidden;
-    background: #f5f5f5;
+    background: $product-detail-light-gray;
+    aspect-ratio: 1 / 1;
 
     img {
       width: 100%;
@@ -198,13 +232,13 @@ const goToCart = () => router.push('/cart');
   &__thumbnails {
     margin-top: 1rem;
     display: flex;
-    gap: 0.5rem;
+    gap: 0.75rem;
     flex-wrap: wrap;
     justify-content: flex-start;
 
     .thumbnail {
-      width: 64px;
-      height: 64px;
+      width: clamp(48px, 12vw, 64px);
+      height: clamp(48px, 12vw, 64px);
       border-radius: 8px;
       cursor: pointer;
       border: 2px solid transparent;
@@ -214,7 +248,7 @@ const goToCart = () => router.push('/cart');
       background-repeat: no-repeat;
 
       &.active {
-        border-color: #a93e26;
+        border-color: $product-detail-red;
       }
     }
   }
@@ -222,10 +256,11 @@ const goToCart = () => router.push('/cart');
   &__info {
     flex: 1;
     min-width: 300px;
+    padding-inline: 0.5rem;
   }
 
   &__title {
-    font-size: 1.5rem;
+    font-size: clamp(1.25rem, 2vw, 1.5rem);
     font-weight: bold;
   }
 
@@ -245,14 +280,15 @@ const goToCart = () => router.push('/cart');
   }
 
   &__price {
-    font-size: 1.5rem;
-    color: #a93e26;
+    font-size: clamp(1.25rem, 2vw, 1.5rem);
+    color: $product-detail-red;
     margin: 1rem 0;
+    text-align: left;
 
     .original {
       text-decoration: line-through;
-      font-size: 1rem;
-      color: #888;
+      font-size: clamp(0.85rem, 1.5vw, 1rem);
+      color: $product-detail-muted;
       margin-left: 1rem;
     }
   }
@@ -271,13 +307,13 @@ const goToCart = () => router.push('/cart');
       background: none;
       font-size: 1rem;
       cursor: pointer;
-      color: #a93e26;
+      color: $product-detail-red;
       font-weight: bold;
       border-bottom: 3px solid transparent;
       transition: border 0.2s;
 
       &.active {
-        border-bottom: 3px solid #a93e26;
+        border-bottom: 3px solid $product-detail-red;
       }
     }
   }
@@ -286,6 +322,7 @@ const goToCart = () => router.push('/cart');
     padding-top: 1.5rem;
     font-size: 0.95rem;
     line-height: 1.6;
+    white-space: pre-wrap;
 
     ul {
       padding-left: 1.25rem;
@@ -296,8 +333,32 @@ const goToCart = () => router.push('/cart');
       }
     }
   }
+
+  /* Actions 區：兩顆並列 + LINE CTA 換下一列 */
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    width: 100%;
+
+    .btn,
+    .line-cta {
+      flex: 1;
+      min-width: 200px;
+      text-align: center;
+      box-sizing: border-box;
+    }
+
+    .line-cta {
+      flex-basis: 100%;
+    }
+  }
 }
 
+/* =============================
+   Buttons
+============================= */
 .btn {
   padding: 0.75rem 1.5rem;
   border-radius: 999px;
@@ -307,26 +368,22 @@ const goToCart = () => router.push('/cart');
   transition: all 0.2s ease-in-out;
   display: inline-block;
   text-align: center;
-  min-width: 160px;
-
-  & + & {
-    margin-left: 1rem;
-  }
+  box-sizing: border-box;
 
   &-primary {
-    background-color: #a93e26;
+    background-color: $product-detail-red;
     color: #fff;
     border: none;
 
     &:hover {
-      background-color: #902f1d;
+      background-color: $product-detail-red-hover;
     }
   }
 
   &-outline {
     background-color: transparent;
-    color: #a93e26;
-    border: 2px solid #a93e26;
+    color: $product-detail-red;
+    border: 2px solid $product-detail-red;
 
     &:hover {
       background-color: #f8eae6;
@@ -340,9 +397,53 @@ const goToCart = () => router.push('/cart');
 }
 
 /* =============================
-   RWD Responsive Design
+   LINE CTA
 ============================= */
+.line-cta {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 600;
+  background: $line-green;
+  color: #fff;
+  text-decoration: none;
+  border: none;
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
 
+  &:hover {
+    background: $line-green-hover;
+    box-shadow: 0 4px 10px rgba(6, 199, 85, 0.25);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(6, 199, 85, 0.2);
+  }
+
+  &__icon {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__text {
+    /* 預設保持單行，窄螢幕再覆蓋為可換行 */
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+    font-size: 1rem;
+  }
+}
+
+/* =============================
+   Responsive Design
+============================= */
 @media (max-width: 1024px) {
   .product-detail {
     &__container {
@@ -368,7 +469,7 @@ const goToCart = () => router.push('/cart');
   }
 
   .btn {
-    min-width: 140px;
+    min-width: 160px;
     font-size: 0.95rem;
     padding: 0.6rem 1.25rem;
   }
@@ -376,6 +477,12 @@ const goToCart = () => router.push('/cart');
 
 @media (max-width: 768px) {
   .product-detail {
+    /* 若仍出現水平滾動，可打開下面一行作為保險 */
+    &__container {
+      padding: 2rem 1rem;
+      /* overflow-x: hidden; */
+    }
+
     &__main {
       flex-direction: column;
     }
@@ -392,23 +499,14 @@ const goToCart = () => router.push('/cart');
       justify-content: center;
     }
 
-    &__title {
-      font-size: 1.25rem;
-      text-align: center;
-    }
-
-    &__subtitle {
-      text-align: center;
-    }
-
+    &__title,
+    &__subtitle,
     &__price {
       text-align: center;
-      font-size: 1.25rem;
+    }
 
-      .original {
-        font-size: 0.9rem;
-        margin-left: 0.5rem;
-      }
+    &__price .original {
+      margin-left: 0.5rem;
     }
 
     &__info {
@@ -417,33 +515,45 @@ const goToCart = () => router.push('/cart');
       align-items: center;
     }
 
-    &__tabs {
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
     &__tab-content {
       padding: 1rem 0;
     }
+
+    &__actions {
+      flex-direction: column;
+      align-items: stretch;
+      width: 100%;
+
+      .btn,
+      .line-cta {
+        width: 100% !important;
+        max-width: 100%;
+        min-width: 0; /* 允許 flex item 縮小，避免被內容撐爆 */
+        box-sizing: border-box;
+        overflow: hidden; /* 多出的內容隱藏，保命用 */
+        text-overflow: ellipsis; /* 有空白/英文時可顯示省略號 */
+      }
+    }
   }
 
-  .btn {
-    width: 100%;
-    min-width: unset;
+  .btn,
+  .line-cta {
     margin: 0.5rem 0 0;
+    width: 100% !important;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
 
-    & + .btn {
-      margin-left: 0;
-    }
+  /* 針對 LINE 文字在窄螢幕改可換行（中文長句最關鍵） */
+  .line-cta__text {
+    white-space: normal;
+    word-break: break-word;
   }
 }
 
 @media (max-width: 480px) {
   .product-detail {
-    &__container {
-      padding: 2rem 1rem;
-    }
-
     &__image {
       height: 220px;
     }
@@ -462,6 +572,10 @@ const goToCart = () => router.push('/cart');
   .btn {
     font-size: 0.9rem;
     padding: 0.6rem 1rem;
+  }
+
+  .line-cta__text {
+    font-size: 0.9rem;
   }
 }
 </style>

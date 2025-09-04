@@ -2,8 +2,18 @@
   <div class="admin-list">
     <h1 class="admin-list__title">會員管理</h1>
 
+    <!-- 搜尋框 -->
+    <div class="admin-list__toolbar">
+      <input
+        v-model="searchQuery"
+        type="text"
+        placeholder="搜尋帳號 / Email / 電話 / 暱稱"
+        class="admin-list__search-input"
+      />
+    </div>
+
     <div class="admin-list__table-wrap">
-      <template v-if="list.length > 0">
+      <template v-if="filteredList.length > 0">
         <table class="admin-list__table">
           <thead>
             <tr>
@@ -36,7 +46,7 @@
             :previousPage="previousPage"
             :goToPage="goToPage"
             :pageLimitSize="pageLimitSize"
-            :totalItems="list.length"
+            :totalItems="filteredList.length"
             @update:pageLimitSize="pageLimitSize = $event"
           />
         </div>
@@ -48,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import Pagination from '@/components/common/Pagination.vue';
 import NoData from '@/components/common/NoData.vue';
@@ -58,7 +68,21 @@ import { fetchAllUsers } from '@/services/admin/adminUserServices';
 
 const router = useRouter();
 const list = ref<any[]>([]);
+const searchQuery = ref('');
 const pageLimitSize = ref(10);
+
+// 過濾後的會員清單
+const filteredList = computed(() => {
+  if (!searchQuery.value.trim()) return list.value;
+  const q = searchQuery.value.toLowerCase();
+  return list.value.filter(
+    (item) =>
+      item.username?.toLowerCase().includes(q) ||
+      item.email?.toLowerCase().includes(q) ||
+      item.phone?.toLowerCase().includes(q) ||
+      item.nickname?.toLowerCase().includes(q)
+  );
+});
 
 const {
   totalPages,
@@ -68,7 +92,7 @@ const {
   nextPage,
   previousPage,
   goToPage,
-} = usePagination<any>(list, pageLimitSize);
+} = usePagination<any>(filteredList, pageLimitSize);
 
 const load = async () => {
   await executeApi({
@@ -95,6 +119,18 @@ onMounted(load);
     margin-bottom: 16px;
   }
 
+  &__toolbar {
+    margin-bottom: 16px;
+  }
+
+  &__search-input {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+
   &__table-wrap {
     background: #fff;
     border-radius: 8px;
@@ -114,19 +150,6 @@ onMounted(load);
 
     th {
       background: #f9f9f9;
-    }
-  }
-
-  &__table-button {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 14px;
-    cursor: pointer;
-
-    &--edit {
-      background: #4caf50;
-      color: #fff;
-      border: none;
     }
   }
 }

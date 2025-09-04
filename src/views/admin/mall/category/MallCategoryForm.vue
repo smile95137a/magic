@@ -14,7 +14,17 @@
         <label class="form__label">描述</label>
         <input v-model="description" class="form__input" />
       </div>
-      <!-- 啟用狀態 -->
+
+      <!-- 分類順序 -->
+      <div class="form__group">
+        <label class="form__label">排序</label>
+        <input type="number" v-model="sortOrder" class="form__input" />
+        <span class="form__error" v-if="errors.sortOrder">
+          {{ errors.sortOrder }}
+        </span>
+      </div>
+
+      <!-- 啟用狀態 (僅編輯時顯示) -->
       <div class="form__group" v-if="isEdit">
         <label class="form__label">啟用</label>
         <input type="checkbox" v-model="status" class="form__checkbox" />
@@ -40,7 +50,7 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
 import { useForm } from 'vee-validate';
-import { object, string } from 'yup';
+import { object, string, number } from 'yup';
 import { onMounted } from 'vue';
 import {
   addCategory,
@@ -57,6 +67,10 @@ const isEdit = !!id;
 // 驗證 schema
 const schema = object({
   name: string().required('分類名稱為必填'),
+  sortOrder: number()
+    .typeError('排序必須為數字')
+    .required('排序為必填')
+    .min(0, '排序必須大於等於 0'),
 });
 
 const { handleSubmit, defineField, errors, setValues } = useForm({
@@ -64,13 +78,16 @@ const { handleSubmit, defineField, errors, setValues } = useForm({
   initialValues: {
     name: '',
     description: '',
+    sortOrder: 0,
     status: true,
   },
 });
 
 const [name] = defineField('name');
 const [description] = defineField('description');
+const [sortOrder] = defineField('sortOrder');
 const [status] = defineField('status');
+
 const goBack = () => router.push('/admin/mall/categories');
 
 const onSubmit = handleSubmit(async (formValues) => {
@@ -97,6 +114,7 @@ onMounted(async () => {
         setValues({
           name: res.data.name,
           description: res.data.description,
+          sortOrder: res.data.sortOrder ?? 0,
           status: res.data.status,
         });
       }

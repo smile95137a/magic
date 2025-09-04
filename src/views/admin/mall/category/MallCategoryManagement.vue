@@ -8,6 +8,7 @@
         <table class="admin-list__table">
           <thead>
             <tr>
+              <th>排序</th>
               <th>分類名稱</th>
               <th>描述</th>
               <th>啟用</th>
@@ -16,6 +17,7 @@
           </thead>
           <tbody>
             <tr v-for="cat in currentPageItems" :key="cat.id">
+              <td>{{ cat.sortOrder }}</td>
               <td>{{ cat.name }}</td>
               <td>{{ cat.description }}</td>
               <td>{{ cat.status ? '啟用' : '停用' }}</td>

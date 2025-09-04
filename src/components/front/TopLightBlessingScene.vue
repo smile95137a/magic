@@ -34,7 +34,7 @@
             </div>
           </div>
           <button class="top-light-blessing__btn" @click="goToLightProduct">
-            請祝福我 <i class="fas fa-chevron-right"></i>
+            我要點燈 <i class="fas fa-chevron-right"></i>
           </button>
         </div>
       </div>

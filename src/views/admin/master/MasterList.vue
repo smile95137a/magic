@@ -6,9 +6,9 @@
     <table class="admin-list__table">
       <thead>
         <tr>
+          <th>圖片</th>
           <th>名稱</th>
           <th>職稱</th>
-          <th>主星</th>
           <th>啟用</th>
           <th>排序</th>
           <th>操作</th>
@@ -18,9 +18,16 @@
         <template v-for="item in currentPageItems" :key="item.code">
           <!-- 主列 -->
           <tr @click="toggleExpand(item.code)" class="admin-list__row">
+            <td>
+              <img
+                v-if="item.imageBase64"
+                :src="item.imageBase64"
+                alt="老師圖片"
+                class="admin-list__image"
+              />
+            </td>
             <td>{{ item.name }}</td>
             <td>{{ item.title }}</td>
-            <td>{{ item.mainStar }}</td>
             <td>{{ item.status ? '是' : '否' }}</td>
             <td>{{ item.sort }}</td>
             <td>
@@ -32,8 +39,7 @@
           <tr v-if="expandedCode === item.code">
             <td colspan="6" class="admin-list__details">
               <strong>簡介：</strong> {{ item.bio }}<br />
-              <strong>經歷：</strong> {{ item.experience }}<br />
-              <strong>隨身物品：</strong> {{ item.personalItems }}<br />
+              <strong>親算項目：</strong> {{ item.personalItems }}<br />
               <strong>服務項目：</strong>
               <ul>
                 <li v-for="(service, idx) in item.serviceItem" :key="idx">
@@ -73,6 +79,7 @@ const router = useRouter();
 const expandedCode = ref<string | null>(null);
 const list = ref<any[]>([]);
 const pageLimitSize = ref(10);
+
 const {
   totalPages,
   currentPageItems,
@@ -82,6 +89,7 @@ const {
   previousPage,
   goToPage,
 } = usePagination<any>(list, pageLimitSize);
+
 const load = async () => {
   try {
     const res = await withLoading(() => fetchAllMasters());
@@ -96,7 +104,6 @@ const load = async () => {
 const goToAdd = () => router.push('/admin/masters/add');
 const goToEdit = (id: string) => router.push(`/admin/masters/edit/${id}`);
 
-// 切換展開行
 const toggleExpand = (code: string) => {
   expandedCode.value = expandedCode.value === code ? null : code;
 };
@@ -105,3 +112,12 @@ onMounted(() => {
   load();
 });
 </script>
+
+<style scoped lang="scss">
+.admin-list__image {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  object-fit: contain;
+}
+</style>

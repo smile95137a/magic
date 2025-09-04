@@ -3,7 +3,9 @@
     <SectionBackground variant="divination" />
     <div class="god-offering__container">
       <Title :text="`請神供奉`" color="white" />
+
       <div class="god-offering__content">
+        <!-- 文字區 -->
         <div class="god-offering__text">
           <p class="god-offering__description">
             虔心供奉，神明庇佑。線上請神供奉系統讓您足不出戶即能表達敬意與祈願。
@@ -13,8 +15,17 @@
           <p class="god-offering__note">
             無論您身在何處，只要一顆虔誠之心，便能與神明心靈相通，獲得無形護持與祝福。
           </p>
+
+          <div class="god-offering__cta">
+            <StartButton
+              styleType="yellow"
+              label="前往供奉大廳"
+              @click="goToOffering"
+            />
+          </div>
         </div>
 
+        <!-- 神明區 -->
         <div class="god-offering__gods">
           <div
             v-for="(god, key) in godImages"
@@ -32,6 +43,7 @@
       </div>
     </div>
   </section>
+
   <Worship />
   <GodList />
 </template>
@@ -42,6 +54,13 @@ import GodList from '@/components/front/GodList.vue';
 import Worship from '@/components/front/Worship.vue';
 import godImages from '@/data/godImages';
 import Title from '@/components/common/Title.vue';
+import StartButton from '@/components/front/StartButton.vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const goToOffering = () => {
+  router.push('/offeringHall');
+};
 </script>
 
 <style lang="scss" scoped>
@@ -49,11 +68,13 @@ import Title from '@/components/common/Title.vue';
   width: 100%;
   position: relative;
   min-height: 480px;
+
   &__container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 4rem 2rem;
   }
+
   &__content {
     display: flex;
     gap: 2rem;
@@ -64,9 +85,12 @@ import Title from '@/components/common/Title.vue';
     }
   }
 
+  /* 文字區塊：改為直向 flex，便於把按鈕推到最右 */
   &__text {
     flex: 1;
     max-width: 50%;
+    display: flex;
+    flex-direction: column;
 
     @media (max-width: 768px) {
       max-width: 100%;
@@ -89,6 +113,18 @@ import Title from '@/components/common/Title.vue';
   &__note {
     font-size: 0.95rem;
     opacity: 0.9;
+  }
+
+  /* CTA 容器靠右 */
+  &__cta {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+
+    /* 若需要在小螢幕置中，打開下列註解
+    @media (max-width: 768px) {
+      justify-content: center;
+    } */
   }
 
   &__gods {

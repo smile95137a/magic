@@ -10,7 +10,6 @@
       </div>
 
       <!-- 所屬分類 -->
-      <!-- 所屬分類 -->
       <div class="form__group">
         <label class="form__label">所屬分類</label>
         <select v-model="categoryId" class="form__input">
@@ -55,7 +54,6 @@
       </div>
 
       <!-- 主圖上傳 -->
-      <!-- 主圖上傳 -->
       <div class="form__group">
         <label class="form__label">主圖</label>
         <input type="file" @change="handleImageUpload" />
@@ -96,14 +94,16 @@
           v-model="detailHtml"
           :config="editorConfig"
           class="custom-editor"
-        >
-        </ckeditor>
+        />
       </div>
 
-      <!-- 是否啟用 -->
+      <!-- 上架狀態 -->
       <div class="form__group">
-        <label class="form__label">啟用</label>
-        <input type="checkbox" v-model="status" />
+        <label class="form__label">上架狀態</label>
+        <select v-model="status" class="form__input">
+          <option :value="true">上架</option>
+          <option :value="false">下架</option>
+        </select>
       </div>
 
       <div class="form__actions">
@@ -123,15 +123,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import { useForm } from 'vee-validate';
-import { object, string, number } from 'yup';
+import { object, string } from 'yup';
 import {
   createProductDraft,
   editProduct,
   fetchProductDetail,
   uploadProductImage,
+  discardProduct,
 } from '@/services/admin/adminProductServices';
 import { withLoading } from '@/utils/loadingUtils';
 import { fetchCategoryList } from '@/services/admin/adminCategoryServices';
@@ -147,6 +148,8 @@ const isEdit = !!id;
 const productId = ref<number>();
 const categoryOptions = ref<any[]>([]);
 const mainImageUrl = ref('');
+
+// ===== 驗證 =====
 const schema = object({
   name: string().required('商品名稱為必填'),
   categoryId: string().required('分類為必選'),
@@ -163,7 +166,7 @@ const { handleSubmit, defineField, setValues, errors } = useForm({
     originalPrice: 0,
     specialPrice: 0,
     mainImage: '',
-    galleryImages: [],
+    galleryImages: [] as Array<{ url: string }>,
     detailHtml: '',
     status: true,
   },
@@ -179,33 +182,68 @@ const [specialPrice] = defineField('specialPrice');
 const [mainImage] = defineField('mainImage');
 const [detailHtml] = defineField('detailHtml');
 const [status] = defineField('status');
-
 const [galleryImages] = defineField('galleryImages');
 
-// 圖集圖片上傳
-const handleGalleryUpload = async (e: Event) => {
-  const files = (e.target as HTMLInputElement).files;
-  if (!files || !productId.value) return;
+// ===== 送出/丟棄草稿 控制 =====
+const hasSubmitted = ref(false);
 
-  for (const file of files) {
-    const res = await uploadProductImage({
-      file,
-      productId: productId.value,
-      type: 'gallery',
-    });
-    if (res.success) {
-      galleryImages.value.push({ url: res.data.url });
+/** 僅在「新增草稿且尚未送出」時丟棄 */
+const discardIfDraft = async () => {
+  if (!isEdit && productId.value && !hasSubmitted.value) {
+    try {
+      await withLoading(() => discardProduct({ productId: productId.value }));
+    } catch (err) {
+      console.error('[discardIfDraft] discard failed', err);
     }
   }
 };
 
-// 移除圖集圖片
+// ===== 圖集圖片上傳 =====
+const handleGalleryUpload = async (e: Event) => {
+  const input = e.target as HTMLInputElement;
+  const files = input.files;
+  if (!files || !productId.value) return;
+
+  for (const file of Array.from(files)) {
+    try {
+      const res = await uploadProductImage({
+        file,
+        productId: productId.value,
+        type: 'gallery',
+      });
+
+      if (res.success && res.data?.url) {
+        const nextSort = (galleryImages.value?.length || 0) + 1;
+
+        galleryImages.value.push({
+          id: res.data.id ?? undefined,
+          url: res.data.url,
+          sort: nextSort,
+          description: res.data.description ?? null,
+        } as any);
+      } else {
+        console.error('[handleGalleryUpload] upload failed:', res);
+      }
+    } catch (err) {
+      console.error('[handleGalleryUpload] error:', err);
+    }
+  }
+
+  input.value = '';
+};
+
+// 移除圖集圖片（僅前端陣列移除；若要同步刪檔可呼叫 deleteProductImage）
 const removeGalleryImage = (index: number) => {
   galleryImages.value.splice(index, 1);
 };
 
-const goBack = () => router.push('/admin/mall/items');
+// ===== 返回（取消） =====
+const goBack = async () => {
+  await discardIfDraft();
+  router.push('/admin/mall/items');
+};
 
+// ===== 主圖上傳 =====
 const handleImageUpload = async (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0];
   if (!file || !productId.value) return;
@@ -222,6 +260,7 @@ const handleImageUpload = async (e: Event) => {
   }
 };
 
+// ===== 送出 =====
 const onSubmit = handleSubmit(async (formValues) => {
   if (!productId.value) return;
 
@@ -232,9 +271,11 @@ const onSubmit = handleSubmit(async (formValues) => {
     })
   );
 
+  hasSubmitted.value = true; // ✅ 送出成功後不再丟棄
   goBack();
 });
 
+// ===== 初始化 =====
 onMounted(async () => {
   // 載入分類選項
   try {
@@ -263,6 +304,7 @@ onMounted(async () => {
         status: res.data.status,
         galleryImages: res.data.galleryImages ?? [],
       });
+      mainImageUrl.value = res.data.mainImageUrl || '';
     }
   } else {
     const res = await createProductDraft();
@@ -272,13 +314,79 @@ onMounted(async () => {
   }
 });
 
+// 主圖雙向
 watch(mainImage, (val) => {
-  console.log(val);
-
   mainImageUrl.value = val;
 });
 
-//
+// ===== 路由離開守衛（切換頁面時自動丟棄） =====
+onBeforeRouteLeave(async (_to, _from, next) => {
+  await discardIfDraft();
+  next();
+});
+
+// ===== 視窗關閉/重新整理提示（可選）=====
+// 讀 cookie 小工具
+function getCookie(name: string): string | null {
+  const m = document.cookie.match(
+    new RegExp(
+      '(?:^|; )' + name.replace(/([.$?*|{}()[\]\\/+^])/g, '\\$1') + '=([^;]*)'
+    )
+  );
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+const beforeUnloadHandler = (e: BeforeUnloadEvent) => {
+  if (!isEdit && productId.value && !hasSubmitted.value) {
+    // 顯示離開提示（可留可去）
+    e.preventDefault();
+    e.returnValue = '';
+
+    const body = JSON.stringify({ productId: productId.value });
+
+    // 取 CSRF（若後端用 CookieCsrfTokenRepository，預設 cookie 名可能是 XSRF-TOKEN 或 X-CSRF-TOKEN）
+    const csrf = getCookie('XSRF-TOKEN') || getCookie('X-CSRF-TOKEN');
+
+    // 取 JWT（依你專案實際儲存位置）
+    const accessToken =
+      localStorage.getItem('admin_token') ||
+      sessionStorage.getItem('admin_token');
+
+    // 優先使用 fetch keepalive（可帶 header）
+    try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (csrf) headers['X-XSRF-TOKEN'] = csrf; // Spring Security 預設讀這個 header
+      if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+
+      // keepalive 允許請求在頁面卸載後繼續
+      fetch('/admin/product/discard', {
+        method: 'POST',
+        headers,
+        body,
+        keepalive: true,
+        credentials: 'include', // 若用 session/cookie 驗證需要
+        // mode: 'same-origin' // 視情況加（同源時可省略）
+      });
+    } catch {
+      // Fallback: sendBeacon（無法帶 header，只有在你放寬 CSRF 或改白名單時才會成功）
+      try {
+        const payload = new Blob([body], { type: 'application/json' });
+        navigator.sendBeacon('/admin/product/discard', payload);
+      } catch (err) {
+        console.error('[beforeunload] beacon failed', err);
+      }
+    }
+  }
+};
+
+window.addEventListener('beforeunload', beforeUnloadHandler);
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', beforeUnloadHandler);
+});
+
+// ===== CKEditor =====
 const editor = ClassicEditor as any;
 
 // 自定義 CKEditor 配置，啟用圖片大小調整功能
@@ -325,6 +433,7 @@ class MyCustomUploadAdapter {
   upload() {
     return this.loader.file.then(async (file: File) => {
       try {
+        if (!productId.value) throw new Error('尚未取得商品 ID');
         const res = await withLoading(() =>
           uploadProductImage({
             file,
@@ -335,9 +444,7 @@ class MyCustomUploadAdapter {
 
         if (res.success && res.data?.url) {
           const url = getImageUrl(res.data.url);
-          return {
-            default: url,
-          };
+          return { default: url };
         } else {
           console.error('圖片上傳失敗', res);
           throw new Error('圖片上傳失敗，請稍後再試');
@@ -368,7 +475,6 @@ class MyCustomUploadAdapter {
   margin-top: 1rem;
   gap: 1rem;
 }
-
 .form__gallery-image {
   position: relative;
   width: 120px;
