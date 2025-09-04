@@ -55,7 +55,7 @@
 
               <a
                 class="line-cta"
-                href="https://lin.ee/DjLjYXZ"
+                href="https://lin.ee/yPLS9Np"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="加入我們的 LINE 社群，獲得最新賞品資訊！"
