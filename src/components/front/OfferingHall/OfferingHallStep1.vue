@@ -25,7 +25,8 @@
             <img
               :src="
                 offerStore.selectedGod?.golden
-                  ? godImages[offerStore.selectedGod?.imageCode]?.highlighted
+                  ? godImages[offerStore.selectedGod?.imageCode]
+                      ?.highlightedAnimate
                   : godImages[offerStore.selectedGod?.imageCode]?.default
               "
               :alt="offerStore.selectedGod?.name"

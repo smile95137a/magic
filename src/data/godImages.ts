@@ -10,11 +10,18 @@ import godWenchangG from '@/assets/image/god_wenchang_g.png';
 import godYuelaoG from '@/assets/image/god_yuelao_g.png';
 import godZhongkuiG from '@/assets/image/god_zhongkui_g.png';
 
+import godCaishenG2 from '@/assets/image/god_caishen_g2.gif';
+import godGuangongG2 from '@/assets/image/god_guangong_g2.gif';
+import godWenchangG2 from '@/assets/image/god_wenchang_g2.gif';
+import godYuelaoG2 from '@/assets/image/god_yuelao_g2.gif';
+import godZhongkuiG2 from '@/assets/image/god_zhongkui_g2.gif';
+
 const godImages = {
   'g-cs': {
     label: '財神',
     default: godCaishen,
     highlighted: godCaishenG,
+    highlightedAnimate: godCaishenG2,
     description: `<p><b>🪙財神｜玄壇真君 趙公明</b></p>
 
 <p><b>職司：</b>財富之神、五路財神之首</p>
@@ -39,6 +46,7 @@ const godImages = {
     label: '關公',
     default: godGuangong,
     highlighted: godGuangongG,
+    highlightedAnimate: godGuangongG2,
     description: `<p><b>⚔️ 關公｜關聖帝君 關羽</b></p>
 
 <p><b>職司：</b>義氣、守信、財運、商業之神</p>
@@ -55,6 +63,7 @@ const godImages = {
     label: '文昌',
     default: godWenchang,
     highlighted: godWenchangG,
+    highlightedAnimate: godWenchangG2,
     description: `<p><b>📝 文昌帝君｜張亞子</b></p>
 
 <p><b>職司：</b>考試、升遷、功名、智慧之神</p>
@@ -70,6 +79,7 @@ const godImages = {
     label: '月老',
     default: godYuelao,
     highlighted: godYuelaoG,
+    highlightedAnimate: godYuelaoG2,
     description: `<p><b>💞 月老｜月下老人</b></p>
 
 <p><b>職司：</b>姻緣配對、婚姻和合、戀愛成功</p>
@@ -85,6 +95,7 @@ const godImages = {
     label: '鍾馗',
     default: godZhongkui,
     highlighted: godZhongkuiG,
+    highlightedAnimate: godZhongkuiG2,
     description: `<p><b>👹 鍾馗｜鎮宅賜福真君</b></p>
 
 <p><b>職司：</b>除煞、鎮宅、驅鬼、辟邪</p>
