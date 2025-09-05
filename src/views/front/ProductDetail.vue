@@ -58,14 +58,12 @@
                 href="https://lin.ee/yPLS9Np"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="加入我們的 LINE 社群，獲得最新賞品資訊！"
+                aria-label="加入官方LINE獲得最新資訊！"
               >
                 <span class="line-cta__icon" aria-hidden="true">
                   <i class="fa-brands fa-line"></i>
                 </span>
-                <span class="line-cta__text"
-                  >加入我們的LINE社群，獲得最新賞品資訊！</span
-                >
+                <span class="line-cta__text">加入官方LINE獲得最新資訊！</span>
               </a>
             </div>
           </div>

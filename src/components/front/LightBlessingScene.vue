@@ -15,16 +15,27 @@
             class="light-blessing__image"
           />
           <div class="light-blessing__content">
-            <div class="light-blessing__type">信眾 {{ item.name }}</div>
-            <p class="light-blessing__desc">{{ item.message }}</p>
-            <div class="light-blessing__date">
-              於
-              <DateFormatter
-                :date="item.createTime"
-                :format="'YYYY/MM/DD HH:mm:ss'"
-              />
+            <div
+              class="light-blessing__type"
+              :class="{ 'is-empty': !item.hasUser }"
+            >
+              信眾 {{ item.hasUser ? item.name : '尚未有人點過' }}
+            </div>
 
-              點燈
+            <p class="light-blessing__desc">
+              {{ item.hasUser ? item.message : '目前尚無祈願內容' }}
+            </p>
+
+            <div class="light-blessing__date">
+              <template v-if="item.hasUser">
+                於
+                <DateFormatter
+                  :date="item.createTime"
+                  :format="'YYYY/MM/DD HH:mm:ss'"
+                />
+                點燈
+              </template>
+              <template v-else> 尚未點燈 </template>
             </div>
           </div>
           <button class="light-blessing__btn" @click="goToLightProduct">
@@ -163,6 +174,23 @@ onMounted(async () => {
 
     &:hover {
       background-color: #3e1f13;
+    }
+  }
+
+  &__type.is-empty {
+    color: #999;
+    font-style: italic;
+  }
+
+  &__desc {
+    &.is-empty {
+      color: #aaa;
+    }
+  }
+
+  &__date {
+    &.is-empty {
+      color: #ccc;
     }
   }
   @media (max-width: 768px) {
