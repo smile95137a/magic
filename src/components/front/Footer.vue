@@ -80,10 +80,7 @@
       <p class="footer__copyright">© 2025. ABC All rights reserved.</p>
       <div class="footer__policies">
         <RouterLink to="/policy">服務條款</RouterLink>
-        ｜<RouterLink to="/privacy">隱私權政策</RouterLink> ｜<RouterLink
-          to="/fraud-alert"
-          >防詐騙提醒</RouterLink
-        >
+        ｜<RouterLink to="/privacy">隱私權政策</RouterLink>
       </div>
     </div>
   </footer>
